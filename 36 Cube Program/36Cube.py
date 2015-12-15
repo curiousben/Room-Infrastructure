@@ -2,25 +2,9 @@ import os
 import sys
 import random
 import math
+import copy
 
-# clock wise
-# left to right top to bottom
-# on each 3x3 sections each number indicates what piece is needed to complete the tower
-# for example 1 indicates that a 5 tower piece is needed to complete the tower.
-
-# 1 and 2 o'clock
-OneTwoBoard = [[1, 4, 6], [2, 5, 3], [4, 1, 2]]
-
-# 4 and 5 o'clock
-FourFiveBoard = [[3, 6, 4], [6, 3, 5], [5, 2, 1]]
-
-# 7 and 8 o'clock
-SevenEightBoard = [[1, 2, 5], [2, 4, 1], [3, 6, 4]]
-
-# 10 and 11 o'clock
-TenElevenBoard = [[5, 3, 2], [4, 1, 6], [6, 5, 3]]
-
-#             Red  Blue Yellow Purple Green Orange Pieces
+# Red  Blue Yellow Purple Green Orange Pieces
 
 # random.randint(0,6)
 # list.pop(index)
@@ -30,30 +14,129 @@ TenElevenBoard = [[5, 3, 2], [4, 1, 6], [6, 5, 3]]
 
 ######
 
-OnePieces = ['1R', '1B', '1Y', '1P', '1G', '1O']
-TwoPieces = ['2R', '2B', '2Y', '2P', '2G', '2O']
-ThreePieces = ['3R', '3B', '3Y', '3P', '3G', '3O']
-FourPieces = ['4R', '4B', '4Y', '4P', '4G', '4O']
-FivePieces = ['5R', '5B', '5Y', '5P', '5G', '5O']
-SixPieces = ['6R', '6B', '6Y', '6P', '6G', '6O']
-allPieces = [OnePieces,TwoPieces,ThreePieces,FourPieces,FivePieces,SixPieces]
+def randboardsectiongen(section, allpieces):
 
-def OneTwoRandBoardSectionGen(section,allPieces):
-	# Potential board that will be returned #
-	potentialUniqueBoard = [[],[],[]]
+    # <================ Board Creation ================>
 
-	# Iterates through all rows on the puzzle section #
-	for row in xrange(len(section)):
-		#Itereates through all columns on the puzzle section #
-		for col in xrange(len(section[row])):
-			# Individual tower size #
-			neededIndividualTowerSize = section[row][col]
-			# Gathering a piece's index number from a sorted group of pieces #
-			randNumFromPossiblePieces = random.randint(0,(len(allPieces[neededIndividualTowerSize-1])-1))
-			# Takes a  on the puzzle section  #
-			choosenPiece = allPieces[neededIndividualTowerSize-1].pop(randNumFromPossiblePieces)
-			potentialUniqueBoard[row].append(choosenPiece)
-	return potentialUniqueBoard
+    # Potential solution array that will be returned #
+    potentialuniqueboard = [[], [], []]
 
-print(OneTwoRandBoardSectionGen(OneTwoBoard,allPieces))
+    # Iterates through all rows on the puzzle section
+    for row in xrange(len(section)):
+        # Iterates through all columns on the puzzle section
+        for col in xrange(len(section[row])):
+            # Individual tower size that is needed from the specific part of the puzzle (1 and 2 o'clock,# 4
+            #  and 5 o'clock,etc.)
+            neededindividualtowersize = section[row][col]
+            # Determine the index of a possible puzzle piece from the remaining puzzle pieces array (the dynamic
+            #  and larger one)
+            randselectfrompossiblepieces = random.randint(0, (len(allpieces[neededindividualtowersize - 1]) - 1))
+            # Pulls the piece out of the array at the index randselectfrompossiblepieces
+            choosenpiece = allpieces[neededindividualtowersize - 1].pop(randselectfrompossiblepieces)
+            # Attach this piece on the potential solution array
+            potentialuniqueboard[row].append(choosenpiece)
+    # Passes the potential solution array and the remaining unused pieces out of the function
+    return [potentialuniqueboard, allpieces]
 
+
+def boardchecker(potentialboard):
+    # <================ Row Checking ================>
+
+    # Goes through each row of the potentialboard
+    for row in xrange(len(potentialboard)):
+        # This (rowIndColors) the primary color that the secondary color in the row is compared against.
+        for rowIndColors in xrange(len(potentialboard[row])):
+            # This (comparedRowIndColors) is the secondary color in the row.
+            for comparedRowIndColors in xrange(rowIndColors, len(potentialboard[row])):
+                # This insures that the secondary color is not the primary color.
+                if rowIndColors != comparedRowIndColors:
+                    # When the primary and the secondary colors are the same color then this potential board is no good
+                    if potentialboard[row][rowIndColors][1] == potentialboard[row][comparedRowIndColors][1]:
+                        # The passed in potential solution array has a non unique row of colors passes a False statement
+                        return False
+
+    # <================ Board Flipping ================>
+
+    flippedPotentialBoard = [[], [], []]
+
+    for col in xrange(len(potentialboard)):
+        for row in xrange(len(potentialboard[col])):
+            element = potentialboard[row][col]
+            flippedPotentialBoard[col].append(element)
+
+    # <================ Column Checking ================>
+
+    # Goes through each column of the potentialboard
+    for row in xrange(len(flippedPotentialBoard)):
+        for rowIndColors in xrange(len(flippedPotentialBoard[row])):
+            for comparedRowIndColors in xrange(rowIndColors, len(flippedPotentialBoard[row])):
+                if rowIndColors != comparedRowIndColors:
+                    if flippedPotentialBoard[row][rowIndColors][1] == flippedPotentialBoard[row][comparedRowIndColors][1]:
+                        return False
+
+    # The passed in potential solution array has unique colors for rows and columns so a true statement is passed on
+    return True
+
+def InitialSolutionTenEleven():
+    # clock wise
+    # left to right top to bottom
+    # on each 3x3 sections each number indicates what piece is needed to complete the tower
+    # for example 1 indicates that a 5 tower piece is needed to complete the tower.
+
+    # 1 and 2 o'clock
+    #onetwoboard = [[1, 4, 6], [2, 5, 3], [4, 1, 2]]
+
+    # 4 and 5 o'clock
+    # fourfiveboard = [[3, 6, 4], [6, 3, 5], [5, 2, 1]]
+
+
+    # 10 and 11 o'clock
+    tenelevenboard = [[5, 3, 2], [4, 1, 6], [6, 5, 3]]
+
+    onepieces = ['1R', '1B', '1Y', '1P', '1G', '1O']
+    twopieces = ['2R', '2B', '2Y', '2P', '2G', '2O']
+    threepieces = ['3R', '3B', '3Y', '3P', '3G', '3O']
+    fourpieces = ['4R', '4B', '4Y', '4P', '4G', '4O']
+    fivepieces = ['5R', '5B', '5Y', '5P', '5G', '5O']
+    sixpieces = ['6R', '6B', '6Y', '6P', '6G', '6O']
+    allpieces = [onepieces, twopieces, threepieces, fourpieces, fivepieces, sixpieces]
+
+    tenelevensolution = randboardsectiongen(tenelevenboard, allpieces)
+    isthissolutionunique = boardchecker(tenelevensolution[0])
+    remainingPieces = tenelevensolution[1]
+    return [isthissolutionunique, tenelevensolution[0], remainingPieces]
+
+def SevenEightSolution(remainingPieces):
+
+    # 7 and 8 o'clock
+    seveneightboard = [[1, 2, 5], [2, 4, 1], [3, 6, 4]]
+
+    sevenEightSolution = randboardsectiongen(seveneightboard, remainingPieces)
+    isThisSolutionUnique = boardchecker(sevenEightSolution[0])
+    remainingPieces = sevenEightSolution[1]
+    return [isThisSolutionUnique, sevenEightSolution[0], remainingPieces]
+
+def MainDriver():
+    # <================ Finds a unique solution to the first section (10 and 11 o'clock)================>
+
+    uniqueFirstSectionSolution = InitialSolutionTenEleven()
+    while not uniqueFirstSectionSolution[0]:
+        uniqueFirstSectionSolution = InitialSolutionTenEleven()
+
+    # <================ Finds a unique solution to the second section (7 and 8 o'clock)================>
+
+    piecesForSecondBoard = [x[:] for x in uniqueFirstSectionSolution[2]]
+    uniqueSecondSectionSolution = SevenEightSolution(piecesForSecondBoard)
+    while not uniqueSecondSectionSolution[0]:
+        piecesForSecondBoard = [x[:] for x in uniqueFirstSectionSolution[2]]
+        uniqueSecondSectionSolution = SevenEightSolution(piecesForSecondBoard)
+
+    # <================ Pretty Print ================>
+
+    for firstOneRow in xrange(len(uniqueFirstSectionSolution[1])):
+        print(uniqueFirstSectionSolution[1][firstOneRow])
+
+    for secTwoRow in xrange(len(uniqueSecondSectionSolution[1])):
+        print(uniqueSecondSectionSolution[1][secTwoRow])
+
+MainDriver()
