@@ -39,7 +39,7 @@ def randboardsectiongen(section, allpieces):
     return [potentialuniqueboard, allpieces]
 
 
-def boardchecker(potentialboard):
+def boardchecker(width,height,potentialboard):
     # <================ Row Checking ================>
 
     # Goes through each row of the potentialboard
@@ -59,14 +59,15 @@ def boardchecker(potentialboard):
 
     flippedPotentialBoard = [[], [], []]
 
-    for col in xrange(len(potentialboard)):
-        for row in xrange(len(potentialboard[col])):
+    for col in xrange(width):
+        for row in xrange(height):
             element = potentialboard[row][col]
             flippedPotentialBoard[col].append(element)
 
     # <================ Column Checking ================>
 
-    # Goes through each column of the potentialboard
+    # Goes through each row which was a column of the potentialboard
+    # Same method as before
     for row in xrange(len(flippedPotentialBoard)):
         for rowIndColors in xrange(len(flippedPotentialBoard[row])):
             for comparedRowIndColors in xrange(rowIndColors, len(flippedPotentialBoard[row])):
@@ -77,7 +78,7 @@ def boardchecker(potentialboard):
     # The passed in potential solution array has unique colors for rows and columns so a true statement is passed on
     return True
 
-def InitialSolutionTenEleven():
+def TenElevenSolution():
     # clock wise
     # left to right top to bottom
     # on each 3x3 sections each number indicates what piece is needed to complete the tower
@@ -102,7 +103,7 @@ def InitialSolutionTenEleven():
     allpieces = [onepieces, twopieces, threepieces, fourpieces, fivepieces, sixpieces]
 
     tenelevensolution = randboardsectiongen(tenelevenboard, allpieces)
-    isthissolutionunique = boardchecker(tenelevensolution[0])
+    isthissolutionunique = boardchecker(3,3,tenelevensolution[0])
     remainingPieces = tenelevensolution[1]
     return [isthissolutionunique, tenelevensolution[0], remainingPieces]
 
@@ -112,31 +113,48 @@ def SevenEightSolution(remainingPieces):
     seveneightboard = [[1, 2, 5], [2, 4, 1], [3, 6, 4]]
 
     sevenEightSolution = randboardsectiongen(seveneightboard, remainingPieces)
-    isThisSolutionUnique = boardchecker(sevenEightSolution[0])
+    isThisSolutionUnique = boardchecker(3,3,sevenEightSolution[0])
     remainingPieces = sevenEightSolution[1]
     return [isThisSolutionUnique, sevenEightSolution[0], remainingPieces]
 
-def MainDriver():
+def PuzzleArray(currentSolution,addedArray,stage):
+
+    if stage == 2:
+        for row in addedArray:
+            currentSolution.append(row)
+        return currentSolution
+
+def PuzzleSolver():
+    puzzleDone = False
+    while not puzzleDone:
     # <================ Finds a unique solution to the first section (10 and 11 o'clock)================>
-
-    uniqueFirstSectionSolution = InitialSolutionTenEleven()
-    while not uniqueFirstSectionSolution[0]:
-        uniqueFirstSectionSolution = InitialSolutionTenEleven()
-
+        firstSectSol = TenElevenSolution()
+        while not firstSectSol[0]:
+            firstSectSol = TenElevenSolution()
+        stageTwoCount = 0
+        while stageTwoCount <= 100000000:
     # <================ Finds a unique solution to the second section (7 and 8 o'clock)================>
+            remainingPiecesForSecTwo = [x[:] for x in firstSectSol[2]]
+            secondSectSol = SevenEightSolution(remainingPiecesForSecTwo)
+            stageTwoCount += 1
+            while not secondSectSol[0]:
+                remainingPiecesForSecTwo = [z[:] for z in firstSectSol[2]]
+                secondSectSol = SevenEightSolution(remainingPiecesForSecTwo)
+                stageTwoCount += 1
+    # <================ Combining the first two Arrays 10/11 & 7/8 O'Clock ================>
+            copyOfFirstSectSol = [y[:] for y in firstSectSol[1]]
+            combinedArray = PuzzleArray(copyOfFirstSectSol,secondSectSol[1],2)
+    # <================ Ensures the new Array is unique ================>
+            uniqueCrossSection = boardchecker(3,6,combinedArray)
+            if uniqueCrossSection:
+                return [combinedArray,stageTwoCount]
 
-    piecesForSecondBoard = [x[:] for x in uniqueFirstSectionSolution[2]]
-    uniqueSecondSectionSolution = SevenEightSolution(piecesForSecondBoard)
-    while not uniqueSecondSectionSolution[0]:
-        piecesForSecondBoard = [x[:] for x in uniqueFirstSectionSolution[2]]
-        uniqueSecondSectionSolution = SevenEightSolution(piecesForSecondBoard)
 
-    # <================ Pretty Print ================>
-
-    for firstOneRow in xrange(len(uniqueFirstSectionSolution[1])):
-        print(uniqueFirstSectionSolution[1][firstOneRow])
-
-    for secTwoRow in xrange(len(uniqueSecondSectionSolution[1])):
-        print(uniqueSecondSectionSolution[1][secTwoRow])
+def MainDriver():
+    solution = PuzzleSolver()
+    print (solution[1])
+# <================ Pretty Print ================>
+    for answerRow in solution[0]:
+        print(answerRow)
 
 MainDriver()
