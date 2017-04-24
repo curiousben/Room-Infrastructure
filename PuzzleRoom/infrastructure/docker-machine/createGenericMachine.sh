@@ -1,38 +1,17 @@
 #! /bin/sh
+echo "---INFO: Checking arguments passed in"
 
-if [ -z "$1" ]
+if [ $# -ne 4 ]
 then
-	echo "Missing driver"
-	echo "<Driver Name> <> <> <> <>"
+	echo "----ERROR: Incorrect arguments.\nCorrect Syntax $0 <IP-Address> <path/to/id_rsa> <SSH-User> <Name of Docker Machine>"
 	exit 1
 fi
+echo "---INFO: Creating Docker-Machine $4"
+docker-machine create --driver generic --generic-ip-address=$1 --generic-ssh-key $2 --generic-ssh-user $3 $4
 
-if [ -z "$2" ]
+if [ $? -ne 0 ]
 then
-	echo "Missing IP Address"
-	echo "<> <IP Address> <> <> <>"
+	echo "----ERROR: Docker-machine creation failed"
 	exit 1
 fi
-
-if [ -z "$3" ]
-then
-	echo "Missing RSA key location"
-	echo "<> <> <Path/to/id_rsa> <> <>"
-	exit 1
-fi
-
-if [ -z "$4" ]
-then
-	echo "Missing SSH User"
-	echo "<> <> <> <User> <>"
-	exit 1
-fi
-
-if [ -z "$5" ]
-then
-	echo "Missing Name of Docker-Machine"
-	echo "<> <> <> <> <Name of Docker Machine>"
-	exit 1
-fi
-
-docker-machine create --driver $1 --generic-ip-address=$2 --generic-ssh-key $3 --generic-ssh-user $4 $5
+echo "---INFO: Docker-Machine $4 was created"
