@@ -1,42 +1,99 @@
-Kafka = require('node-rdkafka');
-logger = require(./logger.js);
+const Kafka = require('node-rdkafka');
+const jsonfile = require('jsonfile');
+var configData = null;
 
+var KafkaInit = function (filePath) {
+	jsonfile.readFile(filePath, function(err, fileobj){
+		if (err != null){
+			console.log('Failed to load the config file for the producer. Details:\n\t' + err);
+			process.exit(1);
+		}
+		configData = fileobj;
+	}
+}
 
+var addProducer = function (logger, configKey){
+	
+	if (configData === null) {
+		logger.error("Kafka client has not loaded its config file");
+		process.exit(1);
+	}
 
+	if (!(configData.hasOwnProperty(configKey))) {
+		logger.error("The Key: " + configKey + " is not in the loaded config file");
+		process.exit(1);
+	}
 
-var producer = new Kafka.Producer({
-  'metadata.broker.list': 'localhost:9092',
-  'dr_cb': true
-});
+	try {
+		var producer = new Kafka.Producer(configData[configKey]);
+		logger.info("Producer is connecting to the Kafka broker");
+		
+		producer.connect();
+		producer.getMetaData(opt, function (err, metaData) {
+			if (err != null) {
+				logger.error("Failed to query metaData");
+				process.exit(1);
+			} else {
+			logger.info("Producer is successfully connected to the" + metaData.orig_broker_name + "Kafka broker");
+			}
+		});
+		
+		producer.on('event.error', function(err) {
+			logger.error("Producer encountered an error. Details\n\t"+err);
+		});
+		
+		producer.on('ready', function() {
+			logger.info("Producer is ready to publish messages.");
+			return producer;
+		});
+	} catch (err) {
+		console.log('Failed to instantiate the producer. Details:\n\t' + err);
+		process.exit(1);
+	}
+}
 
-// Connect to the broker manually
-producer.connect();
+var addConsumer = function (logger, config){
+	if (configData === null) {
+		logger.error("Kafka client hs not loaded its config file");
+		process.exit(1);
+	}
 
-// Wait for the ready event before proceeding
+	if (!(configData.hasOwnProperty(configKey))) {
+		logger.error("The Key: " + configKey + " is not in the loaded config file");
+		process.exit(1);
+	}
 
-producer.on('ready', function() {
-  try {
-    producer.produce('topic',null,
-      // Message to send. If a string is supplied, it will be
-      // converted to a Buffer automatically, but we're being
-      // explicit here for the sake of example.
-      new Buffer('Awesome message'),
-      // for keyed messages, we also specify the key - note that this field is optional
-      'Stormwind',
-      // you can send a timestamp here. If your broker version supports it,
-      // it will get added. Otherwise, we default to 0
-      Date.now(),
-      // you can send an opaque token here, which gets passed along
-      // to your delivery reports
-    );
-  } catch (err) {
-    console.error('A problem occurred when sending our message');
-    console.error(err);
-  }
-});
+	try {
+		var consumer = new Kafka.Consumer(configData[config],{});
+		logger.info("Consumer is connecting to the Kafka broker");
+		
+		consumer.connect();
+		consumer.getMetaData(opt, function (err, metaData) {
+			if (err != null) {
+				logger.error("Failed to query metaData");
+				process.exit(1);
+			} else {
+			logger.info("Consumer is successfully connected to the" + metaData.orig_broker_name + "Kafka broker");
+			}
+		});
 
-// Any errors we encounter, including connection errors
-producer.on('event.error', function(err) {
-  console.error('Error from producer');
-  console.error(err);
-})
+		consumer.on('event.error', function(err) {
+			logger.error("Consumer encountered an error. Details\n\t"+err);
+		});
+
+		consumer.on('ready', function() {
+			consumer.subscribe([configData[config]['Topic']]);
+			consumer.consume();
+			logger.info("Consumer is ready to consume messages. On topic "+ configData[config]['Topic'] +".");
+			return consumer;
+		});
+	} catch (err) {
+		console.log('Failed to instantiate the consumer. Details:\n\t' + err);
+		process.exit(1);
+	}
+}
+
+module.exports = KafkaInit;
+module.exports.config = configData;
+module.exports.addProducer = addProducer;
+module.exports.addConsumer = addConsumer;

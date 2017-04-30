@@ -1,18 +1,13 @@
 #!/usr/bin/env node
 
-var app = require("../lib/app");
-var noble = require('noble');
+var logger = require('../lib/logger.js')['/opt/logger.config'];
+//var Kafka = require('../lib/kafka.js')['/opt/kafka.config'];
+var noble = require('../lib/ble.js')[logger];
 
-noble.on('stateChange', function(state) {
-  if (state === 'poweredOn') {
-    noble.startScanning();
-  } else {
-    noble.stopScanning();
-  }
-});
-
+//var producer = Kafka.addproducer(logger,'producer');
+//var kafkaConfig= Kafka.config;
 noble.on('discover', function(peripheral) {
     console.log('Found device with local name: ' + peripheral.advertisement.localName);
     console.log('advertising the following service uuid\'s: ' + peripheral.advertisement.serviceUuids);
-    console.log();
+	//producer.produce('topic',-1, 'Values from peripherals','BLE-SkepOne');
 });
