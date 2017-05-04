@@ -1,0 +1,28 @@
+{
+  "name": "ble_relay",
+  "version": "1.0.0",
+  "description": "Device to detect BLE signals",
+  "main": "/bin/ble_relay",
+  "scripts": {
+    "test": "alpha"
+  },
+  "keywords": [
+    "RPi",
+    "Kafka"
+  ],
+  "author": "Benjamin Smith",
+  "license": "MIT",
+  "dependencies": {
+    "jsonfile": "^2.4.0",
+    "noble": "^1.8.1",
+    "node-rdkafka": "^0.10.0",
+    "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "jsonfile": "^2.4.0",
+    "node-rdkafka": "^0.10.0",
+    "noble": "^1.8.1",
+    "standard": "^10.0.2",
+    "winston": "^2.3.1"
+  }
+}

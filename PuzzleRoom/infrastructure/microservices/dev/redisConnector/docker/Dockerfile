@@ -2,7 +2,6 @@ FROM resin/rpi-raspbian:jessie
 #----INFO: Author -  Ben Smith
 
 RUN apt-get update && apt-get install -y \
-	build-essential \
 	bluetooth \
 	bluez \
 	libbluetooth-dev \
@@ -19,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 #----INFO: Installing Node.js App
 
 	&& wget https://github.com/insatiableben/Puzzle-Programs/raw/master/PuzzleRoom/devices/dist/BLERelay/packages/blerelay.tar.gz \
-	&& tar xzvf blerelay.tar.gz -C /opt/ \
+	&& tar xzvf blerelay.tar.gz -C /opt/BLERelay/ \
 	&& rm blerelay.tar.gz \
 
 #----INFO: Downloading configs for Node.js app
@@ -33,7 +32,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /opt/BLERelay/
 RUN npm install
 
-CMD ['nodejs', /opt/BLERelay/bin/ble_relay]
+CMD ['node', /etc/opt/blerelay/bin/]
 
 #----INFO: Example docker run command
 #---- $ docker run -ti --privileged --net=host debian:jessie --name bletest /bin/bash

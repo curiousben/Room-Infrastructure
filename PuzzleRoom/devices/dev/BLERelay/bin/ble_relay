@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var logger = require('../lib/logger.js')['/opt/logger.config'];
 //var Kafka = require('../lib/kafka.js')['/opt/kafka.config'];
 var noble = require('../lib/ble.js')[logger];
