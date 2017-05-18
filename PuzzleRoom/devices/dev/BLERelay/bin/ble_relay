@@ -1,6 +1,5 @@
-var logger = require('../lib/logger.js')['/opt/logger.config'];
-//var Kafka = require('../lib/kafka.js')['/opt/kafka.config'];
-var noble = require('../lib/ble.js')[logger];
+var logger = require('../lib/logger.js').init('/opt/kafka.config');
+var noble = require('../lib/ble.js').init(logger);
 
 //var producer = Kafka.addproducer(logger,'producer');
 //var kafkaConfig= Kafka.config;

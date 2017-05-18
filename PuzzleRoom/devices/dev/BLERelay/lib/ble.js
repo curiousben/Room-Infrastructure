@@ -1,6 +1,8 @@
+/*eslint-env node*/
+/*eslint no-console:["error", { allow: ["info", "error"] }]*/
 const noble = require('noble');
 
-var nobleClient = function (logger) {
+function init(logger) {
 	noble.on('stateChange', function (state) {
 		if (state === 'poweredOn') {
 			noble.startScanning([],true);
@@ -12,5 +14,6 @@ var nobleClient = function (logger) {
 		}
 	});
 };
-
-module.exports = nobleClient;
+module.exports = {
+	init = init
+}

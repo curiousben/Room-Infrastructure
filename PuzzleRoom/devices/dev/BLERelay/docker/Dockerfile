@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
 	bluez \
 	libbluetooth-dev \
 	libudev-dev \
+	libkrb5-dev \
 	wget \
 	curl \
 	vim \
@@ -15,6 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 	&& curl -sL https://deb.nodesource.com/setup_6.x | bash - \
 	&& apt-get install -y nodejs \
+#----	&& npm install -g node-gyp \
 
 #----INFO: Installing Node.js App
 

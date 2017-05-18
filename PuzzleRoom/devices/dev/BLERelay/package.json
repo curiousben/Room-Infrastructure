@@ -8,20 +8,21 @@
   },
   "keywords": [
     "RPi",
-    "Kafka"
+    "Redis"
   ],
   "author": "Benjamin Smith",
   "license": "MIT",
   "dependencies": {
     "jsonfile": "^2.4.0",
     "noble": "^1.8.1",
-    "node-rdkafka": "^0.10.0",
-    "winston": "^2.3.1"
+    "redis": "^2.7.1",
+    "winston": "^2.3.1",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "jsonfile": "^2.4.0",
-    "node-rdkafka": "^0.10.0",
     "noble": "^1.8.1",
+    "redis": "^2.7.1",
     "standard": "^10.0.2",
     "winston": "^2.3.1"
   }
