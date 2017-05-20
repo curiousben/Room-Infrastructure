@@ -1,0 +1,21 @@
+{
+	"broker":{
+		"host":"Wu-Tang",
+		"port":6379
+	},
+	"producers":{
+		"main.producer":{
+			"topic":["GZA","RZA"],
+			"ack":true
+		}
+	},
+	"consumers":{
+		"main.consumer":{
+			"topic":["ODB","Inspecta Deck"],
+			"ack":true,
+			"process.limit":"3"
+		}
+	}
+}
+
+

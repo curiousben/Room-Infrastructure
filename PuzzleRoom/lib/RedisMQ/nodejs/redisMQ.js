@@ -1,11 +1,11 @@
 /*eslint-env node*/
 /*eslint no-console:["error", { allow: ["info", "error"] }]*/
-const redis = require('redis');
-const jsonfile = require('jsonfile');
-const fs = require('fs');
-const uuid = require('uuid');
+var redis = require('redis');
+var jsonfile = require('jsonfile');
+var fs = require('fs');
+var uuid = require('uuid');
+var config = require('./config.js');
 var configData = null;
-
 
 /*
 * Description:
@@ -15,20 +15,22 @@ var configData = null;
 * Returns:
 * 	N/A
 */
+
 function init (filePath) {
 	// Checks if the Argument passed in is a string
 	if (typeof(filePath) == "string" && fs.existsSync(filePath)){
 		// Reads file at the file path passed in
 		jsonfile.readFile(filePath, function(err, fileobj){
 			if (err != null){
-				console.error('Failed to load the config file for the producer. Details:\n\t' + err);
+				console.error('----ERROR|RedisMQ: Failed to load the config file for the producer. Details:\n\t' + err);
 				process.exit(1);
 			}
 			// Assigning the variable with the loaded JSON object 
-			configData = fileobj;
+			configData = config.configCheck(fileobj);
+			
 		});
 	} else {
-		console.error("Config file doesn't exist at the path:\n\t"+ filePath);
+		console.error("----ERROR|RedisMQ: Config file doesn't exist at the path:\n\t"+ filePath);
 		process.exit(1);
 	}
 };
