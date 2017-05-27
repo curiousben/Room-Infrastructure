@@ -1,11 +1,11 @@
 /*eslint-env node*/
 /*eslint no-console:["error", { allow: ["info", "error"] }]*/
-var redis = require('redis');
-var jsonfile = require('jsonfile');
-var fs = require('fs');
-var uuid = require('uuid');
-var config = require('./config.js');
-var configData = null;
+const redis = require('redis');
+const jsonfile = require('jsonfile');
+const fs = require('fs');
+const uuid = require('uuid');
+const config = require('./config.js');
+const configData = null;
 
 /*
 * Description:

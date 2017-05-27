@@ -1,11 +1,19 @@
 {
-  "name": "RedisMQ_Development",
-  "description": "Redis based messageing library",
+  "name": "redisMQ",
+  "description": "Redis based messaging library",
+  "main": "redisMQ.js",
   "scripts": {
     "test": "standard && node bin/redismq"
   },
   "author": "Benjamin Smith",
   "license": "MIT",
+  "dependencies": {
+    "jsonfile": "^2.4.0",
+    "redis": "^2.7.1",
+    "winston": "^2.3.1",
+    "uuid": "^3.0.1",
+	"standard":"^10.0.2"
+  },
   "devDependencies": {
     "jsonfile": "^2.4.0",
     "redis": "^2.7.1",
