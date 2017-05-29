@@ -1,1 +1,0 @@
-These projects are planned to be used in the construction of a message based smart room. One library will consist of a simple wrapper that allows me to quickly developer ZeroMQ microservices. The other library will allow me to bring up new smart plugs and easly connect them to a smart plug manager server.

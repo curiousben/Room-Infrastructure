@@ -1,3 +1,4 @@
 var redisMQ = require('../redisMQ.js');
-var redisLoad = redisMQ.init('/Users/neveroddoreven/Repos/Custom/Puzzle-Programs/PuzzleRoom/lib/RedisMQ/nodejs/config/redismq.config');
+var redisLoad = redisMQ.init('/Users/neveroddoreven/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/config/redismq.config');
+//var redisLoad = redisMQ.init('config/redismq.config');
 console.log("----SUCCESS: Completed Test");
