@@ -1,0 +1,21 @@
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:52:36: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:56:7: Unary word operator 'typeof' must be followed by whitespace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:57:198: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:58:60: Infix operators must be spaced.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:61:249: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:62:36: Infix operators must be spaced.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:66:5: Expected indentation of 2 spaces but found 4.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:67:7: Expected indentation of 4 spaces but found 6.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:67:39: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:68:5: Expected indentation of 2 spaces but found 4.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:69:5: Expected indentation of 2 spaces but found 4.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:80:3: 'redisMQMsg' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:81:3: 'redisMQMsg' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:82:3: 'redisMQMsg' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:83:10: 'redisMqMSG' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:21: 'bodyJSON' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:43: 'bodyJSON' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:68: 'anObj' is not defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:88: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:97:16: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:97:17: Unexpected tab character.
