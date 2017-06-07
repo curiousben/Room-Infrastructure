@@ -1,13 +1,22 @@
 {
   "name": "redisMQ",
   "description": "Redis based messaging library",
-  "main": "redisMQ.js",
+  "main": "./redisMQ.js",
   "scripts": {
     "test": "standard && node bin/redismq",
     "jsonEncode-test": "standard lib/jsonEncoder.js"
   },
   "author": "Benjamin Smith",
+  "maintainers": [
+    {
+      "name": "ben",
+      "email": "benjamindsmith3@gmail.com"
+    }
+  ],
   "license": "MIT",
+  "engines": {
+    "node": ">=0.10.0"
+  },
   "dependencies": {
     "jsonfile": "^2.4.0",
     "redis": "^2.7.1",

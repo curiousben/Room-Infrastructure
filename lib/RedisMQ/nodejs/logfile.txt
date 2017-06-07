@@ -1,21 +1,35 @@
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:52:36: Missing space before opening brace.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:56:7: Unary word operator 'typeof' must be followed by whitespace.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:57:198: Trailing spaces not allowed.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:58:60: Infix operators must be spaced.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:61:249: Trailing spaces not allowed.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:62:36: Infix operators must be spaced.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:66:5: Expected indentation of 2 spaces but found 4.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:67:7: Expected indentation of 4 spaces but found 6.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:67:39: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:68:5: Expected indentation of 2 spaces but found 4.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:69:5: Expected indentation of 2 spaces but found 4.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:80:3: 'redisMQMsg' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:81:3: 'redisMQMsg' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:82:3: 'redisMQMsg' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:83:10: 'redisMqMSG' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:21: 'bodyJSON' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:43: 'bodyJSON' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:68: 'anObj' is not defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:96:88: Missing space before opening brace.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:97:16: Trailing spaces not allowed.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/jsonEncoder.js:97:17: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:7:7: 'proClient' is assigned a value but never used.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:8:7: 'conClient' is assigned a value but never used.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:24:24: Multiple spaces found before '!='.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:24:24: Expected '!==' and instead saw '!='.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:25:106: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:28:32: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:29:48: There should be no space before ','.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:30:9: 'realFilePath' is already defined.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:30:44: There should be no space before ','.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:30:55: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:32:87: Infix operators must be spaced.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:32:98: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:35:56: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:37:5: 'configData' is constant.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:37:67: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:38:16: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:39:14: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:43:42: Block must not be padded by blank lines.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:44:1: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:44:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:46:66: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:47:20: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:51:80: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:52:20: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:57:5: Unexpected console statement.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:57:74: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:58:20: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:64:65: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:65:20: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:69:80: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:70:20: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:75:5: Unexpected console statement.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:75:74: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:76:20: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:85:2: Trailing spaces not allowed.
