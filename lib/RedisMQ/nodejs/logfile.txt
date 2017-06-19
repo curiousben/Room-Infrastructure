@@ -1,35 +1,141 @@
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:7:7: 'proClient' is assigned a value but never used.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:8:7: 'conClient' is assigned a value but never used.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:24:24: Multiple spaces found before '!='.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:24:24: Expected '!==' and instead saw '!='.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:25:106: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:28:32: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:29:48: There should be no space before ','.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:30:9: 'realFilePath' is already defined.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:30:44: There should be no space before ','.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:30:55: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:32:87: Infix operators must be spaced.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:32:98: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:35:56: Trailing spaces not allowed.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:37:5: 'configData' is constant.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:37:67: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:38:16: Missing space before opening brace.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:39:14: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:43:42: Block must not be padded by blank lines.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:44:1: Trailing spaces not allowed.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:44:2: Unexpected tab character.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:46:66: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:47:20: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:51:80: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:52:20: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:57:5: Unexpected console statement.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:57:74: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:58:20: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:64:65: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:65:20: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:69:80: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:70:20: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:75:5: Unexpected console statement.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:75:74: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:76:20: Extra semicolon.
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:85:2: Trailing spaces not allowed.
+
+> redisMQ@ test /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs
+> standard && node bin/redismq
+
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/createClient.js:11:5: Parsing error: Unexpected token let
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:1:1: Expected exception block, space or tab after '/*' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:1:1: Expected space or tab before '*/' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:2:1: Expected exception block, space or tab after '/*' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:2:1: Expected space or tab before '*/' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:3:7: 'ValidationError' is assigned a value but never used.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:4:7: 'InitializationError' is assigned a value but never used.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:7:20: Missing space before function parentheses.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:12:15: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:13:95: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:15:21: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/consumerMethods.js:16:7: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:1:1: Expected space or tab before '*/' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:1:1: Expected exception block, space or tab after '/*' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:2:1: Expected exception block, space or tab after '/*' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:2:1: Expected space or tab before '*/' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:3:7: 'ValidationError' is assigned a value but never used.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:4:7: 'InitializationError' is assigned a value but never used.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:7:20: Missing space before function parentheses.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:12:15: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:15:27: A space is required after ','.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:15:36: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:16:7: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:19:25: Missing space before function parentheses.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:20:1: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/clients/methods/producerMethods.js:25:3: Extra space after key 'sendExistingMsg'.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:1:1: Expected exception block, space or tab after '/*' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:1:1: Expected space or tab before '*/' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:2:1: Expected exception block, space or tab after '/*' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:2:1: Expected space or tab before '*/' in comment.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:3:13: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:5:35: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:6:37: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:7:25: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:11:4: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:13:3: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:15:3: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:18:14: Missing space before function parentheses.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:19:2: Expected indentation of 2 spaces but found 1 tab.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:19:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:19:33: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:20:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:20:3: Expected indentation of 2 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:20:118: Infix operators must be spaced.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:20:127: Infix operators must be spaced.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:20:134: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:21:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:21:3: Expected indentation of 2 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:21:18: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:22:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:22:2: Expected indentation of 0 spaces but found 1 tab.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:23:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:23:2: Expected indentation of 2 spaces but found 1 tab.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:23:38: Missing space before function parentheses.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:23:55: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:24:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:24:3: Expected indentation of 2 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:24:19: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:25:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:25:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:25:69: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:26:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:26:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:26:19: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:27:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:27:3: Expected indentation of 0 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:28:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:28:3: Expected indentation of 2 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:28:7: Block must not be padded by blank lines.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:29:1: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:29:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:30:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:30:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:30:43: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:31:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:31:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:31:38: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:32:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:32:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:32:65: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:33:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:33:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:33:59: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:34:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:34:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:34:19: Infix operators must be spaced.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:34:52: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:35:1: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:35:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:36:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:36:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:36:30: A constructor name should not start with a lowercase letter.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:37:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:37:5: Expected indentation of 2 spaces but found 4 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:38:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:38:5: Expected indentation of 2 spaces but found 4 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:39:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:39:6: Expected indentation of 2 spaces but found 5 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:40:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:40:7: Expected indentation of 2 spaces but found 6 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:41:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:41:6: Expected indentation of 0 spaces but found 5 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:42:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:42:6: Expected indentation of 2 spaces but found 5 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:43:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:43:7: Expected indentation of 2 spaces but found 6 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:44:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:44:7: Expected indentation of 2 spaces but found 6 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:44:28: Trailing spaces not allowed.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:45:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:45:6: Expected indentation of 0 spaces but found 5 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:46:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:46:5: Expected indentation of 2 spaces but found 4 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:47:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:47:4: Expected indentation of 0 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:47:6: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:48:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:48:3: Expected indentation of 0 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:49:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:49:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:49:69: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:50:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:50:4: Expected indentation of 2 spaces but found 3 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:50:19: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:51:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:51:3: Expected indentation of 0 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:52:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:52:3: Expected indentation of 2 spaces but found 2 tabs.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:52:16: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:53:2: Expected indentation of 0 spaces but found 1 tab.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:53:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:53:4: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:56:2: Unexpected tab character.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:56:2: Expected indentation of 2 spaces but found 1 tab.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/logger.js:57:2: Extra semicolon.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/lib/msgUtils.js:78:3: Parsing error: Unexpected token else
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:65:43: Parsing error: Unexpected token {
