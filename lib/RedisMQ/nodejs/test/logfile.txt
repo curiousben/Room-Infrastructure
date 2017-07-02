@@ -1,0 +1,5 @@
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:146:144: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:147:7: Unexpected console statement.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:151:47: Missing space before function parentheses.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:151:60: Missing space before opening brace.
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:155:4: Trailing spaces not allowed.
