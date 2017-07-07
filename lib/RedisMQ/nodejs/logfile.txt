@@ -1,1 +1,1 @@
-  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:158:1: Parsing error: Unexpected token
+  /media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js:222:18: 'result' is not modified in this loop.
