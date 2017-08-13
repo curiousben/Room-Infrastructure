@@ -18,21 +18,19 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
+    "redis": "^2.8.0",
     "async": "^2.5.0",
     "bluebird": "^3.5.0",
     "jsonfile": "^2.4.0",
-    "redis": "^2.7.1",
     "shortid": "^2.2.8",
-    "standard": "^10.0.2",
-    "uuid": "^3.0.1",
     "winston": "^2.3.1"
   },
   "devDependencies": {
     "jsonfile": "^2.4.0",
-    "redis": "^2.7.1",
-    "winston": "^2.3.1",
-    "uuid": "^3.0.1",
+    "redis": "^2.8.0",
     "shortid": "^2.2.8",
-    "standard": "^10.0.2"
+    "standard": "^10.0.3",
+    "uuid": "^3.1.0",
+    "winston": "^2.3.1"
   }
 }
