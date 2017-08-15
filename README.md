@@ -1,7 +1,8 @@
 # Room-Infrastructure
 ### Underlying Technologies:
-* Docker
+* Docker (Swarm && Compose)
 * Node.js
+* RaspberryPi 3
 * Bluetooth Low Energy
 * Redis
 * WeMo SmartRoom Products
@@ -17,3 +18,13 @@ Folder Structure:
 4. Tools: Miscellous shell scripts to make life easier will be located here.
 5. Microservices: The acutal microservices that are responsible for doing work will be here. 
 
+RedisMQ Library - A simple library that can transports messages using redis with native Promises
+===========================
+
+## Installation
+
+## Docker parent image
+
+## Configuration
+
+## Usage

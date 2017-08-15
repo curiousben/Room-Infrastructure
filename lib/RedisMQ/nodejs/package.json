@@ -1,4 +1,6 @@
 {
+:q
+:q
   "name": "redisMQ",
   "description": "Redis based messaging library",
   "main": "./redisMQ.js",
@@ -19,7 +21,6 @@
   },
   "dependencies": {
     "redis": "^2.8.0",
-    "async": "^2.5.0",
     "bluebird": "^3.5.0",
     "jsonfile": "^2.4.0",
     "shortid": "^2.2.8",
