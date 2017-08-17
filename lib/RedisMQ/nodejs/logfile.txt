@@ -1,8 +1,0 @@
-
-/media/psf/Repos/Custom/Room-Infrastructure/lib/RedisMQ/nodejs/redisMQ.js
-  267:38  error  'chainResults' is defined but never used  no-unused-vars
-  283:11  error  'resolve' is defined but never used       no-unused-vars
-  343:14  error  'results' is defined but never used       no-unused-vars
-
-✖ 3 problems (3 errors, 0 warnings)
-
