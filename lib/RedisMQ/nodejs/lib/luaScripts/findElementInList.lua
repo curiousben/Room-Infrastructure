@@ -1,5 +1,4 @@
 --[[
-
   Desc:
     This method is used to find a specific element in a list and return a 1 or 0 depending on if the the element exists in the list
   Input:

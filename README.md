@@ -1,8 +1,8 @@
 # Room-Infrastructure
 ### Underlying Technologies:
 * Docker (Swarm && Compose)
-* Node.js
-* RaspberryPi 3
+* Node.js (ES6)
+* RaspberryPi 3 (Raspbian)
 * Bluetooth Low Energy
 * Redis
 * WeMo SmartRoom Products
