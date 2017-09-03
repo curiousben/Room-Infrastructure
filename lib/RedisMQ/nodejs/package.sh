@@ -9,7 +9,7 @@ then
 fi
 
 echo "----INFO: Moving tarball to the dist folder"
-mv node.redis.mq.tar.gz ../dist/
+mv node.redis.mq.tar.gz dist/
 if [ $? -ne 0 ]
 then
     echo "----ERROR: Failed to move tarball to dist folder"
