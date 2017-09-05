@@ -9,7 +9,7 @@ FROM debian
 RUN apt-get update && apt-get install -y \
   gnupg2 \
   curl \
-  telnetd \
+  telnet \
 
 # Grab the APT repo and adds to APT keychain
   && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
 # Coping local tarball of RedisMQ client
 COPY ./node.redis.mq.tar.gz /tmp/
 
-# Installing the npm package global
+# Installing the npm package for production globally
 RUN npm install /tmp/node.redis.mq.tar.gz --production --global \
 
 # Remove the tarball of RedisMQ

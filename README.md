@@ -22,9 +22,70 @@ RedisMQ Library - A simple library that can transports messages using redis with
 ===========================
 
 ## Installation
+This project can be installed locally by the command:
+
+```
+  wget https://github.com/insatiableben/Room-Infrastructure/raw/master/lib/RedisMQ/nodejs/docker/node.redis.mq.tar.gz && npm install node.redis.mq.tar.gz
+```
+another mehtod of using this library is building off of a RedisMQ docker base-image.
+```
+  docker pull insiatableben/RedisMQ
+```
 
 ## Docker parent image
 
+The Docker image contains the following:
+- Debian (buster)
+- Node.js (v6.11.2)
+- NPM (5.4.0)
+- RedisMQ (Globally installed)
+
+Release Schedule:
+
+Release | Contents
+------- | --------
+v1.0.0  | Initial release:<br/> [x] Added RedisMQ<br/>[x] Added cURL, telnet
+------- | --------
+v1.1.0  | DockerImage:<br/> [ ] Create Markdown guide<br/> [ ] Update Node.js
+------- | --------
+v1.2.0  | Automation:<br/> [ ] Automate testing and building of image
+------- | --------
+
 ## Configuration
+
+The general configuration is as follows:
+
+```js
+{
+  "microservice.metadata":{
+      "service.id": "",
+      "component.id":"",
+      "errorPayload": {
+        "queue":"",
+      },
+      "errorMessage": {
+        "queue":"",
+      }
+    },
+    "broker":{
+    "host":"",
+    "port":6379,
+    "retry.attempts": null,
+    "retry.interval": 10
+  },
+  "publishers":{
+    "main.publisher":{
+      "queue":"",
+    }
+  },
+  "subscribers":{
+    "main.subscriber":{
+      "queue":"",
+      "type":""
+    }
+  }
+}
+```
+Note: having a producer and subscriber is not enforced and you have 
 
 ## Usage
