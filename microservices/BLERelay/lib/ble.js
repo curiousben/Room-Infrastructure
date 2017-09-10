@@ -1,6 +1,7 @@
 /*eslint-env node*/
 /*eslint no-console:["error", { allow: ["info", "error"] }]*/
-const noble = require('noble');
+const noble = require('noble')
+const redisMQ = require('redisMQ')
 
 function init(logger) {
 	noble.on('stateChange', function (state) {

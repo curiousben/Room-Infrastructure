@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
 	libudev-dev \
 	libkrb5-dev \
 	wget \
-	curl \
 	vim \
 
 #----INFO: Installing Node.js 6.x
