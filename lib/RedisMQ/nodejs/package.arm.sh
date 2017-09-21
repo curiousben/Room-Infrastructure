@@ -26,18 +26,6 @@ fi
 echo "----INFO: Success - Copied tarball into ARM and AMD docker folders"
 
 echo "================================================================"
-echo "----INFO: Creating base docker image for AMD variant"
-echo "================================================================"
-cd nodejs/docker-amd \
-  && docker build -t redismq_amd --no-cache .
-if [ $? -ne 0 ]
-then
-    echo "----ERROR: Failed to create the docker image for the AMD redisMQ" 
-    exit
-fi
-echo "----INFO: Success - Created base docker image for AMD redisMQ"
-
-echo "================================================================"
 echo "----INFO: Creating base docker image for ARM variant"
 echo "================================================================"
 cd ../docker-arm \
