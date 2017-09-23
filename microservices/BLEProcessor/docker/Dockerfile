@@ -1,40 +1,39 @@
-FROM resin/rpi-raspbian:jessie
-#----INFO: Author -  Ben Smith
+####################################
+# BLEProcessor Image
+# Author: BenSmith(InsatiableBen)
+####################################
 
+FROM insatiableben/redismq-amd:latest
+
+#----INFO: Labeling the image
+LABEL version="1.0" \
+      redisMQ.version="1.0" \
+      maintainer="benjamindsmith3@gmail.com" \
+      service.id="BLE.Lights" \
+      component.id="BLE.Processor"
+
+#----INFO: Updating package manager and installing packages
 RUN apt-get update && apt-get install -y \
-	build-essential \
-	bluetooth \
-	bluez \
-	libbluetooth-dev \
-	libudev-dev \
-	libkrb5-dev \
-	wget \
 	vim \
 
-#----INFO: Installing Node.js 6.x
-
-	&& curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-	&& apt-get install -y nodejs \
-#----	&& npm install -g node-gyp \
-
 #----INFO: Installing Node.js App
-
-	&& wget https://github.com/insatiableben/Puzzle-Programs/raw/master/PuzzleRoom/devices/dist/BLERelay/packages/blerelay.tar.gz \
-	&& tar xzvf blerelay.tar.gz -C /opt/ \
-	&& rm blerelay.tar.gz \
+	&& wget https://github.com/insatiableben/Room-Infrastructure/raw/master/microservices/BLEProcessor/dist/bleprocessor.tar.gz \
+	&& tar xzvf bleprocessor.tar.gz -C /opt/ \
+	&& rm bleprocessor.tar.gz \
 
 #----INFO: Downloading configs for Node.js app
 
-	&& wget https://raw.githubusercontent.com/insatiableben/Puzzle-Programs/master/PuzzleRoom/devices/dist/BLERelay/config/logger.config -P /etc/opt/BLERelay/ \
-	&& wget https://raw.githubusercontent.com/insatiableben/Puzzle-Programs/master/PuzzleRoom/devices/dist/BLERelay/config/kafka.config -P /etc/opt/BLERelay/ \
+	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLEProcessor/config/logger.config -P /etc/opt/BLEProcessor/ \
+	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLEProcessor/config/redisMQ.config -P /etc/opt/BLEProcessor/ \
+	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLEProcessor/config/triangulation.config -P /etc/opt/BLEProcessor/ \
 	&& rm -rf /var/lib/apt/lists/*
 
 #----INFO: Installing Node.js app
 
-WORKDIR /opt/BLERelay/
+WORKDIR /opt/BLEProcessor/
 RUN npm install
 
-CMD ['nodejs', /opt/BLERelay/bin/ble_relay]
+CMD ['nodejs', /opt/BLEProcessor/bin/BLEProcessor.js]
 
 #----INFO: Example docker run command
-#---- $ docker run -ti --privileged --net=host debian:jessie --name bletest /bin/bash
+#---- $ docker run -d --name BLEProcessor -v <Path/to/config/on/host>:<Path/to/config/in/container> <imageName>

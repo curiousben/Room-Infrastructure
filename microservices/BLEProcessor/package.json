@@ -2,7 +2,7 @@
   "name": "ble_relay",
   "version": "1.0.0",
   "description": "Device to detect BLE signals",
-  "main": "/bin/ble_relay",
+  "main": "/bin/BLEProcessor.js",
   "scripts": {
     "test": "alpha"
   },

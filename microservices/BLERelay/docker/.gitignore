@@ -1,0 +1,3 @@
+## This GitIgnore is created to prevent pushing tarballs of the node.js application
+
+*.tar.gz

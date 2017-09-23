@@ -9,22 +9,20 @@ FROM resin/rpi-raspbian:jessie
 ENV NODE_VERSION=v6.11.3
 
 # Update package indices with the udate to date source and installing basic utilities
-RUN apt-get update
-
-RUN  apt-get install -y \
-  wget 
+RUN apt-get update && apt-get install -y \
+  wget \
 
 # Creating the directory that will house the node program
-RUN  mkdir -P /opt/node 
+  && mkdir -P /opt/node \
 
 # Grab the APT repo and adds to APT keychain
-RUN  wget https://nodejs.org/dist/{NODE_VERSION}/node-{NODE_VERSION}-linux-armv7l.tar.xz
+  && wget https://nodejs.org/dist/{NODE_VERSION}/node-{NODE_VERSION}-linux-armv7l.tar.xz \
 
 # Untaring the nodejs ARM installation
-RUN tar xzvf node-${NODE_VERSION}-linux-arm-pi.tar.gz -C /opt/node
+  && tar xzvf node-${NODE_VERSION}-linux-arm-pi.tar.gz -C /opt/node \
 
 # Cleaning up left over tar
-RUN rm node-${NODE_VERSION}-linux-arm-pi.tar.gz \ 
+  && rm node-${NODE_VERSION}-linux-arm-pi.tar.gz \ 
 
 # Linking binaries to newly installed NodeJs folder
   && ln -s /opt/node/bin/node /usr/bin/node \
