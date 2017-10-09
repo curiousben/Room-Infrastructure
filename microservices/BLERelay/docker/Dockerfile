@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -y \
 	vim \
 
 #----INFO: Installing Node.js App
-Room-Infrastructure/master/microservices/BLERelay/config/redisMQ.config
 	&& wget https://github.com/insatiableben/Room-Infrastructure/raw/master/microservices/BLERelay/dist/blerelay.tar.gz \
 	&& tar xzvf blerelay.tar.gz -C /opt/ \
 	&& rm blerelay.tar.gz \

@@ -1,15 +1,15 @@
 {
-  "name": "BLERelay",
+  "name": "WemoClient",
   "version": "1.0.0",
-  "description": "Device to detect BLE signals",
-  "main": "/bin/ble_relay",
+  "description": "Service that issues calls to Smart Plugs",
+  "main": "/bin/smartPlug.js",
   "author": "Benjamin Smith",
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.0",
     "jsonfile": "^2.4.0",
     "noble": "^1.8.1",
-    "bleno": "^0.4.2"
+    "wemo-client": "^0.14.0"
   },
   "devDependencies": {
     "standard": "^10.0.2",

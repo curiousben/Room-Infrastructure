@@ -4,12 +4,14 @@
 ####################################
 
 FROM debian
+#----INFO: Labeling the image
+LABEL version="1.0" \
+      maintainer="benjamindsmith3@gmail.com" 
 
 # Update package indices with the udate to date source and installing basic utilities
 RUN apt-get update && apt-get install -y \
   gnupg2 \
   curl \
-  telnet \
 
 # Grab the APT repo and adds to APT keychain
   && curl -sL https://deb.nodesource.com/setup_6.x | bash - \

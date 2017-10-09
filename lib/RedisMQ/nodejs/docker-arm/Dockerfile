@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
   wget \
 
 # Creating the directory that will house the node program
-  && mkdir -P /opt/node \
+  && mkdir -p /opt/node \
 
 # Grab the APT repo and adds to APT keychain
   && wget https://nodejs.org/dist/{NODE_VERSION}/node-{NODE_VERSION}-linux-armv7l.tar.xz \

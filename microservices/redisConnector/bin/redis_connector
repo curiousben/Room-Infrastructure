@@ -1,8 +1,0 @@
-#!/usr/bin/env node
-
-var logger = require('../lib/logger.js')['/opt/logger.config'];
-var Kafka = require('../lib/kafka.js')['/opt/kafka.config'];
-var redis = require('../lib/redis.js')[logger];
-
-var consumer = Kafka.addproducer(logger,'producer');
-var kafkaConfig= Kafka.config;

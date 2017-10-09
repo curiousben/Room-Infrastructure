@@ -8,3 +8,7 @@ Bash in:
 `$ docker exec -it <container> bash`
 `echo never | tee /sys/kernel/mm/transparent_hugepage/enabled`
 `echo never | tee /sys/kernel/mm/transparent_hugepage/defrag`
+
+or
+
+Execute these commands on the host so theses configurations are inherited from the host

@@ -1,5 +1,5 @@
 ####################################
-# RedisConnector Image
+# BLERelay Image
 # Author: BenSmith(InsatiableBen)
 ####################################
 
@@ -10,7 +10,7 @@ LABEL version="1.0" \
       redisMQ.version="1.0" \
       maintainer="benjamindsmith3@gmail.com" \
       service.id="BLE.Lights" \
-      component.id="Redis.Connector"
+      component.id="Wemo.Client"
 
 #----INFO: Updating package manager and installing packages
 RUN apt-get update && apt-get install -y \
@@ -18,20 +18,20 @@ RUN apt-get update && apt-get install -y \
 	vim \
 
 #----INFO: Installing Node.js App
-	&& wget https://github.com/insatiableben/Room-Infrastructure/raw/master/microservices/RedisConnector/dist/redisconnector.tar.gz \
-	&& tar xzvf redisconnector.tar.gz -C /opt/ \
-	&& rm redisconnector.tar.gz \
+	&& wget https://github.com/insatiableben/Room-Infrastructure/raw/master/microservices/WemoClient/dist/wemoclient.tar.gz \
+	&& tar xzvf wemoclient.tar.gz -C /opt/ \
+	&& rm wemoclient.tar.gz \
 
 #----INFO: Downloading configs for Node.js app
 
-	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/RedisConnector/config/logger.config -P /etc/opt/RedisConnector/ \
-	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/RedisConnector/config/redisMQ.config -P /etc/opt/RedisConnector/ \
+	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/WemoClient/config/logger.config -P /etc/opt/WemoClient/ \
+	&& wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/WemoClient/config/redisMQ.config -P /etc/opt/WemoClient/ \
 	&& rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/RedisConnector/
+WORKDIR /opt/WemoClient/
 RUN npm install
 
-CMD ['nodejs', /opt/RedisConnector/bin/RedisConnector.js]
+CMD ['nodejs', /opt/WemoClient/bin/WemoClient.js]
 
 #----INFO: Example docker run command
 #---- $ docker run -d --name WemoClient -v <Path/to/config/on/host>:<Path/to/config/in/container> 
