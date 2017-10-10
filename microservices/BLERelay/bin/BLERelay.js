@@ -25,13 +25,16 @@ const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
 */
 // Starting the producer 
 redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
-  .then(publisher=> {
+  .then(publisher => {
     this.publisher = publisher
     console.log('----INFO: Publisher has been initialized');
   })
-  .then(() => redisMQ.loadJSON(bleRelayConfig))
-  .then(bleRelayConfig)
-  .then(() => bleLibrary.init(this.publisher.logger))
+  .then(() => {
+    this.bleRelayConfig = redisMQ.loadJSON(bleRelayConfig)
+    this.publisher.logger.info('BLERelay configuration has been successfully loaded.')
+  })
+  .then(() => bleLibrary.bleAdvertiseInit(this.bleRelayConfig, this.publisher.logger))
+  .then(() => bleLibrary.bleListenInit(this.publisher.logger))
   .then(bleService => {
     bleService.on('discover', function(peripheral) {
       console.log('Found device with local name: ' + peripheral.advertisement.localName);

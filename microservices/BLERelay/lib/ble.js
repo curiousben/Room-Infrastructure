@@ -57,14 +57,14 @@ let bleListenInit = logger => {
   )
 }
 
-let bleAdvertiseInit = configJSON => {
+let bleAdvertiseInit = (configJSON, logger) => {
   return new Promise(
     (resolve) => {
       bleno.on('stateChange', function (state) {
         switch (state) {
           case 'poweredOn':
             logger.info('BLE advertising service is starting ...')
-            noble.startAdvertisingAsync(configJSON['Node.Name'], true)
+            noble.startAdvertisingAsync(configJSON['node.uuid'], true)
               .then(() => logger.info('... BLE advertising service has started'))
               .catch(err => logger.error('... Failed to start BLE advertising service.'))
             break;
@@ -111,6 +111,6 @@ let bleAdvertiseInit = configJSON => {
 }
 
 module.exports = {
-  bleListen: bleListen,
-  bleAdvertise: bleAdvertise
+  bleAdvertiseInit: bleAdvertiseInit,
+  bleListenInit: bleListenInit 
 }
