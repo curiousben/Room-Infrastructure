@@ -5,39 +5,46 @@
 
 FROM resin/rpi-raspbian:stretch
 
-#----Update package indices with the udate to date source and installing basic utilities
+#----INFO: Update package indices with the udate to date source and installing basic utilities
 RUN apt-get update && apt-get install -y \
   wget \
+  python2.7 \
 
-#----Creating the directory that will house the node program
+#----INFO: Linking the python2.7 to a more accepted alias
+  && ln -s /usr/bin/python2.7 /usr/bin/python \
+
+#----INFO: Creating the directory that will house the node program
   && mkdir -p /opt/node \
 
-#----Grab the APT repo and adds to APT keychain
+#----INFO: Grabs the nodejs ARM tarball
   && wget https://nodejs.org/dist/v6.11.3/node-v6.11.3-linux-armv7l.tar.gz \
 
-#----Untaring the nodejs ARM installation
+#----INFO: Untaring the nodejs ARM tarball 
   && tar --strip-components 1 -xzvf node-v6.11.3-linux-armv7l.tar.gz -C /opt/node \
 
-#----Cleaning up left over tar
+#----INFO: Cleaning up left over tar
   && rm node-v6.11.3-linux-armv7l.tar.gz \
 
-#----Linking binaries to newly installed NodeJs folder
+#----INFO: Linking binaries to newly installed NodeJs folder
   && ln -s /opt/node/bin/node /usr/bin/node \
   && ln -s /opt/node/lib/node /usr/lib/node \
   && ln -s /opt/node/bin/npm /usr/bin/npm \
   && ln -s /opt/node/bin/node-waf /usr/bin/node-waf \
 
-#----Update npm globally
+#----INFO: Update npm globally
   && npm install npm --global
 
-#----Coping local tarball of RedisMQ client
+#----INFO: Coping local tarball of RedisMQ client
 COPY ./node.redis.mq.tar.gz /tmp/
 
-#----Installing the npm package for production globally
+#----INFO: Installing the npm package for production globally
 RUN npm install /tmp/node.redis.mq.tar.gz --production --global \
 
-#----Remove the tarball of RedisMQ
+#----INFO: Linking the RedisMQ library so any program can use it
+  && npm link redisMQ \
+
+#----INFO: Remove the tarball of RedisMQ
   && rm /tmp/node.redis.mq.tar.gz
 
-#----Setting the path to the global Node Modules directory and setting Node.js in production
+#----INFO: Setting the path to the global Node Modules directory and setting Node.js in production
 ENV NODE_PATH=/usr/lib/node_modules/ NODE_ENV=production

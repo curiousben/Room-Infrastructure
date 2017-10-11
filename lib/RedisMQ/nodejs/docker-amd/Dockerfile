@@ -28,6 +28,9 @@ COPY ./node.redis.mq.tar.gz /tmp/
 #----Installing the npm package for production globally
 RUN npm install /tmp/node.redis.mq.tar.gz --production --global \
 
+#----INFO: Linking the RedisMQ library so any program can use it
+  && npm link redisMQ \
+
 #----Remove the tarball of RedisMQ
   && rm /tmp/node.redis.mq.tar.gz
 
