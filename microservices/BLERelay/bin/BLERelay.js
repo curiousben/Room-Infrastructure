@@ -27,7 +27,6 @@ const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
 redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
   .then(publisher => {
     this.publisher = publisher
-    console.log('----INFO: Publisher has been initialized');
   })
   .then(() => {
     this.bleRelayConfig = redisMQ.loadJSON(bleRelayConfig)
@@ -42,4 +41,9 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
   	  this.publisher.produce('topic',-1, 'Values from peripherals','BLE-SkepOne');
     });
   })
-  .catch(err => this.publisher.logger.error("BLERelay has encountered an error. Details " + err.message))
+  .catch(err => {
+    if (this.publisher == null) {
+      console.error("----ERROR: BLERelay has encountered an error. Details " + err.message)
+    } else {
+      this.publisher.logger.error("BLERelay has encountered an error. Details " + err.message)
+    })

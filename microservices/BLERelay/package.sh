@@ -5,7 +5,7 @@ readonly MICROSERVICE=BLERelay
 echo "================================================================"
 echo "---INFO: Packaging $MICROSERVICE tarball"
 echo "================================================================"
-cd ../ && tar -czvf ${MICROSERVICE,,}.tar.gz --exclude dist/ --exclude config --exclude docker --exclude package.sh --exclude node_modules --exclude design/ $MICROSERVICE/
+cd ../ && tar -czvf ${MICROSERVICE,,}.tar.gz --exclude dist --exclude config --exclude docker --exclude package.sh --exclude node_modules --exclude design $MICROSERVICE/
 if [ $? -ne 0 ]
 then
   echo "================================================================"

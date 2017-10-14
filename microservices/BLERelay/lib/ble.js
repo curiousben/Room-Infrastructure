@@ -5,8 +5,8 @@ let noble = require('noble')
 let bleno = require('bleno')
 
 // Promisifing the bleno and noble clients
-bluebird.promisifyAll(noble.prototype)
-bluebird.promisifyAll(bleno.prototype)
+bluebird.promisifyAll(noble)
+bluebird.promisifyAll(bleno)
 
 let bleListenInit = logger => {
   return new Promise(
