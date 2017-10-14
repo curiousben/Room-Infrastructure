@@ -1,6 +1,6 @@
 const redisMQ =  require('redisMQ')
 const bleLibrary = require('../lib/BLE.js')
-const redisMQConfig = '/etc/opt/BLERelay/redismq.config'
+const redisMQConfig = '/etc/opt/BLERelay/redisMQ.config'
 const loggerConfig = '/etc/opt/BLERelay/logger.config'
 const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
 
@@ -46,4 +46,6 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
       console.error("----ERROR: BLERelay has encountered an error. Details " + err.message)
     } else {
       this.publisher.logger.error("BLERelay has encountered an error. Details " + err.message)
-    })
+    }
+    process.exit(1)
+  })
