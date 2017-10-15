@@ -1,12 +1,9 @@
 /*eslint-env node*/
 /*eslint no-console:["error", { allow: ["info", "error"] }]*/
 const bluebird = require('bluebird')
-let noble = require('noble')
-let bleno = require('bleno')
+let noble = bluebird.promisifyAll(require('noble'))
+let bleno = bluebird.promisifyAll(require('bleno'))
 
-// Promisifing the bleno and noble clients
-bluebird.promisifyAll(noble)
-bluebird.promisifyAll(bleno)
 
 let bleListenInit = logger => {
   return new Promise(
@@ -64,7 +61,7 @@ let bleAdvertiseInit = (configJSON, logger) => {
         switch (state) {
           case 'poweredOn':
             logger.info('BLE advertising service is starting ...')
-            noble.startAdvertisingAsync(configJSON['node.uuid'], true)
+            bleno.startAdvertisingAsync(configJSON.node.name, configJSON.node.uuid)
               .then(() => logger.info('... BLE advertising service has started'))
               .catch(err => logger.error('... Failed to start BLE advertising service.'))
             break;
@@ -73,27 +70,27 @@ let bleAdvertiseInit = (configJSON, logger) => {
             break;
           case 'unsupported':
             logger.error('BLE advertising service is unsupported on this device. Shutting down service ...')
-            noble.stopAdvertisingAsync()
+            bleno.stopAdvertisingAsync()
               .then(() => logger.info('... BLE advertising service has been shutdown.'))
               .catch(err => logger.error('... Failed to shutdown BLE advertising service. Details: ' + err.message))
             break;
           case 'unathorized':
             logger.error('BLE advertising service is unauthorized on this device. Shutting down service ...')
-            noble.stopAdvertisingAsync()
+            bleno.stopAdvertisingAsync()
               .then(() => logger.info('... BLE advertising service has been shutdown.'))
               .catch(err => logger.error('... Failed to shutdown BLE advertising service. Details: ' + err.message))
             break;
           case 'unknown':
             logger.error('BLE advertising service has encountered an unknown state. Shutting down service ...')
-            noble.stopAdvertisingAsync()
+            bleno.stopAdvertisingAsync()
               .then(() => logger.info('... BLE advertising service has been shutdown.'))
               .catch(err => logger.error('... Failed to shutdown BLE advertising service. Details: ' + err.message))
           case 'powerOff':
             logger.error('BLE advertising service is powering off. Shutting down service ...')
-            noble.stopAdvertisingAsync()
+            bleno.stopAdvertisingAsync()
               .then(() => logger.info('... BLE advertising service has been shutdown.'))
               .catch(err => logger.error('... Failed to shutdown BLE advertising service. Details: ' + err.message))
-        }   
+        }
       })
       bleno.on('advertisingStart', function (error) {
         if (!error) {
@@ -107,10 +104,10 @@ let bleAdvertiseInit = (configJSON, logger) => {
       })
       resolve(bleno)
     }
-  )  
+  )
 }
 
 module.exports = {
   bleAdvertiseInit: bleAdvertiseInit,
-  bleListenInit: bleListenInit 
+  bleListenInit: bleListenInit
 }

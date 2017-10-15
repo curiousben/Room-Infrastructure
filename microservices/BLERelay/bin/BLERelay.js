@@ -9,7 +9,7 @@ const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
  * {
  *   "uuid": "device_uuid",
  *   "rssi": some_value,
- *   "nodes": { 
+ *   "nodes": {
  *     "local_node": {
  *       "rssi": 0
  *     },
@@ -23,23 +23,33 @@ const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
  * }
  *
 */
-// Starting the producer 
+// Starting the producer
 redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
-  .then(publisher => {
-    this.publisher = publisher
-  })
+  .then(publisher => this.publisher = publisher)
+  //.then(() => this.bleRelayConfig = redisMQ.utils.loadJSON(bleRelayConfig))
+  /*
   .then(() => {
-    this.bleRelayConfig = redisMQ.loadJSON(bleRelayConfig)
-    this.publisher.logger.info('BLERelay configuration has been successfully loaded.')
+    console.log("file location: " + bleRelayConfig)
+    this.bleRelayConfig = redisMQ.utils.loadJSON(bleRelayConfig)
+    console.log("Resulting Object: " + this.bleRelayConfig)
+    console.log("Resulting Object properties: " + Object.getOwnPropertiesName(this.bleRelayConfig))
+  })
+  */
+  .then(() => redisMQ.utils.loadJSON(bleRelayConfig))
+  .then((bleRelayObj) => {
+    this.bleRelayConfig = bleRelayObj
+    this.publisher.logger.info('Successfully loaded the BLERelay configuration.')
   })
   .then(() => bleLibrary.bleAdvertiseInit(this.bleRelayConfig, this.publisher.logger))
   .then(() => bleLibrary.bleListenInit(this.publisher.logger))
   .then(bleService => {
-    bleService.on('discover', function(peripheral) {
-      console.log('Found device with local name: ' + peripheral.advertisement.localName);
-      console.log('advertising the following service uuid\'s: ' + peripheral.advertisement.serviceUuids);
-  	  this.publisher.produce('topic',-1, 'Values from peripherals','BLE-SkepOne');
-    });
+    //let that = this
+    bleService.on('discover', (peripheral) => {
+      let manufactureID = ((peripheral.advertisement.manufacturerData == undefined) ? null : peripheral.advertisement.manufacturerData.toString('hex').slice(8,-12))
+      if (this.bleRelayConfig.device.ids.includes(manufactureID)) {
+        this.publisher.logger.info("Found registered device in room. Device: " + manufactureID + "\n Sending this data to RedisMQ!!")
+      }
+    })
   })
   .catch(err => {
     if (this.publisher == null) {
