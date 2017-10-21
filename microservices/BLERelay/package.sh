@@ -1,61 +1,55 @@
 #!/bin/bash
+if [ -z $1 ]
+then
+    echo "Missing BLERelay version, expected syntax:"
+    echo "./package.sh <version-number>"
+    exit 1
+fi
 
 readonly MICROSERVICE=BLERelay
+readonly REDISMQVERSION=$1
 
-echo "================================================================"
-echo "---INFO: Packaging $MICROSERVICE tarball"
-echo "================================================================"
-cd ../ && tar -czvf ${MICROSERVICE,,}.tar.gz --exclude dist --exclude config --exclude docker --exclude package.sh --exclude node_modules --exclude design $MICROSERVICE/
+echo "---INFO: Packaging $MICROSERVICE tarball" \
+  && mkdir $MICROSERVICE \
+  && cp package.json $MICROSERVICE/ \
+  && cp index.js $MICROSERVICE/ \
+  && cp -R lib/ $MICROSERVICE/ \
+  && tar -czvf ${MICROSERVICE,,}.tar.gz $MICROSERVICE/ \
+  && rm -r $MICROSERVICE
 if [ $? -ne 0 ]
 then
-  echo "================================================================"
   echo "----ERROR: Failed to create $MICROSERVICE tarball"
-  echo "================================================================"
+  rm -r $MICROSERVICE \
+    && rm ${MICROSERVICE,,}.tar.gz
   exit 1
 fi
 
-echo "================================================================"
-echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder"
-echo "================================================================"
-mv ${MICROSERVICE,,}.tar.gz $MICROSERVICE/docker
+echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder" \
+  && mv ${MICROSERVICE,,}.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
 if [ $? -ne 0 ]
 then 
-  echo "================================================================"
   echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder"
-  echo "================================================================"
-  exit
+  rm ${MICROSERVICE,,}.tar.gz
+  exit 1
 fi 
 
-docker build -t ${MICROSERVICE,,} $MICROSERVICE/docker/
+docker build -t curiousben/${MICROSERVICE,,}:v$REDISMQVERSION docker/$REDISMQVERSION
 if [ $? -ne 0 ]
 then
-  echo "================================================================"
   echo "----ERROR: Failed to create the $MICROSERVICE docker image"
-  echo "================================================================"
-  rm $MICROSERVICE/docker/${MICROSERVICE,,}.tar.gz
+  rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
   if [ $? -ne 0 ]
   then
-    echo "================================================================"
     echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
-    echo "================================================================" 
-    exit
+    exit 1
   fi
-  echo "================================================================"
   echo "----INFO: Removed $MICROSERVICE tarball from docker directory"
-  echo "================================================================"
-  exit
+  exit 1
 fi
-rm $MICROSERVICE/docker/${MICROSERVICE,,}.tar.gz
+rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
 if [ $? -ne 0 ]
 then
-  echo "================================================================"
   echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
-  echo "================================================================" 
-  exit
+  exit 1
 fi
-echo "================================================================"
-echo "----INFO: Removed $MICROSERVICE tarball from docker directory"
-echo "================================================================"
-echo "================================================================"
 echo "----INFO: Finished packaging $MICROSERVICE"
-echo "================================================================"
