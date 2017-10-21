@@ -12,8 +12,8 @@ readonly REDISMQVERSION=$1
 echo "---INFO: Packaging $MICROSERVICE tarball" \
   && mkdir $MICROSERVICE \
   && cp package.json $MICROSERVICE/ \
-  && cp index.js $MICROSERVICE/ \
   && cp -R lib/ $MICROSERVICE/ \
+  && cp -R bin/ $MICROSERVICE/ \
   && tar -czvf ${MICROSERVICE,,}.tar.gz $MICROSERVICE/ \
   && rm -r $MICROSERVICE
 if [ $? -ne 0 ]

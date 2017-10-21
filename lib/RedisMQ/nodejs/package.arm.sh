@@ -44,7 +44,7 @@ fi
 echo "================================================================"
 echo "----INFO: Creating base docker image for AMD variant"
 echo "================================================================"
-docker build -t curiousben/redismq_arm:v$REDISMQVERSION --no-cache docker-arm/$REDISMQVERSION
+docker build -t curiousben/redismq-arm:v$REDISMQVERSION --no-cache docker-arm/$REDISMQVERSION
 if [ $? -ne 0 ]
 then
   echo "================================================================"
