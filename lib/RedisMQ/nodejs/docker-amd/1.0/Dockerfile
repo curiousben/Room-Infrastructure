@@ -1,6 +1,6 @@
 ####################################
 # RedisMQ Image
-# Author: BenSmith(InsatiableBen)
+# Author: BenSmith(CuriousBen)
 ####################################
 
 FROM node:6.11.4-slim

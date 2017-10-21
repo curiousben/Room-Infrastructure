@@ -1,6 +1,6 @@
 ####################################
 # RedisMQ Image
-# Author: BenSmith(InsatiableBen)
+# Author: BenSmith(CuriousBen)
 ####################################
 
 FROM resin/rpi-raspbian:stretch

@@ -1,9 +1,9 @@
 ####################################
 # BLERelay Image
-# Author: BenSmith(InsatiableBen)
+# Author: BenSmith(CuriousBen)
 ####################################
 
-FROM insatiableben/redismq-arm:latest
+FROM curiousben/redismq-arm:latest
 
 #----INFO: Labeling the image
 LABEL version="1.0" \
@@ -36,8 +36,7 @@ RUN apt-get update && apt-get install -y \
 #----INFO: Installing Node.js app
 
 WORKDIR /opt/BLERelay/
-RUN npm link redisMQ \
-  && npm install
+RUN npm install
 
 CMD ["node", "/opt/BLERelay/bin/BLERelay.js"]
 

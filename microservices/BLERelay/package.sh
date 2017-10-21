@@ -17,7 +17,7 @@ fi
 echo "================================================================"
 echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder"
 echo "================================================================"
-cp ${MICROSERVICE,,}.tar.gz $MICROSERVICE/docker && mv ${MICROSERVICE,,}.tar.gz $MICROSERVICE/dist/
+mv ${MICROSERVICE,,}.tar.gz $MICROSERVICE/docker
 if [ $? -ne 0 ]
 then 
   echo "================================================================"

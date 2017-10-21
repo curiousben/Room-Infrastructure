@@ -1,6 +1,6 @@
 # Supported tags and respective `Dockerfile` links
 
- - `1.0` [(1.0/library)](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/Dockerfile)
+ - `1.0` [(1.0/library)](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/1.0/Dockerfile)
 
 # Quick reference
 
