@@ -1,10 +1,45 @@
 /*eslint-env node*/
 /*eslint no-console:["error", { allow: ["info", "error"] }]*/
+const util = require('util')
 const bluebird = require('bluebird')
 let noble = bluebird.promisifyAll(require('noble'))
 let bleno = bluebird.promisifyAll(require('bleno'))
 
+/*
+* Description:
+*   This promise creates a publisher instance that can send messages to a queue directly.
+* Args:
+*   configKey (String): This key is a JSONkey in the config file that houses the metadata for the publisher.
+* Returns:
+*   Publisher (Promise) An promise that resolves with the results of a successfull publish of a message.
+* Throws:
+*   SomeError (Error):  
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+let nodeService = (configJSON) => {
+    bleno.PrimaryService.call(this, {
+        uuid: serviceUUID,
+    })
+}
+util.inherits(nodeService, bleno.PrimaryService)
 
+/*
+* Description:
+*   This promise initializes the BLE general listener.
+* Args:
+*   logger (Logger): This is the logger that is provided by the logger from the publisher.
+* Returns:
+*   Noble (Promise): The noble that has been configured to listen to all incoming BLE traffic.
+* Throws:
+*   (Error):
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
 let bleListenInit = logger => {
   return new Promise(
     (resolve) => {
@@ -54,7 +89,21 @@ let bleListenInit = logger => {
   )
 }
 
-let bleAdvertiseInit = (configJSON, logger) => {
+/*
+* Description:
+*   This promise creates a publisher instance that can send messages to a queue directly.
+* Args:
+*   configKey (String): This key is a JSONkey in the config file that houses the metadata for the publisher.
+* Returns:
+*   Publisher (Promise) An promise that resolves with the results of a successfull publish of a message.
+* Throws:
+*   SomeError (Error):  
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+let bleAdvertiseInit = (service, logger) => {
   return new Promise(
     (resolve) => {
       bleno.on('stateChange', function (state) {
@@ -95,6 +144,9 @@ let bleAdvertiseInit = (configJSON, logger) => {
       bleno.on('advertisingStart', function (error) {
         if (!error) {
           logger.info('... Advertising has started')
+          bleno.setServices([
+            nodeService(configJSON.node.uuid)
+          ])
         } else {
           logger.error('Failed to start advertising BLE. Details: ' + error.message)
         }
@@ -107,7 +159,36 @@ let bleAdvertiseInit = (configJSON, logger) => {
   )
 }
 
+/*
+* Description:
+*   This promise creates a publisher instance that can send messages to a queue directly.
+* Args:
+*   configKey (String): This key is a JSONkey in the config file that houses the metadata for the publisher.
+* Returns:
+*   Publisher (Promise) An promise that resolves with the results of a successfull publish of a message.
+* Throws:
+*   SomeError (Error):  
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+let createPayload = (peripheral, nodes) => {
+  return new Promise({
+    (resolve) => {
+      let payload = {}
+      let device = {}
+      device["uuid"] = peripheral.advertisement.manufacturerData
+      device["rssi"] = peripheral.rssi
+      payload["device"] = device
+      resolve(payload)
+    }
+  })
+}
+
 module.exports = {
   bleAdvertiseInit: bleAdvertiseInit,
-  bleListenInit: bleListenInit
+  bleListenInit: bleListenInit,
+  createPayload: createPayload,
+  nodeService: nodeService
 }

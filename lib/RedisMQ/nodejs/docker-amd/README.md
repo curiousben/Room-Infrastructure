@@ -1,56 +1,41 @@
-# Room-Infrastructure
-### Underlying Technologies:
-* Docker (Swarm && Compose)
-* Node.js (ES6)
-* RaspberryPi 3 (Raspbian)
-* Bluetooth Low Energy
-* Redis
-* WeMo SmartRoom Products
-* Linux (Ubuntu)
+# Supported tags and respective `Dockerfile` links
 
->These projects are planned to be used in the construction of a message based smart room. One library will consist of a simple wrapper that allows me to quickly develop microservices that is tethered by a Redis message queue implementation. The other library will allow me to bring up new smart plugs and easly connect them to a smart plug manager server. Orchestration of microservices will be based off of docker swarm.
+ - `1.0` [(1.0/library)](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/Dockerfile)
 
-Folder Structure:
+# Quick reference
 
-1. Devices: Shell scripts for specific devices will be located here.
-2. Infrastructure: Docker-Swarm, and later compose config files will be located here. Shell scripts for deploying docker-swarm services will be located here as well.
-3. Lib: Message libraries and other utilitarian libaries that will be used by all microservices will be located here
-4. Tools: Miscellous shell scripts to make life easier will be located here.
-5. Microservices: The acutal microservices that are responsible for doing work will be here. 
 
-RedisMQ Library - A simple library that can transports messages using redis with native Promises
-===========================
+- **Where to get help**:  
+  Email is best and only way outside of the guide to get help [benjamindsmith3@gmail.com](benjamindsmith3@gmail.com). As always suggestions are very welcome.
 
-## Installation
-This project can be installed locally by the command:
+- **Where to file issues**:  
+  [https://github.com/insatiableben/Room-Infrastructure/issues](https://github.com/insatiableben/Room-Infrastructure/issues)
 
-```
-  wget https://github.com/insatiableben/Room-Infrastructure/raw/master/lib/RedisMQ/nodejs/docker/node.redis.mq.tar.gz && npm install node.redis.mq.tar.gz
-```
-another mehtod of using this library is building off of a RedisMQ docker base-image.
-```
-  docker pull insiatableben/RedisMQ
-```
+- **Maintained by**:  
+  [Benjamin Smith](https://www.linkedin.com/in/42656e/) (A message based microservice middleware engineer)
 
-## Docker parent image
+- **Supported architectures**: `amd64`
 
-The Docker image contains the following:
-- Debian (buster)
-- Node.js (v6.11.2)
-- NPM (5.4.0)
-- RedisMQ (Globally installed)
+- **Source of this description**:  
+  [The `/README.md` in the root directory](https://github.com/insatiableben/Room-Infrastructure/blob/master/README.md)
+  
+# What is RedisMQ?
 
-Release Schedule:
+A simple message based library that can transport messages using Redis lists and native Node.js ES7 Promises. The guarantees that this library makes are limited to the guarantees that Redis gives to data integrity. The main motivation for this project was to explore the assumptions that message brokers have to make in order to guarantee message integrity, also how to write a Node.js library.
 
-| Release | Contents                                                            |
-|:-------:| :-------------------------------------------------------------------|
-| v1.0.0  | Initial release:<br/> [x] Added RedisMQ<br/>[x] Added cURL, telnet  |
-| v1.1.0  | DockerImage:<br/> [ ] Create Markdown guide<br/> [ ] Update Node.js |
-| v1.2.0  | Automation:<br/> [ ] Automate testing and building of image         |
+# How to use this image
+
+## Building Microservices on top of this image
+
+The most upstream parent image for this docker image is Debian with Node.js and RedisMQ being installed with curl and gnupg2 being installed for Node.js. This creates a template for other custom node.js programs to be created on top of this image and not have to worry about installation. 
+
+# A quick introduction to how to use RedisMQ
+
+The following is a quick introduction to how to use the RedisMQ library in a Node.js application.
 
 ## Configuration
 
-The general configuration is as follows:
+The general configuration for RedisMQ is as follows:
 
 ```js
 {
@@ -84,19 +69,22 @@ The general configuration is as follows:
 }
 ```
 Note:
-- Having both a producer and subscriber is not enforced but you must make sure you have at least one of the workers configuration.
+- Having both a producer and subscriber is not enforced but you must make sure you have at least one of them configured.
+
 ### Publisher:
->The publisher as of (Sept 6 2017) can only define the queue the publisher is listening to. Users have the ability to define any amount of publishers as long as they exist in the publishers section of the redisMQ configuration.
+
+> The publisher as of (Sept 6, 2017) can only publish to one queue. Users have the ability to define any amount of publishers as long as they exist in the publisher's section of the redisMQ configuration. In the future, there will be an effort to expand this to include publishing to multiple queues.
 
 ### Subscriber:
-The subscriber as of (Sept 6 2017) can be of two types:
-- "persistent" - This subscriber keeps the messsage in the Redis Server and all modifications to the message will be treated like an update in the Redis server. This is considered thesafest way to transport messages since this type of transporation has the most redis guarantees for message integrity.
-- "transient" - This subcriber removes the message from the RedisServer and will removes the address from the redis server as well as the message payload. This is considered the least safest way to transport messages since the actual removal of messages introduces a few more cases where the message maybe lost. However, the library takes special care in not letting messages get dropped in most common cases.
+The subscriber as of (Sept 6, 2017) can be of two types:
+- "persistent" - This subscriber keeps the message in the Redis Server and all modifications to the message will be treated like an update in the Redis server. This is considered the safest way to transport messages since this type of transportation has the most Redis guarantees for message integrity.
+- "transient" - This subscriber removes the message and metadata from the Redis Server. This is considered the least safest way to transport messages since the actual removal of messages introduces a few more cases where the message may be lost. However, the library takes special care in not letting messages get dropped in the most common cases.
 
 ## Usage:
 Here are a few examples of this library being used:
 
 A *Upstream* publisher that transmits data from the data source to the next hop:
+
 ```js
 const redisMQConfig = './config/upstream/redismq.config';
 const loggerConfig = './config/upstream/logger.config';
@@ -113,6 +101,7 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, '<Name of Publisher>').then
 ```
 
 A *Relay* microservice consumes then transmits data to the next microservice:
+
 ```js
 const redisMQConfig = './<Path>/<to>/redismq.config';
 const loggerConfig = './<Path>/<to>/logger.config';
@@ -152,6 +141,7 @@ redisMQ.createSubscriber(loggerConfig, redisMQConfig, '<Name Of Subscriber>')
 ```
 
 A *Downstream* microservice consumes messages:
+
 ```js
 const redisMQConfig = '/<Path>/<to>/redismq.config'
 const loggerConfig = '/<Path>/<to>/logger.config'

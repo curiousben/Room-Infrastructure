@@ -1,61 +1,76 @@
 #!/bin/bash
 
-readonly MICROSERVICE=BLERelay
+if [ -z $1 ]
+then
+    echo "Missing redisMQ version, expected syntax:"
+    echo "./package.amd.sh <version-number>"
+    exit 1
+fi
+
+readonly REDISMQ=redisMQ_AMD
+readonly REDISMQVERSION=$1
 
 echo "================================================================"
-echo "---INFO: Packaging $MICROSERVICE tarball"
+echo "---INFO: Packaging $REDISMQ tarball"
 echo "================================================================"
-cd ../ && tar -czvf ${MICROSERVICE,,}.tar.gz --exclude dist --exclude config --exclude docker --exclude package.sh --exclude node_modules --exclude design $MICROSERVICE/
+mkdir RedisMQ \
+  && tar -czvf node.redis.mq.tar.gz package.json lib index.js RedisMQ/
 if [ $? -ne 0 ]
 then
   echo "================================================================"
-  echo "----ERROR: Failed to create $MICROSERVICE tarball"
+  echo "----ERROR: Failed to create $REDISMQ tarball"
   echo "================================================================"
+  rm -r RedisMQ
   exit 1
 fi
 
 echo "================================================================"
-echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder"
+echo "----INFO: Moving $REDISMQ tarball to the AMD docker folder"
 echo "================================================================"
-cp ${MICROSERVICE,,}.tar.gz $MICROSERVICE/docker && mv ${MICROSERVICE,,}.tar.gz $MICROSERVICE/dist/
-if [ $? -ne 0 ]
-then 
-  echo "================================================================"
-  echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder"
-  echo "================================================================"
-  exit
-fi 
-
-docker build -t ${MICROSERVICE,,} $MICROSERVICE/docker/
+mv node.redis.mq.tar.gz docker-amd/$REDISMQVERSION
 if [ $? -ne 0 ]
 then
   echo "================================================================"
-  echo "----ERROR: Failed to create the $MICROSERVICE docker image"
+  echo "----ERROR: Failed to move $REDISMQ tarball to docker folder"
   echo "================================================================"
-  rm $MICROSERVICE/docker/${MICROSERVICE,,}.tar.gz
+  rm -r RedisMQ
+  exit
+fi
+
+cd docker-amd/$REDISMQVERSION \
+  && docker build -t redismq_amd --no-cache . \
+  && docker tag redismq_amd redismq_amd:$REDISMQVERSION
+if [ $? -ne 0 ]
+then
+  echo "================================================================"
+  echo "----ERROR: Failed to create the $REDISMQ docker image" 
+  echo "================================================================"
+  rm node.redis.mq.tar.gz
+  rm -r ../../RedisMQ
   if [ $? -ne 0 ]
   then
     echo "================================================================"
-    echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
-    echo "================================================================" 
+    echo "----ERROR: Failed to remove $REDISMQ tarball from docker directory"
+    echo "================================================================"
     exit
   fi
   echo "================================================================"
-  echo "----INFO: Removed $MICROSERVICE tarball from docker directory"
+  echo "----INFO: Removed $REDISMQ tarball from docker directory"
   echo "================================================================"
   exit
 fi
-rm $MICROSERVICE/docker/${MICROSERVICE,,}.tar.gz
+rm node.redis.mq.tar.gz
+rm -r ../../RedisMQ
 if [ $? -ne 0 ]
 then
   echo "================================================================"
-  echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
-  echo "================================================================" 
+  echo "----ERROR: Failed to remove $REDISMQ tarball from docker directory"
+  echo "================================================================"
   exit
 fi
 echo "================================================================"
-echo "----INFO: Removed $MICROSERVICE tarball from docker directory"
+echo "----INFO: Removed $REDISMQ tarball from docker directory"
 echo "================================================================"
 echo "================================================================"
-echo "----INFO: Finished packaging $MICROSERVICE"
+echo "----INFO: Finished packaging $REDISMQ"
 echo "================================================================"

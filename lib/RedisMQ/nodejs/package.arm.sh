@@ -1,39 +1,60 @@
 #!/bin/sh
-
-echo "================================================================"
-echo "---INFO: Packaging tarball"
-echo "================================================================"
-cd ../ && tar -czvf node.redis.mq.tar.gz  --exclude test --exclude .DS_Store --exclude config --exclude package.sh --exclude bin --exclude node_modules --exclude config --exclude docker-amd --exclude docker-arm  --exclude npm-debug.log --exclude .eslintrc.yml nodejs/
-if [ $? -ne 0 ]
+if [ -z $1 ]
 then
-    echo "----ERROR: Failed to create tarball"
+    echo "Missing redisMQ version, expected syntax:"
+    echo "./package.arm.sh <version-number>"
     exit 1
 fi
-echo "================================================================"
-echo "----INFO: Success - Created tarball"
+
+readonly REDISMQ=redisMQ_ARM
+readonly REDISMQVERSION=$1
 
 echo "================================================================"
-echo "----INFO: Copying the tarball to the ARM and AMD docker folders"
+echo "---INFO: Packaging $REDISMQ tarball"
 echo "================================================================"
-cp node.redis.mq.tar.gz nodejs/docker-amd/node.redis.mq.tar.gz \
-  && cp node.redis.mq.tar.gz nodejs/docker-arm/node.redis.mq.tar.gz \
-  && rm node.redis.mq.tar.gz
+mkdir RedisMQ \
+  && cp package.json RedisMQ/ \
+  && cp index.js RedisMQ/ \
+  && cp -R lib/ RedisMQ/ \
+  && tar -czvf node.redis.mq.tar.gz RedisMQ/ 
 if [ $? -ne 0 ]
 then
-    echo "----ERROR: Failed to copy or remove tarball to docker folder"
-    exit
+  echo "================================================================"
+  echo "----ERROR: Failed to create $REDISMQ tarball"
+  echo "================================================================"
+  rm -r RedisMQ
+  exit 1
 fi
-echo "----INFO: Success - Copied tarball into ARM and AMD docker folders"
 
 echo "================================================================"
-echo "----INFO: Creating base docker image for ARM variant"
+echo "----INFO: Moving the $REDISMQ tarball to the AMD docker folders"
 echo "================================================================"
-cd ../docker-arm \
-  && docker build -t redismq_arm --no-cache .
+rm -r RedisMQ \
+  && mv node.redis.mq.tar.gz docker-arm/$REDISMQVERSION/node.redis.mq.tar.gz
 if [ $? -ne 0 ]
 then
-    echo "----ERROR: Failed to create the docker image for the ARM redisMQ"
-    exit
+  echo "================================================================"
+  echo "----ERROR: Failed to move $REDISMQ tarball to Docker folder or remove the RedisMQ directory"
+  echo "================================================================"
+  rm -r RedisMQ \
+    && rm node.redis.mq.tar.gz
+  exit 1
 fi
-echo "----INFO: Success - Created base docker image for ARM redisMQ"
 
+echo "================================================================"
+echo "----INFO: Creating base docker image for AMD variant"
+echo "================================================================"
+docker build -t insatiableben/redismq_arm:v$REDISMQVERSION --no-cache docker-arm/$REDISMQVERSION
+if [ $? -ne 0 ]
+then
+  echo "================================================================"
+  echo "----ERROR: Failed to create the docker image for the AMD redisMQ" 
+  echo "================================================================"
+  rm docker-arm/$REDISMQVERSION/node.redis.mq.tar.gz
+  exit 1
+fi
+
+rm docker-arm/$REDISMQVERSION/node.redis.mq.tar.gz
+echo "================================================================"
+echo "----INFO: Success - Created base docker image for AMD redisMQ"
+echo "================================================================"

@@ -3,36 +3,26 @@
 # Author: BenSmith(InsatiableBen)
 ####################################
 
-FROM debian
+FROM node:6.11.4-slim
 #----INFO: Labeling the image
 LABEL version="1.0" \
       maintainer="benjamindsmith3@gmail.com" 
 
 #----Update package indices with the udate to date source and installing basic utilities
 RUN apt-get update && apt-get install -y \
-  gnupg2 \
-  curl \
-
-#----Grab the APT repo and adds to APT keychain
-  && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-
-#----Install Node.js
-  && apt-get install -y nodejs \
-
-#----Update npm globally
-  && npm install npm --global
+  curl
 
 #----Coping local tarball of RedisMQ client
-COPY ./node.redis.mq.tar.gz /tmp/
+COPY ./node.redis.mq.tar.gz /temp/
 
 #----Installing the npm package for production globally
-RUN npm install /tmp/node.redis.mq.tar.gz --production --global \
+RUN npm install /temp/node.redis.mq.tar.gz --production --global \
 
 #----INFO: Linking the RedisMQ library so any program can use it
   && npm link redisMQ \
 
 #----Remove the tarball of RedisMQ
-  && rm /tmp/node.redis.mq.tar.gz
+  && rm /temp/node.redis.mq.tar.gz
 
 #----Setting the path to the global Node Modules directory and setting Node.js in production
 ENV NODE_PATH=/usr/lib/node_modules/ NODE_ENV=production
