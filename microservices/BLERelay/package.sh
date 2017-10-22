@@ -18,8 +18,8 @@ echo "---INFO: Packaging $MICROSERVICE tarball" \
   && rm -r $MICROSERVICE
 if [ $? -ne 0 ]
 then
-  echo "----ERROR: Failed to create $MICROSERVICE tarball"
-  rm -r $MICROSERVICE \
+  echo "----ERROR: Failed to create $MICROSERVICE tarball" \
+    && rm -r $MICROSERVICE \
     && rm ${MICROSERVICE,,}.tar.gz
   exit 1
 fi
@@ -28,16 +28,16 @@ echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder" \
   && mv ${MICROSERVICE,,}.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
 if [ $? -ne 0 ]
 then 
-  echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder"
-  rm ${MICROSERVICE,,}.tar.gz
+  echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder" \
+    && rm ${MICROSERVICE,,}.tar.gz
   exit 1
 fi 
 
 docker build -t curiousben/${MICROSERVICE,,}:v$REDISMQVERSION docker/$REDISMQVERSION
 if [ $? -ne 0 ]
 then
-  echo "----ERROR: Failed to create the $MICROSERVICE docker image"
-  rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
+  echo "----ERROR: Failed to create the $MICROSERVICE docker image" \
+  && rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
   if [ $? -ne 0 ]
   then
     echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
@@ -46,6 +46,7 @@ then
   echo "----INFO: Removed $MICROSERVICE tarball from docker directory"
   exit 1
 fi
+
 rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
 if [ $? -ne 0 ]
 then

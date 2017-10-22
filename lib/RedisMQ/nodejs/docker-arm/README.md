@@ -1,6 +1,6 @@
 # Supported tags and respective `Dockerfile` links
 
- - `1.0` [(1.0/library)](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/1.0/Dockerfile)
+ - `1.0` [(1.0/library)](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-arm/1.0/Dockerfile)
 
 # Quick reference
 
@@ -17,7 +17,7 @@
 - **Supported architectures**: `amd64` & `armv8`
 
 - **Source of this description**:  
-  [The `/README.md` in the root directory](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/README.md)
+  [The `/README.md` in the root directory](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-arm/README.md)
   
 # What is RedisMQ?
 
