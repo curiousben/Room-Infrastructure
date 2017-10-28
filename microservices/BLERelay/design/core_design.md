@@ -4,58 +4,46 @@ This markdown file documents the thoughts and assumptions about the design for B
 
 ## Core Design:
 1. Read RedisMQ and BLERelay config file
-2. Initialize RedisMQ then BLERelay broadcast, then BLERelay detection
-3. Listen to BLE RSSI transmission
-4. Create message with Node_name Device and its RSSI value for all deivces detected.
+2. Initialize RedisMQ then BLE advertisement, then BLE listener
+3. Listen for some BLE device transmission.
+4. Create message with node name and detected Device and its RSSI value.
 5. Send message to RedisMQ Queue
 6. Repeat 3
 
 ## Message Payload
 
 - Type: JSONObject
-- Notes: device_UUIDs cannot be node uuids only devices that are not nodes. The RSSI values can only be values less than the delta detection neighborhood.
+- Notes: device_UUIDs can be node uuids. There are no restrictions on the RSSI values that are transmitted.
 
 _Example:_
 
 ```js
 {
-  "device_UUID": "device_uuid",
-  "rssi": "rssi_value",	
-  "nodes": {
-  	"local_node": {
-    	"rssi": 0
-  	},
-  	"detected_node": {
-    	"rssi": rssi_value 
-  	},
-  	.
-  	.
-  	.
+  "device": {
+    "uuid": "",
+    "rssi": ""
+  },
+  "node": {
+    "name": ""
   }
 }
 ```
-With this message payload the data parsor will have a snapshot with each device in relation to all of the other nodes.
+With this message payload the data parsor will have who detected this device and at what rssi value.
 
 ## Data transmission Constraints
-1. Each message will have one device's rssi value and all other detected nodes.
-2. A global RSSI detection delta neighborhood will be used.
-3. Each detection node has to see at least one other detection node. 
+1. This device will not edge compute but will defer this process to a more centralized group of processes.
+2. Each message will have one device's rssi value and the node that detected the device.
+2. No RSSI constraints will be enforced if the device picks up the signal then it is sent.
 
 ## Decision about Constrains
-- Each message will have one device's rssi value and all other detected nodes.
+- This device will not edge compute but will defer this process to a more centralized group of processes.
 
-Messages that only have one device and all other nodes detected (in real situations might max out at 5 but could be n) keeps message small but have alot of information. Downside, how to juggle a always fresh roster of known nodes.
+This removes the burden of processing power off of the less powerful devices and delegates it to a stronger instance. The message sizes can now be every small which will allow more data to be available, which would in turn faster response time to when a device enters the field of detection.
 
-- A global RSSI detection delta neighborhood will be used.
+- Each message will have one device's rssi value and the node that detected the device.
 
-_**Questions:**_
+This allows downstream processes to know at a snapshot who picked up the device and at what RSSI strength. It also allows downstream processes to enforce new rules without having to distribute these rules to all devices.
 
-> Should BLERelay have a RSSI threshold that is determined locally? or globally?
+- No RSSI constraints will be enforced if the device picks up the signal then it is sent.
 
-:+1: Globally Offers a consistency so all Raspberry Pi’s read at the same accuracy and a sense of uniformity when choosing locations for nodes. But, when a node is in a _"Dead Zone"_ (Where the node doesn't see any other nodes) then any devices can't be assumed to be in the room. 
-
-Locally offers a more realistic way of recording data since each node can has the best RSSI delta that will work for where it is actually located. The microservice doesn’t scale easy unless some automation occurs where the local RSSI strength is tested and then adjustments are made.
-
-- Each node has to see at least one other node.
-
-When sending data we can guarantee that another node can see this device as well. If we allow data to be sent with out it then we lose guarantee of trianglation. 
+This follows a simliar line of reasoning as the previous justification, but also allows each device to require little to no calibration and can scale with any device no matter how powerful the BLE detection module is on the device.

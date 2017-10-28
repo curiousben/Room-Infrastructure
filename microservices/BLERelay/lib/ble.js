@@ -7,21 +7,23 @@ let bleno = bluebird.promisifyAll(require('bleno'))
 
 /*
 * Description:
-*   This promise creates a publisher instance that can send messages to a queue directly.
+*   This function craetes the service that will be advertised by the bleno
 * Args:
-*   configKey (String): This key is a JSONkey in the config file that houses the metadata for the publisher.
+*   configJSON (JSON): This object is the configuration of the BLERelay microservice.
 * Returns:
-*   Publisher (Promise) An promise that resolves with the results of a successfull publish of a message.
-* Throws:
-*   SomeError (Error):  
-* Notes:
 *   N/A
+* Throws:
+*   N/A
+* Notes:
+*   This needs function needs a constructor so fat arrows can't be used here.
 * TODO:
-*   [#1]:
+*   [#1]: Resarch more into .replace since this is most likely the place where an error can be thrown
+*     using this method.
 */
-let nodeService = (configJSON) => {
+function nodeService(configJSON) {
     bleno.PrimaryService.call(this, {
-        uuid: serviceUUID,
+        uuid: configJSON.node.name,
+        characteristics: []
     })
 }
 util.inherits(nodeService, bleno.PrimaryService)
@@ -93,26 +95,28 @@ let bleListenInit = logger => {
 * Description:
 *   This promise creates a publisher instance that can send messages to a queue directly.
 * Args:
-*   configKey (String): This key is a JSONkey in the config file that houses the metadata for the publisher.
+*   logger (Logger): This is the logger that is provided by the logger from the publisher.
+*   configJSON (JSON): This object is the configuration of the BLERelay microservice.
+* Returns:
 * Returns:
 *   Publisher (Promise) An promise that resolves with the results of a successfull publish of a message.
 * Throws:
-*   SomeError (Error):  
+*   Error (Error): 
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
-let bleAdvertiseInit = (service, logger) => {
+let bleAdvertiseInit = (configJSON, service, logger) => {
   return new Promise(
     (resolve) => {
       bleno.on('stateChange', function (state) {
         switch (state) {
           case 'poweredOn':
             logger.info('BLE advertising service is starting ...')
-            bleno.startAdvertisingAsync(configJSON.node.name, configJSON.node.uuid)
+            bleno.startAdvertisingAsync(configJSON.node.name, [service.uuid])
               .then(() => logger.info('... BLE advertising service has started'))
-              .catch(err => logger.error('... Failed to start BLE advertising service.'))
+              .catch(err => logger.error('... Failed to start BLE advertising service. Details: ' + err.message))
             break;
           case 'resetting':
             logger.info('BLE advertising service resetting ...')
@@ -143,10 +147,10 @@ let bleAdvertiseInit = (service, logger) => {
       })
       bleno.on('advertisingStart', function (error) {
         if (!error) {
-          logger.info('... Advertising has started')
           bleno.setServices([
-            nodeService(configJSON.node.uuid)
+            service
           ])
+          logger.info('... Advertising has started')
         } else {
           logger.error('Failed to start advertising BLE. Details: ' + error.message)
         }
@@ -167,15 +171,15 @@ let bleAdvertiseInit = (service, logger) => {
 * Returns:
 *   Publisher (Promise) An promise that resolves with the results of a successfull publish of a message.
 * Throws:
-*   SomeError (Error):  
+*   SomeError (Error):
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
-let createPayload = (peripheral, nodes) => {
-  return new Promise({
-    (resolve) => {
+let createPayload = (peripheral) => {
+  return new Promise(
+    resolve => {
       let payload = {}
       let device = {}
       device["uuid"] = peripheral.advertisement.manufacturerData
@@ -183,7 +187,7 @@ let createPayload = (peripheral, nodes) => {
       payload["device"] = device
       resolve(payload)
     }
-  })
+  )
 }
 
 module.exports = {

@@ -12,6 +12,8 @@ LABEL version="1.0" \
       service.id="BLE.Lights" \
       component.id="BLE.Relay"
 
+COPY ./blerelay.tar.gz /tmp/
+
 #----INFO: Updating package manager and installing packages
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -22,23 +24,18 @@ RUN apt-get update && apt-get install -y \
   libkrb5-dev \
   vim \
 
-#----INFO: Installing Node.js App
-  && wget https://github.com/insatiableben/Room-Infrastructure/raw/master/microservices/BLERelay/dist/blerelay.tar.gz \
-  && tar xzvf blerelay.tar.gz -C /opt/ \
-  && rm blerelay.tar.gz \
-
 #----INFO: Downloading configs for Node.js app
+  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLERelay/config/logger.config -P /etc/opt/blerelay/ \
+  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLERelay/config/redisMQ.config -P /etc/opt/blerelay/ \
 
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLERelay/config/logger.config -P /etc/opt/BLERelay/ \
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLERelay/config/redisMQ.config -P /etc/opt/BLERelay/ \
+#----INFO: Installing the BLERelay App
+  && tar -xzvf /tmp/blerelay.tar.gz -C /opt/ \
+  && rm /tmp/blerelay.tar.gz \
+  && npm install --prefix /opt/blerelay/ --production \
   && rm -rf /var/lib/apt/lists/*
 
-#----INFO: Installing Node.js app
-
-WORKDIR /opt/BLERelay/
-RUN npm install
-
-CMD ["node", "/opt/BLERelay/bin/BLERelay.js"]
+WORKDIR /opt/blerelay/
+CMD ["node", "/opt/blerelay/bin/BLERelay.js"]
 
 #----INFO: Example docker run command
 #---- $ docker run -ti --privileged --net=host debian:jessie --name bletest /bin/bash

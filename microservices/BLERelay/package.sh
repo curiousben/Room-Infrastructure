@@ -1,25 +1,26 @@
 #!/bin/bash
+
+readonly MICROSERVICE=BLERelay
 if [ -z $1 ]
 then
-    echo "Missing BLERelay version, expected syntax:"
+    echo "Missing $MICROSERVICE version, expected syntax:"
     echo "./package.sh <version-number>"
     exit 1
 fi
 
-readonly MICROSERVICE=BLERelay
 readonly REDISMQVERSION=$1
 
 echo "---INFO: Packaging $MICROSERVICE tarball" \
-  && mkdir $MICROSERVICE \
-  && cp package.json $MICROSERVICE/ \
-  && cp -R lib/ $MICROSERVICE/ \
-  && cp -R bin/ $MICROSERVICE/ \
-  && tar -czvf ${MICROSERVICE,,}.tar.gz $MICROSERVICE/ \
-  && rm -r $MICROSERVICE
+  && mkdir ${MICROSERVICE,,} \
+  && cp package.json ${MICROSERVICE,,}/ \
+  && cp -R lib/ ${MICROSERVICE,,}/ \
+  && cp -R bin/ ${MICROSERVICE,,}/ \
+  && tar -czvf ${MICROSERVICE,,}.tar.gz ${MICROSERVICE,,}/ \
+  && rm -r ${MICROSERVICE,,}
 if [ $? -ne 0 ]
 then
   echo "----ERROR: Failed to create $MICROSERVICE tarball" \
-    && rm -r $MICROSERVICE \
+    && rm -r ${MICROSERVICE,,} \
     && rm ${MICROSERVICE,,}.tar.gz
   exit 1
 fi

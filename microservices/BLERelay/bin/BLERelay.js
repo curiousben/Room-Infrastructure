@@ -11,16 +11,8 @@ const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
  *     "uuid": "",
  *     "rssi": ""
  *   },
- *   "nodes": {
- *     "local_node": {
- *       "rssi": 0
- *     },
- *     "node1": {
- *       "rssi": some_value
- *     }
- *     .
- *     .
- *     .
+ *   "node": {
+ *     "name": ""
  *   }
  * }
  *
@@ -34,10 +26,27 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
     this.publisher.logger.info('Successfully loaded the BLERelay configuration.')
     return
   })
-  .then(() => bleLibrary.bleAdvertiseInit(this.bleRelayConfig, this.publisher.logger))
+  .then(() => return bleLibrary.nodeService(this.bleRelayConfig))
+  .then((service) => bleLibrary.bleAdvertiseInit(this.bleRelayConfig, service, this.publisher.logger))
+  .then(bleAdvertiser => {
+    if (bleAdvertiser.initialized) { 
+      this.publisher.logger.info('This device has successfully initialized the BLE advertising process with the current state: \n\t"' + bleAdvertiser.state  + '"\n\taddress: "' + bleAdvertiser.address + '"')
+      return
+    } else {
+      throw new Error("This device has not initialized the BLE advertising process")
+    }
+  }
   .then(() => bleLibrary.bleListenInit(this.publisher.logger))
-  .then(bleService => {
-    bleService.on('discover', (peripheral) => {
+  .then(bleListener => {
+    if (bleListener.initialized) {
+      this.publisher.logger.info('This device has successfully initialized the BLE listening process with the current state: \n\t"' + bleListener._state  + '"\n\taddress: "' + bleListener.address + '"')
+      return
+    } else {
+      throw new Error("This device has not initialized the BLE listening process")
+    }
+  })
+  .then(bleListener => {
+    bleListener.on('discover', (peripheral) => {
       if (peripheral.advertisement.manufacturerData != undefined) {
         //bleLibrary.createPayload(peripheral)
         //  .then(payload => this.publisher.sendDirect(payload))
