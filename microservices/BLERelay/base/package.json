@@ -2,14 +2,12 @@
   "name": "BLERelay",
   "version": "1.0.0",
   "description": "Device to detect BLE signals",
-  "main": "/bin/ble_relay",
+  "main": "/bin/BLERelay.js",
   "author": "Benjamin Smith",
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.0",
-    "jsonfile": "^2.4.0",
-    "noble": "^1.8.1",
-    "bleno": "^0.4.2"
+    "noble": "^1.8.1"
   },
   "devDependencies": {
     "standard": "^10.0.2",

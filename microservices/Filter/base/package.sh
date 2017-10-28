@@ -1,6 +1,12 @@
 #!/bin/bash
 
 readonly MICROSERVICE=BLERelay
+
+if [ "$EUID" -ne 0 ]
+then
+    echo "Please run as root."
+    exit 1
+fi
 if [ -z $1 ]
 then
     echo "Missing $MICROSERVICE version, expected syntax:"
@@ -34,7 +40,8 @@ then
   exit 1
 fi 
 
-docker build -t curiousben/${MICROSERVICE,,}:v$REDISMQVERSION docker/$REDISMQVERSION
+docker build -t curiousben/${MICROSERVICE,,} --no-cache docker/$REDISMQVERSION
+  && docker tag curiousben/${MICROSERVICE,,} curiousben/${MICROSERVICE,,}:v$REDISMQVERSION
 if [ $? -ne 0 ]
 then
   echo "----ERROR: Failed to create the $MICROSERVICE docker image" \

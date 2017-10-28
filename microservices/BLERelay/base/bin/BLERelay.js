@@ -21,21 +21,11 @@ const bleRelayConfig = '/etc/opt/BLERelay/BLERelay.config'
 redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
   .then(publisher => this.publisher = publisher)
   .then(() => redisMQ.utils.loadJSON(bleRelayConfig))
-  .then((bleRelayObj) => {
+  .then(bleRelayObj => {
     this.bleRelayConfig = bleRelayObj
     this.publisher.logger.info('Successfully loaded the BLERelay configuration.')
     return
   })
-  .then(() => return bleLibrary.nodeService(this.bleRelayConfig))
-  .then((service) => bleLibrary.bleAdvertiseInit(this.bleRelayConfig, service, this.publisher.logger))
-  .then(bleAdvertiser => {
-    if (bleAdvertiser.initialized) { 
-      this.publisher.logger.info('This device has successfully initialized the BLE advertising process with the current state: \n\t"' + bleAdvertiser.state  + '"\n\taddress: "' + bleAdvertiser.address + '"')
-      return
-    } else {
-      throw new Error("This device has not initialized the BLE advertising process")
-    }
-  }
   .then(() => bleLibrary.bleListenInit(this.publisher.logger))
   .then(bleListener => {
     if (bleListener.initialized) {

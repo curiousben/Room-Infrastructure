@@ -1,10 +1,10 @@
-#BLERelay Core Design and Thoughts:
+#Filter Core Design and Thoughts:
 
-This markdown file documents the thoughts and assumptions about the design for BLERelay microservice. This is subject to change based on limititations encountered when implimenting the design.
+This markdown file documents the thoughts and assumptions about the design for Filter microservice. This is subject to change based on limititations encountered when implimenting the design.
 
 ## Core Design:
-1. Read RedisMQ and BLERelay config file
-2. Initialize RedisMQ then BLE advertisement, then BLE listener
+1. Read RedisMQ and Filter config file
+2. Initialize RedisMQ then BLE listener
 3. Listen for some BLE device transmission.
 4. Create message with node name and detected Device and its RSSI value.
 5. Send message to RedisMQ Queue
