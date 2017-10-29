@@ -6,7 +6,7 @@ then
     echo "Please run as root."
     exit 1
 fi
-if [ -z $2 ]
+if [ -z $1 ]
 then
     echo "Missing $MICROSERVICE version, expected syntax:"
     echo "./package.sh <version-number>"

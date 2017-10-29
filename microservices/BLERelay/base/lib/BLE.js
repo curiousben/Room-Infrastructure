@@ -80,14 +80,17 @@ let bleListenInit = logger => {
 * TODO:
 *   [#1]:
 */
-let createPayload = (peripheral) => {
+let createPayload = (peripheral, configJSON) => {
   return new Promise(
     resolve => {
       let payload = {}
       let device = {}
-      device["uuid"] = peripheral.advertisement.manufacturerData
+      let node = {}
+      device["uuid"] = peripheral.advertisement.manufacturerData.toString('hex')
       device["rssi"] = peripheral.rssi
       payload["device"] = device
+      node["name"] = configJSON.node.name
+      payload["node"] = node
       resolve(payload)
     }
   )

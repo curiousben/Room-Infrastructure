@@ -28,20 +28,20 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
   })
   .then(() => bleLibrary.bleListenInit(this.publisher.logger))
   .then(bleListener => {
-    if (bleListener.initialized) {
-      this.publisher.logger.info('This device has successfully initialized the BLE listening process with the current state: \n\t"' + bleListener._state  + '"\n\taddress: "' + bleListener.address + '"')
-      return
-    } else {
-      throw new Error("This device has not initialized the BLE listening process")
-    }
-  })
-  .then(bleListener => {
     bleListener.on('discover', (peripheral) => {
       if (peripheral.advertisement.manufacturerData != undefined) {
-        //bleLibrary.createPayload(peripheral)
-        //  .then(payload => this.publisher.sendDirect(payload))
-        //  .catch(err => this.publisher.logger.error("Encountered an error when publishing a message to the Redis Server. Details " + err))
-        this.publisher.logger.info("Found registered device in room. Device: " + peripheral.advertisement.manufacturerData + "\n Sending this data to RedisMQ!")
+        bleLibrary.createPayload(peripheral, this.bleRelayConfig)
+          .then(payload => {
+            this.publisher.logger.info('Sending payload: ' + JSON.stringify(payload, null, 2))
+            return payload
+          })
+          .then(payload => this.publisher.sendDirect(payload))
+          .then(result => {
+            if (result == 'OK') {
+              this.publisher.logger.info('Sent payload to RedisMQ')
+            }
+          })
+          .catch(err => this.publisher.logger.error("Encountered an error when publishing a message to the Redis Server. Details " + err))
       }
     })
   })
