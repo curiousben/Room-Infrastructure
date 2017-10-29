@@ -28,17 +28,18 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
   })
   .then(() => bleLibrary.bleListenInit(this.publisher.logger))
   .then(bleListener => {
+    this.publisher.logger.info('BLERelay listening for BLE devices ...')
     bleListener.on('discover', (peripheral) => {
       if (peripheral.advertisement.manufacturerData != undefined) {
         bleLibrary.createPayload(peripheral, this.bleRelayConfig)
           .then(payload => {
-            this.publisher.logger.info('Sending payload: ' + JSON.stringify(payload, null, 2))
+            this.publisher.logger.debug('Sending payload: ' + JSON.stringify(payload, null, 2))
             return payload
           })
           .then(payload => this.publisher.sendDirect(payload))
           .then(result => {
             if (result == 'OK') {
-              this.publisher.logger.info('Sent payload to RedisMQ')
+              this.publisher.logger.debug('Sent payload to RedisMQ')
             }
           })
           .catch(err => this.publisher.logger.error("Encountered an error when publishing a message to the Redis Server. Details " + err))
