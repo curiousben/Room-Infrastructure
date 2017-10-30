@@ -1,49 +1,84 @@
 #Filter Core Design and Thoughts:
 
-This markdown file documents the thoughts and assumptions about the design for Filter microservice. This is subject to change based on limititations encountered when implimenting the design.
+This markdown file documents the thoughts and assumptions about the design for the Filter microservice. This is subject to change based on limititations encountered when implimenting the design.
 
 ## Core Design:
 1. Read RedisMQ and Filter config file
-2. Initialize RedisMQ then BLE listener
-3. Listen for some BLE device transmission.
-4. Create message with node name and detected Device and its RSSI value.
-5. Send message to RedisMQ Queue
-6. Repeat 3
+2. Initialize RedisMQ subscriber
+3. Listen to Subscriber queue
+4. Receive JSON message
+5. Compares message's content based on configurations.
+6. If message contains an accepted value:
+- Send to Queue 1
+7. If message does not contain an accepted value:
+- Send to Queue 2
+8. Repeat 3
 
 ## Message Payload
 
 - Type: JSONObject
-- Notes: device_UUIDs can be node uuids. There are no restrictions on the RSSI values that are transmitted.
+- Notes: This could be any size or JSON key-value depth.
 
 _Example:_
 
 ```js
 {
-  "device": {
-    "uuid": "",
-    "rssi": ""
+  "someData": {
+    "subData1": "",
+    "subData2": {
+      "subData1": "",
+      "subData2": ""
+    }
   },
-  "node": {
-    "name": ""
+  "someMoreData": {
+    "subData1": []
   }
 }
 ```
-With this message payload the data parsor will have who detected this device and at what rssi value.
+With this message payload the Filter will know from configuration how deep and where to go in the JSON message to get the value it needs to filter out.
+
+## Configuration
+- Type: JSONObject
+- Notes: 
+  - value: This array holds the possible values that the key in the JSObject that are not being filtered out.
+  - location: This array holds the position sensitive location of the key.
+  - typeOfMatch: This option determines to what degree the data must match with the accepted values to filter out the message. ("exact" or "partial")
+  - If there are mutliple keys only if all keys exist and have values that match values in the acceptedValues array will the message not be filtered out.
+
+```js
+{
+  "data": {
+    "<key>": {
+      "acceptedValues": [],
+      "location": [],
+      "typeOfMatch": ""
+    },
+    "<key>": {
+      "acceptedValues": [],
+      "location": [],
+      "typeOfMatch": ""
+    },
+    .
+    .
+    .
+  }
+}
+```
 
 ## Data transmission Constraints
-1. This device will not edge compute but will defer this process to a more centralized group of processes.
-2. Each message will have one device's rssi value and the node that detected the device.
-2. No RSSI constraints will be enforced if the device picks up the signal then it is sent.
+1. Configuration will have the location of the data in the JSON object, accepted values, and type of match threshold.
+2. Accepted values can only be non-multideminsional objects or arrays.
+3. Filtering results will only result in a binary outcome.
 
 ## Decision about Constrains
-- This device will not edge compute but will defer this process to a more centralized group of processes.
+- Configuration will have the location of the data in the JSON object, accepted values, and type of match threshold.
 
-This removes the burden of processing power off of the less powerful devices and delegates it to a stronger instance. The message sizes can now be every small which will allow more data to be available, which would in turn faster response time to when a device enters the field of detection.
+When filtering a couple of questions comes to mind what should I be filtered? Where is this data that needs to be filtered? What are the values that should not be filtered out? How strict should the threshold be for filtering? These configurations satisfies these questions and makes what should be filtered out and what shouldn't apparent.
 
-- Each message will have one device's rssi value and the node that detected the device.
+- Accepted values can only be non-multideminsional objects or arrays.
 
-This allows downstream processes to know at a snapshot who picked up the device and at what RSSI strength. It also allows downstream processes to enforce new rules without having to distribute these rules to all devices.
+Due to overhead looking through multi-deminsional objects only comparing strings and numbers makes filtering easier. There is a in-built javascript function includes() for sub-strings and "===" for exact comparison for strings and numbers.
 
-- No RSSI constraints will be enforced if the device picks up the signal then it is sent.
+- Filtering results will only result in a binary outcome.
 
-This follows a simliar line of reasoning as the previous justification, but also allows each device to require little to no calibration and can scale with any device no matter how powerful the BLE detection module is on the device.
+Multiple outcomes could be in a future version of the filter then the pattern will then start to approach a more complex router pattern. More thought is needed on this.

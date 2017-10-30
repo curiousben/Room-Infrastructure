@@ -1,6 +1,6 @@
 #!/bin/bash
 
-readonly MICROSERVICE=BLERelay
+readonly MICROSERVICE=Filter
 
 if [ "$EUID" -ne 0 ]
 then

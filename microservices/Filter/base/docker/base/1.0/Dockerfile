@@ -1,5 +1,5 @@
 ####################################
-# BLEFilter Image
+# Filter Image
 # Author: BenSmith(CuriousBen)
 ####################################
 
@@ -16,26 +16,21 @@ COPY ./blerelay.tar.gz /tmp/
 #----INFO: Updating package manager and installing packages
 RUN apt-get update && apt-get install -y \
   build-essential \
-  bluetooth \
-  bluez \
-  libbluetooth-dev \
-  libudev-dev \
-  libkrb5-dev \
   vim \
 
 #----INFO: Downloading configs for Node.js app
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLEFilter/config/logger.config -P /etc/opt/blerelay/ \
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/BLEFilter/config/redisMQ.config -P /etc/opt/blerelay/ \
+  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Filter/base/config/logger.config -P /etc/opt/blerelay/ \
+  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Filter/base/config/redisMQ.config -P /etc/opt/blerelay/ \
 
-#----INFO: Installing the BLEFilter App
+#----INFO: Installing the Filter App
   && tar -xzvf /tmp/blerelay.tar.gz -C /opt/ \
   && rm /tmp/blerelay.tar.gz \
   && npm install --prefix /opt/blerelay/ --production \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/blerelay/
-CMD ["node", "/opt/blerelay/bin/BLEFilter.js"]
+CMD ["node", "/opt/blerelay/bin/Filter.js"]
 
 #----INFO: Example docker run command
 #---- $ docker run -ti --privileged --net=host debian:jessie --name bletest /bin/bash
-#---- $ docker run -d --name BLEFilter --privileged --net=host -v <Path/to/config/on/host>:<Path/to/config/in/container>
+#---- $ docker run -d --name Filter --privileged --net=host -v <Path/to/config/on/host>:<Path/to/config/in/container>

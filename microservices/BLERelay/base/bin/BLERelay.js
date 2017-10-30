@@ -28,7 +28,6 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'ble.relay')
   })
   .then(() => bleLibrary.bleListenInit(this.publisher.logger))
   .then(bleListener => {
-    this.publisher.logger.info('BLERelay listening for BLE devices ...')
     bleListener.on('discover', (peripheral) => {
       if (peripheral.advertisement.manufacturerData != undefined) {
         bleLibrary.createPayload(peripheral, this.bleRelayConfig)
