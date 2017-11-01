@@ -1,6 +1,6 @@
 # Supported tags and respective `Dockerfile` links
 
- - `1.0` [(1.0/library)](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/1.0/Dockerfile)
+ - `1.0` [(1.0/library)](https://github.com/curiousben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/1.0/Dockerfile)
 
 # Quick reference
 
@@ -9,15 +9,15 @@
   Email is best and only way outside of the guide to get help [benjamindsmith3@gmail.com](benjamindsmith3@gmail.com). As always suggestions are very welcome.
 
 - **Where to file issues**:  
-  [https://github.com/insatiableben/Room-Infrastructure/issues](https://github.com/insatiableben/Room-Infrastructure/issues)
+  [https://github.com/curiousben/Room-Infrastructure/issues](https://github.com/curiousben/Room-Infrastructure/issues)
 
 - **Maintained by**:  
-  [Benjamin Smith](https://www.linkedin.com/in/42656e/) (A message based microservice middleware engineer)
+  [Benjamin Smith](https://www.linkedin.com/in/ben-d-smith/) (A message based microservice middleware engineer)
 
-- **Supported architectures**: `amd64` & `armv8`
+- **Supported architectures**: `amd64`
 
 - **Source of this description**:  
-  [The `/README.md` in the root directory](https://github.com/insatiableben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/README.md)
+  [The `/README.md` in the root directory](https://github.com/curiousben/Room-Infrastructure/blob/master/lib/RedisMQ/nodejs/docker-amd/README.md)
   
 # What is RedisMQ?
 

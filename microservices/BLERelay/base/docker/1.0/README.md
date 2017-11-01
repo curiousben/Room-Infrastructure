@@ -14,7 +14,7 @@
   [https://github.com/curiousben/Room-Infrastructure/issues](https://github.com/curiousben/Room-Infrastructure/issues)
 
 - **Maintained by**:  
-  [Benjamin Smith](https://www.linkedin.com/in/42656e/) (A message based microservice middleware engineer)
+  [Benjamin Smith](https://www.linkedin.com/in/ben-d-smith/) (A message based microservice middleware engineer)
 
 - **Supported architectures**: `armv8`
 
