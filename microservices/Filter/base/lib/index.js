@@ -20,10 +20,9 @@ let filterErrors = require('./errors/initializationError.js')
 * TODO:
 *   [#1]:
 */
-let initFilter = (configJSON, logger) => {
+let initFilter = (configJSON) => {
   return new Promise(
     resolve => {
-      logger.debug('Filter module received the following configuration:\n' + JSON.stringify(configJSON, null, 2))
       let filterConfig = configJSON['data']
       for (key in filterConfig) {
         if (!("acceptedValues" in filterConfig[key]) || !("location" in filterConfig[key]) || !("typeOfMatch" in filterConfig[key])) {
@@ -34,7 +33,6 @@ let initFilter = (configJSON, logger) => {
         }
       }
       filterConfig['keys'] = Object.keys(configJSON['data'])
-      logger.info('Filter module has been configured.')
       resolve(filterConfig)
     }
   )
@@ -52,24 +50,24 @@ let initFilter = (configJSON, logger) => {
 * Throws:
 *   FilterError (Error): This error is raised if the key does not exist in the payload in the first place.
 * Notes:
-*   From a design perspective if the key doesn't even exist it should have been filtered out further upstream in the first place as oppose to having it fail in this microservice.
+*   From a design perspective if the key doesn't even exist it should have been filtered out further upstream in the first place as oppose to having it being filtered out in this microservice.
 * TODO:
 *   [#1]:
 */
-let filter = (payload, configJSON, logger) => {
+let filterData = (payload, configJSON, logger) => {
   return new Promise (
     resolve => {
       let shouldBeFiltered = true
       logger.debug('Payload recieved:\n' + JSON.stringify(configJSON, null, 2))
       let data = payload
-      for (key in configJSON) {
-        let location_ = configJSON[key]['location'].push(key)
+      for (filterKey in configJSON) {
+        let pathToKey = configJSON[key]['location'].push(key)
         let typeOfMatch = configJSON[key]['typeOfMatch']
         let acceptedValues = configJSON[key]['acceptedValues']
-        for (key in location_) {
-          data = data[location_[key]]
+        for (key in pathToKey) {
+          data = data[pathToKey[key]]
           if (data === undefined) {
-            throw new FilterError(location_[key] + " does not exist in the payload")
+            throw new FilterError(pathToKey[key] + " does not exist in the payload")
           }
         }
         if (typeOfMatch === 'exact') {
@@ -100,5 +98,5 @@ let filter = (payload, configJSON, logger) => {
 
 module.exports = {
   initFilter: initFilter,
-  filter: filter
+  filterData: filterData
 }

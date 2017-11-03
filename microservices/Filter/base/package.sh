@@ -2,15 +2,10 @@
 
 readonly MICROSERVICE=Filter
 
-if [ "$EUID" -ne 0 ]
-then
-    echo "Please run as root."
-    exit 1
-fi
 if [ -z $1 ]
 then
-    echo "Missing $MICROSERVICE version, expected syntax:"
-    echo "./package.sh <version-number>"
+    echo "Missing $MICROSERVICE version, expected syntax:" \
+      && echo "./package.sh <version-number>"
     exit 1
 fi
 
@@ -32,7 +27,7 @@ then
 fi
 
 echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder" \
-  && mv ${MICROSERVICE,,}.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
+mv ${MICROSERVICE,,}.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
 if [ $? -ne 0 ]
 then 
   echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder" \
@@ -40,12 +35,12 @@ then
   exit 1
 fi 
 
-docker build -t curiousben/${MICROSERVICE,,} --no-cache docker/$REDISMQVERSION
+docker build -t curiousben/${MICROSERVICE,,} --no-cache docker/$REDISMQVERSION \
   && docker tag curiousben/${MICROSERVICE,,} curiousben/${MICROSERVICE,,}:v$REDISMQVERSION
 if [ $? -ne 0 ]
 then
   echo "----ERROR: Failed to create the $MICROSERVICE docker image" \
-  && rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
+    && rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
   if [ $? -ne 0 ]
   then
     echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"

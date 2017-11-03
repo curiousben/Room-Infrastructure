@@ -2,7 +2,7 @@
 if [ -z $1 ]
 then
     echo "Missing redisMQ version, expected syntax:"
-    echo "./package.amd.sh <version-number>"
+      && echo "./package.amd.sh <version-number>"
     exit 1
 fi
 
@@ -21,7 +21,7 @@ then
   echo "----ERROR: Failed to create $REDISMQ tarball" \
     && rm -r RedisMQ \
     && rm node.redis.mq.tar.gz
-exit 1
+  exit 1
 fi
 
 echo "----INFO: Moving the $REDISMQ tarball to the AMD docker folders" \
@@ -34,7 +34,8 @@ then
 fi
 
 echo "----INFO: Creating base docker image for AMD variant" \
-  && docker build -t curiousben/redismq-amd:v$REDISMQVERSION --no-cache docker-amd/$REDISMQVERSION
+  && docker build -t curiousben/redismq-nodejs-amd --no-cache docker-amd/$REDISMQVERSION
+  && docker tag curiousben/redismq-nodejs-amd curiousben/redismq-nodejs-amd:v$REDISMQVERSION
 if [ $? -ne 0 ]
 then
   echo "----ERROR: Failed to create the docker image for the AMD redisMQ" \
@@ -42,10 +43,10 @@ then
   exit 1
 fi
 
-rm docker-amd/$REDISMQVERSION/node.redis.mq.tar.gz
+rm docker-amd/$REDISMQVERSION/node.redis.mq.tar.gz \
+  && echo "----INFO: Success - Created base docker image for AMD redisMQ"
 if [ $? -ne 0 ]
 then
   echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
   exit 1
 fi
-echo "----INFO: Success - Created base docker image for AMD redisMQ"
