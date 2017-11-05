@@ -1,8 +1,8 @@
 /*eslint-env node*/
 /*eslint no-console:["error", { allow: ["info", "error"] }]*/
 
-let initErrors = require('./errors/filterError.js')
-let filterErrors = require('./errors/initializationError.js')
+let initErrors = require('./errors/initializationError.js')
+let filterErrors = require('./errors/filterError.js')
 
 /*
 * Description:

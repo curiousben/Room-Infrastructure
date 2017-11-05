@@ -1,14 +1,11 @@
 {
-  "name": "BLERelay",
+  "name": "Filter",
   "version": "1.0.0",
-  "description": "Device to detect BLE signals",
-  "main": "/bin/BLERelay.js",
+  "description": "This microservice filters out messages that it encounters based on values that are received from a certain set of keys",
+  "main": "/bin/Filter.js",
   "author": "Benjamin Smith",
   "license": "MIT",
-  "dependencies": {
-    "bluebird": "^3.5.0",
-    "noble": "^1.8.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "standard": "^10.0.2",
     "eslint": "^4.4.1",

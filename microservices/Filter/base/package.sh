@@ -27,7 +27,7 @@ then
 fi
 
 echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder" \
-mv ${MICROSERVICE,,}.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
+  && mv ${MICROSERVICE,,}.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
 if [ $? -ne 0 ]
 then 
   echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder" \

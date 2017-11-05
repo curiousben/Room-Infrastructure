@@ -6,16 +6,9 @@ const FilterConfig = '/etc/opt/BLERelay/Filter.config'
 
 // Example payload
 /*
- * {
- *   "device": {
- *     "uuid": "",
- *     "rssi": ""
- *   },
- *   "node": {
- *     "name": ""
- *   }
- * }
- *
+ * This message does not tranform the data in anyway so the orginal
+ * message's data structure remains the same. 
+ * 
 */
 // Starting the subscriber
 redisMQ.loadJSON(FilterConfig)
