@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ -z $1 ]
 then
-    echo "Missing redisMQ version, expected syntax:"
+    echo "Missing redisMQ version, expected syntax:" \
       && echo "./package.amd.sh <version-number>"
     exit 1
 fi
@@ -34,7 +34,7 @@ then
 fi
 
 echo "----INFO: Creating base docker image for AMD variant" \
-  && docker build -t curiousben/redismq-nodejs-amd --no-cache docker-amd/$REDISMQVERSION
+  && docker build -t curiousben/redismq-nodejs-amd --no-cache docker-amd/$REDISMQVERSION \
   && docker tag curiousben/redismq-nodejs-amd curiousben/redismq-nodejs-amd:v$REDISMQVERSION
 if [ $? -ne 0 ]
 then
