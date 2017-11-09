@@ -7,7 +7,7 @@ FROM curiousben/redismq-nodejs-amd:latest
 
 #----INFO: Labeling the image
 LABEL version="1.0" \
-      redisMQ.version="1.0" \
+      redisMQ.version="1.5" \
       maintainer="benjamindsmith3@gmail.com"
 
 #----INFO: Copying the local tarball into the tmp directory
@@ -18,9 +18,9 @@ RUN apt-get update && apt-get install -y \
   vim \
 
 #----INFO: Downloading configs for Node.js app
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Filter/base/config/logger.config -P /etc/opt/filter/ \
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Filter/base/config/redisMQ.config -P /etc/opt/filter/ \
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Filter/base/config/filter.config -P /etc/opt/filter/ \
+  && wget https://raw.githubusercontent.com/curiousben/Room-Infrastructure/master/microservices/Filter/base/config/logger.config -P /etc/opt/filter/ \
+  && wget https://raw.githubusercontent.com/curiousben/Room-Infrastructure/master/microservices/Filter/base/config/redisMQ.config -P /etc/opt/filter/ \
+  && wget https://raw.githubusercontent.com/curiousben/Room-Infrastructure/master/microservices/Filter/base/config/filter.config -P /etc/opt/filter/ \
 
 #----INFO: Installing the Filter App
   && tar -xzvf /tmp/filter.tar.gz -C /opt/ \

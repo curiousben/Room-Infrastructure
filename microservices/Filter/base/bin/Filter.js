@@ -1,23 +1,23 @@
 const redisMQ =  require('redisMQ')
-const FilterLibrary = require('../lib/Filter_Lib.js')
-const redisMQConfig = '/etc/opt/BLERelay/redisMQ.config'
-const loggerConfig = '/etc/opt/BLERelay/logger.config'
-const FilterConfig = '/etc/opt/BLERelay/Filter.config'
+const FilterLibrary = require('../lib/index.js')
+const redisMQConfig = '/etc/opt/filter/redisMQ.config'
+const loggerConfig = '/etc/opt/filter/logger.config'
+const FilterConfig = '/etc/opt/filter/filter.config'
 
 // Example payload
 /*
  * This message does not tranform the data in anyway so the orginal
- * message's data structure remains the same. 
- * 
+ * message's data structure remains the same.
+ *
 */
 // Starting the subscriber
-redisMQ.loadJSON(FilterConfig)
+redisMQ.utils.loadJSON(FilterConfig)
   .then(configJSON => FilterLibrary.initFilter(configJSON))
   .then(config => {
     this.filterConfig = config
     return
   })
-  .then(() => redisMQ.createPublisher(loggerConfig, redisMQConfig, 'BLETrigger'))
+  .then(() => redisMQ.createPublisher(loggerConfig, redisMQConfig, 'BLEFilter'))
   .then(publisher => {
     this.BLETrigger = publisher
     return
@@ -43,7 +43,7 @@ redisMQ.loadJSON(FilterConfig)
         .then(msgIsFiltered => {
           if (msgIsFiltered) {
             this.BLETrigger.sendDirect(message)
-              .then(result => this.BLETrigger.logger.debug('Result from message sent: ' + result))
+              .then(result => this.BLETrigger.logger.debug('Result from the message:\n' + JSON.stringify(message, null, 2) + '\n was sent'))
               .catch(error => this.BLETrigger.logger.error('Failed to send message. Details: ' + error.message))
           }
         })
