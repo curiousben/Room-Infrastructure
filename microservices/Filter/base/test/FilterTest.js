@@ -1,8 +1,8 @@
 const redisMQ =  require('redisMQ')
 const FilterLibrary = require('../lib/index.js')
-const redisMQConfig = '/etc/opt/filter/redisMQ.config'
-const loggerConfig = '/etc/opt/filter/logger.config'
-const FilterConfig = '/etc/opt/filter/filter.config'
+const redisMQConfig = './config/filtertest/redisMQ.config'
+const loggerConfig = './config/filtertest/logger.config'
+const FilterConfig = './config/filtertest/filter.config'
 
 // Example payload
 /*
@@ -29,7 +29,6 @@ redisMQ.utils.loadJSON(FilterConfig)
   })
   .then(() => redisMQ.createSubscriber(loggerConfig, redisMQConfig, 'BLERelay'))
   .then(subscriber => {
-    this.subscriber = subscriber
     subscriber.startConsuming()
       .catch(error => {
         throw error
@@ -50,11 +49,7 @@ redisMQ.utils.loadJSON(FilterConfig)
           }
         })
         .catch(error => subscriber.logger.error('Failed to send BLE event message. Details:\n ' + error.name + ': ' + error.message))
-    })
+      })
   }).catch(err => {
-    if (this.subscriber.logger === undefined) {
-      console.error('----Error: Module error has occured ' + err.name + ': ' + err.message)
-    } else {
-      this.subscriber.logger.error('Module error has occured ' + err.name + ': ' + err.message)
-    }
+    console.error('----Module ERROR: ' + err.name + ': ' + err.message)
   })

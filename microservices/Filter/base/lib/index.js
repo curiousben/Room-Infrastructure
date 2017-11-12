@@ -1,8 +1,8 @@
 /*eslint-env node*/
-/*eslint no-console:["error", { allow: ["info", "error"] }]*/
+/*eslint no-console:['error', { allow: ['info', 'error'] }]*/
 
-let initErrors = require('./errors/initializationError.js')
-let filterErrors = require('./errors/filterError.js')
+let FilterInitializationError = require('./errors/initializationError.js')
+let FilterError = require('./errors/filterError.js')
 
 /*
 * Description:
@@ -24,11 +24,11 @@ let initFilter = (configJSON) => {
   return new Promise(
     resolve => {
       let filterConfig = configJSON['data']
-      for (key in filterConfig) {
-        if (!("acceptedValues" in filterConfig[key]) || !("location" in filterConfig[key]) || !("typeOfMatch" in filterConfig[key])) {
+      for (let key in filterConfig) {
+        if (!('acceptedValues' in filterConfig[key]) || !('location' in filterConfig[key]) || !('typeOfMatch' in filterConfig[key])) {
           throw new FilterInitializationError('Filter configuration is missing either \'acceptedValues\', \'location\', or \'typeOfMatch\' for the filtered data ' + key)
         }
-        if (!(filterConfig[key]['typeOfMatch'] === "exact") && !(filterConfig[key]['typeOfMatch'] === "partial")) {
+        if (!(filterConfig[key]['typeOfMatch'] === 'exact') && !(filterConfig[key]['typeOfMatch'] === 'partial')) {
           throw new FilterInitializationError('The type of match configration for the key: ' + key + ' is not either \'exact\' or \'partial\'.')
         }
       }
@@ -50,46 +50,52 @@ let initFilter = (configJSON) => {
 * Throws:
 *   FilterError (Error): This error is raised if the key does not exist in the payload in the first place.
 * Notes:
-*   From a design perspective if the key doesn't even exist it should have been filtered out further upstream in the first place as oppose to having it being filtered out in this microservice.
+*   From a design perspective if the key doesn't even exist it should have been filtered out further upstream in the first place as oppose to having it being filtered out in this microservice. So an error will be raised
 * TODO:
 *   [#1]:
+*     Add the feature to allow multiple comparisons from multiple keys
 */
 let filterData = (payload, configJSON, logger) => {
   return new Promise (
     resolve => {
+      const config = configJSON
       let shouldBeFiltered = true
-      logger.debug('Payload recieved:\n' + JSON.stringify(configJSON, null, 2))
-      let data = payload
-      for (filterKey in configJSON) {
-        let pathToKey = configJSON[key]['location'].push(key)
-        let typeOfMatch = configJSON[key]['typeOfMatch']
-        let acceptedValues = configJSON[key]['acceptedValues']
-        for (key in pathToKey) {
+      logger.debug('Config recieved:\n' + JSON.stringify(configJSON, null, 2))
+      logger.debug('Payload recieved:\n' + JSON.stringify(payload, null, 2))
+      let data = Object.assign({}, payload)
+      //[#1]
+      for (let filterKey in config) {
+        let pathToKey = config[filterKey]['location'].slice(0)
+        pathToKey.push(filterKey)
+        let typeOfMatch = config[filterKey]['typeOfMatch']
+        let acceptedValues = config[filterKey]['acceptedValues']
+        for (let key in pathToKey) {
           data = data[pathToKey[key]]
           if (data === undefined) {
-            throw new FilterError(pathToKey[key] + " does not exist in the payload")
+            throw new FilterError(pathToKey[key] + ' does not exist in the payload')
           }
         }
         if (typeOfMatch === 'exact') {
           if (acceptedValues.indexOf(data) !== -1) {
-            logger.debug('The value ' + data + ' that was encountered for the key ' + key + ' was an exact match to the value ' + acceptedValues[acceptedValues.indexOf(data)])
+            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an exact match to the value \'' + acceptedValues[acceptedValues.indexOf(data)] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
             resolve(shouldBeFiltered)
           } else {
-            logger.debug('The value ' + data + ' that was encountered for the key ' + key + ' was not an exact match to one of the accepted values.')
+            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not an exact match to the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
             shouldBeFiltered = false
             resolve(shouldBeFiltered)
           }
         } else {
-          for (possibleValue in acceptedValues) {
-            if (possibleValue.indexOf(data) !== -1) {
-              logger.debug('The value ' + data + ' that was encountered for the key ' + key + ' was an partial match to the accepted value ' + possibleValue)
-              resolve(shouldBeFiltered)
-            } else {
-              logger.debug('The value ' + data + ' that was encountered for the key ' + key + ' was an partial match to the accepted value ' + possibleValue)
+          for (let possibleValue in acceptedValues) {
+            if (acceptedValues[possibleValue].indexOf(data) !== -1) {
+              logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an partial or exact match to the accepted value \'' + acceptedValues[possibleValue] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
+              break
+            }
+            if (parseInt(possibleValue) === (acceptedValues.length - 1)) {
+              logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location \'' + pathToKey.join(' -> ') + '\' was not an partial match to the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
               shouldBeFiltered = false
-              resolve(shouldBeFiltered)
             }
           }
+          resolve(shouldBeFiltered)
         }
       }
     }

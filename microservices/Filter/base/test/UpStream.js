@@ -1,5 +1,5 @@
-var redisMQConfig = '../config/redismq.config';
-var loggerConfig = '../config/logger.config';
+var redisMQConfig = './config/upstream/redismq.config';
+var loggerConfig = './config/upstream/logger.config';
 var redisMQ = require('redisMQ')
 redisMQ.createPublisher(loggerConfig, redisMQConfig, 'main.publisher')
   .then(publisher => {
@@ -8,8 +8,8 @@ redisMQ.createPublisher(loggerConfig, redisMQConfig, 'main.publisher')
   })
   .then(() => {
     let i = 0
-    while (i < 10000) {
-      var test = { 'testKey1': i, 'testKey2': i,'testKey3': i}
+    while (i < 1) {
+      const test = {"device": {"3uid": "12345","rssi": "-80"},"node":{"name": "testNode"}}
       this.publisher.sendDirect(null, test)
         .then(results => this.publisher.logger.info('Results: ' + results))
         .catch(error => console.error('----ERROR: Encountered error:\n\t' + error.message))
