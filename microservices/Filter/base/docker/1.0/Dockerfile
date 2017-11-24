@@ -7,7 +7,7 @@ FROM curiousben/redismq-nodejs-amd:latest
 
 #----INFO: Labeling the image
 LABEL version="1.0" \
-      redisMQ.version="1.5" \
+      redisMQ.version="1.6" \
       maintainer="benjamindsmith3@gmail.com"
 
 #----INFO: Copying the local tarball into the tmp directory

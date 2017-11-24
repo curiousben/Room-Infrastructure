@@ -20,7 +20,7 @@
   
 # What is Filter Microservice?
 
-This microservice enables message filtering based on value comparison. Messages that are received by this microservice then sends data using [curiousben's](https://hub.docker.com/u/curiousben/) redisMQ depending if the data needs to be filtered.
+This microservice enables message filtering based on value comparison. Messages that are received by this microservice then sends data using [curiousben's](https://hub.docker.com/u/curiousben/) redisMQ depending if the data needs to be filtered. This microservice can filter data based on data found in JSON objects.
 
 # How to use this image
 
@@ -54,7 +54,7 @@ Notes:
 
 ## Payload sent
 
-The message payload for the Filter microservice is dependent on the upstream message data structure.
+The message payload that the Filter microservice sends is dependent on the upstream message data structure since this microservice does not modify the data structure.
 
 ## Usage:
 

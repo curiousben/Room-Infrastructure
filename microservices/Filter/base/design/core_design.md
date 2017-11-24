@@ -4,14 +4,14 @@ This markdown file documents the thoughts and assumptions about the design for t
 
 ## Core Design:
 1. Read RedisMQ and Filter config file
-2. Initialize RedisMQ subscriber
+2. Initialize RedisMQ subscriber and publisher
 3. Listen to Subscriber queue
 4. Receive JSON message
 5. Compares message's content based on configurations.
 6. If message contains an accepted value:
-- Send to Queue 1
+- Perform logic for case 1
 7. If message does not contain an accepted value:
-- Send to Queue 2
+- Perform logic for case 2
 8. Repeat 3
 
 ## Message Payload
@@ -52,15 +52,7 @@ With this message payload the Filter will know from configuration how deep and w
       "acceptedValues": [],
       "location": [],
       "typeOfMatch": ""
-    },
-    "<key>": {
-      "acceptedValues": [],
-      "location": [],
-      "typeOfMatch": ""
-    },
-    .
-    .
-    .
+    }
   }
 }
 ```
@@ -81,4 +73,6 @@ Due to overhead looking through multi-deminsional objects only comparing strings
 
 - Filtering results will only result in a binary outcome.
 
-Multiple outcomes could be in a future version of the filter then the pattern will then start to approach a more complex router pattern. More thought is needed on this.
+## Future
+
+Multiple outcomes could be in a future version of the filter then the pattern will then start to approach a more complex router pattern. More thought is needed on this. Also allowing the configuration to account for comparison of multiple data values within the message.
