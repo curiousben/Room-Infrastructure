@@ -71,7 +71,6 @@ let filterData = (payload, configJSON, logger) => {
       const config = configJSON
       let resultArray = []
       let errorArray = []
-      let shouldBeFiltered = true
       let data = Object.assign({}, payload)
       //[#1]
       for (let filterKey in config) {
@@ -86,60 +85,64 @@ let filterData = (payload, configJSON, logger) => {
           }
         }
         switch (typeOfMatch) {
-          case 'exactString':
-            if (acceptedValues.indexOf(data) !== -1) {
-              logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an exact match to the string value \'' + acceptedValues[acceptedValues.indexOf(data)] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-              resultArray.push(true)
-            } else {
-              errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not an exact match to the accepted string value(s) \'' + acceptedValues.join(', ') + '\'')
-              resultArray.push(false)
-            }
-            break
-          case 'partial':
-            for (let possibleValue in acceptedValues) {
-              if (acceptedValues[possibleValue].indexOf(data) !== -1) {
-                logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an partial or exact match to the accepted value \'' + acceptedValues[possibleValue] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-                resultArray.push(true)
-                break
-              }
-              if (parseInt(possibleValue) === (acceptedValues.length - 1)) {
-                errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location \'' + pathToKey.join(' -> ') + '\' was not an partial match to the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-                resultArray.push(false)
-              }
-            }
-            break
-          case 'exactNumber':
-            if (data === acceptedValues[0]) {
-              logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was greater than the accepted number value \'' + acceptedValues[possibleValue] + '\'')
-              resultArray.push(true)
-            } else {
-              errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not greater than the accepted number value \'' + acceptedValues[possibleValue] + '\'')
-              resultArray.push(false)
-            }
-            break
-          case 'greaterThan':
-            if (data > acceptedValues[0]) {
-              logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was greater than the accepted value \'' + acceptedValues[possibleValue] + '\'')
-              resultArray.push(true)
-            } else {
-              errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not greater than the accepted value \'' + acceptedValues[possibleValue] + '\'')
-              resultArray.push(false)
-            }
-            break
-          case 'lessThan':
-            if (data < acceptedValues[0]) {
+        case 'exactString':
+          if (acceptedValues.indexOf(data) !== -1) {
+            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an exact match to the string value \'' + acceptedValues[acceptedValues.indexOf(data)] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
+            resultArray.push(true)
+          } else {
+            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not an exact match to the accepted string value(s) \'' + acceptedValues.join(', ') + '\'')
+            resultArray.push(false)
+          }
+          break
+        case 'partial':
+          for (let possibleValue in acceptedValues) {
+            if (acceptedValues[possibleValue].indexOf(data) !== -1) {
               logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an partial or exact match to the accepted value \'' + acceptedValues[possibleValue] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-              resultArray.push(true)             
-            } else {
-              errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not less than the accepted value \'' + acceptedValues[possibleValue] + '\'')
+              resultArray.push(true)
+              break
+            }
+            if (parseInt(possibleValue) === (acceptedValues.length - 1)) {
+              errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location \'' + pathToKey.join(' -> ') + '\' was not an partial match to the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
               resultArray.push(false)
             }
-            break
-          case default:
-            throw new FilterError('The \'typeOfMatch\' - \'' + typeOfMatch + '\' in the configuration for the filtering of the key \'' + filterKey + '\' has a misconfigured value')
+          }
+          break
+        case 'exactNumber':
+          if (data === acceptedValues[0]) {
+            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was greater than the accepted number value \'' + acceptedValues[0] + '\'')
+            resultArray.push(true)
+          } else {
+            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not greater than the accepted number value \'' + acceptedValues[0] + '\'')
+            resultArray.push(false)
+          }
+          break
+        case 'greaterThan':
+          if (data > acceptedValues[0]) {
+            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was greater than the accepted value \'' + acceptedValues[0] + '\'')
+            resultArray.push(true)
+          } else {
+            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not greater than the accepted value \'' + acceptedValues[0] + '\'')
+            resultArray.push(false)
+          }
+          break
+        case 'lessThan':
+          if (data < acceptedValues[0]) {
+            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an partial or exact match to the accepted value \'' + acceptedValues[0] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
+            resultArray.push(true)             
+          } else {
+            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not less than the accepted value \'' + acceptedValues[0] + '\'')
+            resultArray.push(false)
+          }
+          break
+        default:
+          throw new FilterError('The \'typeOfMatch\' - \'' + typeOfMatch + '\' in the configuration for the filtering of the key \'' + filterKey + '\' has a misconfigured value')
         }
       }
-      
+      let finalResult = true
+      resultArray.forEach(function(result) {
+        finalResult = result && finalResult
+      })
+      resolve(finalResult)
     }
   )
 }
