@@ -9,9 +9,9 @@ This markdown file documents the thoughts and assumptions about the design for t
 4. Receive JSON message
 5. Compares message's content based on configurations.
 6. If message contains an accepted value:
-- Perform logic for case 1
+  - Perform logic for case 1
 7. If message does not contain an accepted value:
-- Perform logic for case 2
+  - Perform logic for case 2
 8. Repeat 3
 
 ## Message Payload

@@ -20,7 +20,7 @@
   
 # What is Filter Microservice?
 
-This microservice enables message filtering based on value comparison. Messages that are received by this microservice then sends data using [curiousben's](https://hub.docker.com/u/curiousben/) redisMQ depending if the data needs to be filtered. This microservice can filter data based on data found in JSON objects.
+This microservice enables message filtering based on value comparison. Messages that are received by this microservice then sends data using [curiousben's redisMQ](https://hub.docker.com/u/curiousben/) depending if the data needs to be filtered. This microservice can filter data based on data found in JSON objects.
 
 # How to use this image
 
@@ -41,16 +41,29 @@ To build this image from scratch clone the git repo `$ git clone https://github.
       "acceptedValues": [],
       "location": [],
       "typeOfMatch": ""
+    },
+    "<key>": {
+      "acceptedValues": [],
+      "location": [],
+      "typeOfMatch": ""
+    },
+    .
+    .
+    .
+    "<key>": {
+      "acceptedValues": [],
+      "location": [],
+      "typeOfMatch": ""
     }
   }
 }
 ```
 Notes:
 
-- Notes: As of Nov 11th only one value comparison can be performed but expanded functionality is planned
-	- acceptedValues: Is all potential combinations that values will be compared against.
+	- acceptedValues: Is all potential combinations that values will be compared against. When doing number comparision only one value can be in the array
 	- location: Is the location of where the `<key>` is located. All array elements are position sensitive.
-	- typeOfMatch: This determines how the comparison will take place. the choices as of Nov 11th are `exact` and `partial`
+	- typeOfMatch: This determines how the comparison will take place. The potential choices for types of comparison are `exactString`, `partial`, `exactNumber`, `greaterThan`, and `lessThan`.
+	- acceptedValues and location have to be arrays and typeOfMatch has to be a string.
 
 ## Payload sent
 

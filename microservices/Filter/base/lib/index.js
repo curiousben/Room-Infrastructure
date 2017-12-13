@@ -2,7 +2,7 @@
 /*eslint no-console:['error', { allow: ['info', 'error'] }]*/
 
 let FilterInitializationError = require('./errors/initializationError.js')
-let FilterError = require('./errors/filterError.js')
+let JSONFilter = require('./methods/jsonFilter.js')
 
 /*
 * Description:
@@ -25,124 +25,72 @@ let initFilter = (configJSON) => {
     resolve => {
       let filterConfig = configJSON['data']
       for (let key in filterConfig) {
-        let typeOfMatch = filterConfig[key]['typeOfMatch']
-        if (!('acceptedValues' in filterConfig[key]) || !('location' in filterConfig[key]) || !('typeOfMatch' in filterConfig[key])) {
-          throw new FilterInitializationError('Filter configuration is missing either \'acceptedValues\', \'location\', or \'typeOfMatch\' for the filtered data ' + key)
+
+        // Checking the surface level configuration for existence and they are the arrays
+        if (!('acceptedValues' in filterConfig[key]) || !('location' in filterConfig[key]) || !('typeOfMatch' in filterConfig[key]) || !('throwsError' in filterConfig[key])) {
+          throw new FilterInitializationError('Filter configuration is missing either \'acceptedValues\', \'location\', \'typeOfMatch\', or \'throwsError\' for the filtered data ' + key + '.')
         }
+        let acceptedValues = filterConfig[key]['acceptedValues']
+        if (typeof acceptedValues !== 'object' || acceptedValues.constructor !== Array) {
+          throw new FilterInitializationError('Filter configuration has encountered \'[' + acceptedValues.join(', ') + ']\' for the acceptedValues for the key: \'' + key + '\'. AcceptedValues can only be an Array.')
+        }
+        let locationOfData = filterConfig[key]['location']
+        if (typeof locationOfData !== 'object' || locationOfData.constructor !== Array) {
+          throw new FilterInitializationError('Filter configuration has encountered \'[' + locationOfData.join(', ') + ']\' for the locationOfData for the key: \'' + key + '\'. LocationOfData can only be an Array.')
+        }
+        let typeOfMatch = filterConfig[key]['typeOfMatch']
+        if (typeof typeOfMatch !== 'string' && !(typeOfMatch instanceof String)) {
+          throw new FilterInitializationError('Filter configuration has encountered \'[' + typeOfMatch.join(', ') + ']\' for the typeOfMatch for the key: \'' + key + '\'. TypeOfMatch can only be a String.')
+        }
+        let throwsError = filterConfig[key]['throwsError']
+        if (typeof throwsError !== 'boolean') {
+          throw new FilterInitializationError('Filter configuration has encountered \'' + throwsError + '\' for the throwsError for the key: \'' + key + '\'. ThrowsError can only be a Boolean.')
+        }
+
+        // Checking that the typeOfMatch has expected values
         if (typeOfMatch !== 'exactString' && typeOfMatch !== 'partial' && typeOfMatch !== 'exactNumber' && typeOfMatch !== 'greaterThan' && typeOfMatch !== 'lessThan') {
           throw new FilterInitializationError('The type of match configration for the key: ' + key + ' is not either \'exactString\', \'partial\', \'exactNumber\', \'greaterThan\', and \'lessThan\'.')
         }
-        if (typeOfMatch === 'exactNumber' || typeOfMatch === 'greaterThan' || typeOfMatch === 'lessThan ') {
-          let acceptedValues = filterConfig[key]['acceptedValues']
+
+        // Checking the accepted values to see if the values entered are expected
+        if (typeOfMatch === 'exactNumber' || typeOfMatch === 'greaterThan' || typeOfMatch === 'lessThan') {
           if (acceptedValues.length !== 1) {
-            throw new FilterInitializationError('Filter configuration for the accpeted values for the key: \'' + key + '\' greaterThan and lesserThan can only have one element in the array')
+            throw new FilterInitializationError('Filter configuration has encountered \'[' + acceptedValues + ']\' for the accpeted values for the key: \'' + key + '\' greaterThan ,lesserThan, and exactNumbr can only have one element in the array')
           }
-          if (isNaN(acceptedValues[0])) {
-            throw new FilterInitializationError('Filter configuration for the accepted values for the key: \'' + key + '\' is a string not a number')
+          if (isNaN(acceptedValues[0]) || acceptedValues[0] === '') {
+            throw new FilterInitializationError('Filter configuration has encountered \'[' + acceptedValues + ']\' for the accepted values for the key: \'' + key + '\' is a string not a number')
+          }
+        }
+        if (typeOfMatch === 'exactString' || typeOfMatch === 'partial') {
+          for (let key in acceptedValues) {
+            if (!isNaN(acceptedValues[key])) {
+              throw new FilterInitializationError('Filter configuration has encountered \'' + acceptedValues[key] + '\' in the accepted values:  \'[' + acceptedValues.join(', ') + ']\' which is a number and not a string')
+            }
+          }
+        }
+
+        // Checking the location array has expected values
+        for (let key in locationOfData) {
+          if (typeof locationOfData[key] !== 'string' && !(locationOfData[key] instanceof String)) {
+            throw new FilterInitializationError('Filter configuration has encountered \'' + locationOfData[key] + '\' in the location array: \'[' + locationOfData.join(', ') + ']\' which is a number and not a string')
           }
         }
       }
-      filterConfig['keys'] = Object.keys(configJSON['data'])
       resolve(filterConfig)
     }
   )
 }
-
-/*
-* Description:
-*   This promise performs the actual filtering for every key in the Filter microservice configuration.
-* Args:
-*   payload (Obj): This obj is the payload passed to the filter to be filtered.
-*   configJSON (Obj): This obj has the configurations for the Filter microservice.
-*   logger (Logger): This is the logger that is provided by the consumer.
-* Returns:
-*   shouldBeFiltered (Boolean): This Boolean determines whether the message should be filtered or not. It is assumed that it should be filtered
-* Throws:
-*   FilterError (Error): This error is raised if the key does not exist in the payload in the first place.
-* Notes:
-*   From a design perspective if the key doesn't even exist it should have been filtered out further upstream in the first place as oppose to having it being filtered out in this microservice. So an error will be raised
-* TODO:
-*   [#1]:
-*     Add the feature to allow multiple comparisons from multiple keys
-*/
 let filterData = (payload, configJSON, logger) => {
-  return new Promise (
+  return new Promise(
     resolve => {
-      const config = configJSON
-      let resultArray = []
-      let errorArray = []
-      let data = Object.assign({}, payload)
-      //[#1]
-      for (let filterKey in config) {
-        let pathToKey = config[filterKey]['location'].slice(0)
-        pathToKey.push(filterKey)
-        let typeOfMatch = config[filterKey]['typeOfMatch']
-        let acceptedValues = config[filterKey]['acceptedValues']
-        for (let key in pathToKey) {
-          data = data[pathToKey[key]]
-          if (data === undefined) {
-            throw new FilterError(pathToKey[key] + ' does not exist in the payload')
-          }
-        }
-        switch (typeOfMatch) {
-        case 'exactString':
-          if (acceptedValues.indexOf(data) !== -1) {
-            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an exact match to the string value \'' + acceptedValues[acceptedValues.indexOf(data)] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-            resultArray.push(true)
-          } else {
-            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not an exact match to the accepted string value(s) \'' + acceptedValues.join(', ') + '\'')
-            resultArray.push(false)
-          }
-          break
-        case 'partial':
-          for (let possibleValue in acceptedValues) {
-            if (acceptedValues[possibleValue].indexOf(data) !== -1) {
-              logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an partial or exact match to the accepted value \'' + acceptedValues[possibleValue] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-              resultArray.push(true)
-              break
-            }
-            if (parseInt(possibleValue) === (acceptedValues.length - 1)) {
-              errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location \'' + pathToKey.join(' -> ') + '\' was not an partial match to the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-              resultArray.push(false)
-            }
-          }
-          break
-        case 'exactNumber':
-          if (data === acceptedValues[0]) {
-            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was greater than the accepted number value \'' + acceptedValues[0] + '\'')
-            resultArray.push(true)
-          } else {
-            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not greater than the accepted number value \'' + acceptedValues[0] + '\'')
-            resultArray.push(false)
-          }
-          break
-        case 'greaterThan':
-          if (data > acceptedValues[0]) {
-            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was greater than the accepted value \'' + acceptedValues[0] + '\'')
-            resultArray.push(true)
-          } else {
-            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not greater than the accepted value \'' + acceptedValues[0] + '\'')
-            resultArray.push(false)
-          }
-          break
-        case 'lessThan':
-          if (data < acceptedValues[0]) {
-            logger.debug('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was an partial or exact match to the accepted value \'' + acceptedValues[0] + '\' from the accepted value(s) \'' + acceptedValues.join(', ') + '\'')
-            resultArray.push(true)             
-          } else {
-            errorArray.push('The value \'' + data + '\' that was encountered for the key \'' + filterKey + '\' at the location in the data \'' + pathToKey.join(' -> ') + '\' was not less than the accepted value \'' + acceptedValues[0] + '\'')
-            resultArray.push(false)
-          }
-          break
-        default:
-          throw new FilterError('The \'typeOfMatch\' - \'' + typeOfMatch + '\' in the configuration for the filtering of the key \'' + filterKey + '\' has a misconfigured value')
-        }
+      // Checking if payload is JSON
+      if (typeof payload === 'object' && payload.constructor === Object) {
+        resolve(JSONFilter.filterData(payload, configJSON, logger))
       }
-      let finalResult = true
-      resultArray.forEach(function(result) {
-        finalResult = result && finalResult
-      })
-      resolve(finalResult)
+      // .
+      // .
+      // .
+      // Can add more data types for filtering
     }
   )
 }

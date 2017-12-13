@@ -63,7 +63,8 @@ These integrations are the services that the home-infrastructure microservices h
 
 ### BLE-Services
 
-Status: Developement
-Designer: Ben Smith
-Developer: Ben Smith
-Design: [Here](./docs/BLE-Services.md)
+* Status: Developement
+* Designer: Ben Smith
+* Developer: Ben Smith
+* Design: [Here](./docs/BLE-Services.md)
+

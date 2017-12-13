@@ -22,11 +22,6 @@ redisMQ.utils.loadJSON(FilterConfig)
     this.BLEFilter = publisher
     return
   })
-  .then(() => redisMQ.createPublisher(loggerConfig, redisMQConfig, 'BLEEvents'))
-  .then(publisher => {
-    this.BLEEvents = publisher
-    return
-  })
   .then(() => redisMQ.createSubscriber(loggerConfig, redisMQConfig, 'BLERelay'))
   .then(subscriber => {
     subscriber.startConsuming()
@@ -45,13 +40,13 @@ redisMQ.utils.loadJSON(FilterConfig)
         })
         .then(msgIsFiltered => {
           if (msgIsFiltered) {
-            return this.BLEFilter.sendDirect(null, Object.assign({}, payload))
+            // Custom logic to handle non-filtered out data
+            return this.BLEFilter.sendDirect(metaTag, Object.assign({}, payload))
               .then(results => this.BLEFilter.logger.debug('Result from sending filter message: ' + results))
-              .then(() => this.BLEEvents.sendDirect(metaTag, payload))
-              .then(results => this.BLEEvents.logger.debug('Results from sending event message: ' + results))
+              .catch(error => this.BLEFilter.logger.error('Error encountered: ' + results))
           } else {
-            return this.BLEEvents.sendDirect(metaTag, payload)
-              .then(results => this.BLEEvents.logger.debug('Results from sending event message: ' + results))
+            // Custom logic to handle filtered out data
+            return subscriber.acknowledge(metaTag)
           }
         })
         .catch(error => {
