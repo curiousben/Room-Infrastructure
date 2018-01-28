@@ -103,21 +103,21 @@ _Example:_
   - *This determines where the cache will be located*
     - external, two queues will be made and the Aggragator will delegate the job of storing and accessing data to third-party software like key-value storage, or databases like Mongo, MySQL, etc.
     - internal, the default option stores data in local cache.
-- **cache.data.RecordLabel**
-  - *This is the location of the data that will be entry label in the cache. This is needed regardless of configuration choices.*
+- **cache.storage.eventTrigger.primaryEvent**
+  - *This is the location of the data that will be considered the primary event to create an entry in the cache.*
     - [Path,to,data,compare,what,to,what] is the path "much like a directory path in linux" to the data assuming the data is coming in JSON format
-- **cache.data.SubRecordLabel**
-  - *(OPTIONAL) When the release trigger is set on unique event size type then the storage stra.*
+- **cache.storage.eventTrigger.secondaryEvent**
+  - *This is the location of the data that will be considered the secondary event to create a sub sentry in the primary event's cache entry.*
     - [Path,to,data,compare,what,to,what] is the path "much like a directory path in linux" to the data assuming the data is coming in JSON format
 - **cache.storage.policy.strategy**
   - *This policy defines how events is stored in the cache*
     - uniqueEvent, the cache will only be gather data for one event and if another one is encountered then the cache is flushed.
     - perEvent, the cache will store data for each event and will rely on the policies to determine with the cache should be flushed.
     - NOTE: perEvent does not guarantee order when sending the cache. If order is needed its best to use unique
-- **cache.storage.policy.uniqueData**
-  - *This policy configuration defines how data should be organized within an event stored in cache.*
-    - True: Messages that are recieved that already have the same data for a previous event in cache will be persisted in cache. The data that was previously in cahce will be acknowledged. Storage will resemble a key-value storage with the latest data for an event.
-    - False: Message that are recieved will be added to a rolling list of data for a perticular event. Storage will resemble a time based ledger of data.
+- **cache.storage.policy.archiveBy**
+  - *This policy configuration determines if there should a second level of organization in the cache for that event.*
+    - secondaryEvent: Messages that are recieved that already have the same data for a previous event in cache will be persisted in cache. The data that was previously in cache will be acknowledged. Storage will resemble a key-value storage with the latest data for an event.
+    - time: Message that are recieved will be added to a rolling list of data for a perticular event. Storage will resemble a time based ledger of data.
 - **cache.storage.policy.eventLimit**
   - *This policy configuration defines how much data for an event is allowed before the cache for that event will be flushed.*
     - The cache will be emptied when the amount of data for an event is equal to this value.
@@ -139,16 +139,16 @@ _Example:_
 {
   "cache": {
     "setup": external or internal,
-    "data": {
-      "recordLabel": [Path,to,data,in,JSONObj], 
-      "subRecordLabel": [Path,to,data,in,JSONObj], (Only needed for perEvent storage)
-    },
     "storage": {
       "strategy": uniqueEvent or perEvent,
       "policy": {
-        "uniqueData": true,
+        "archiveBy": secondaryEvent or time,
         "eventLimit": 10,
       },
+      "eventTrigger": {
+        "primaryEvent": [Path,to,data,in,JSONObj],
+        "secondaryEvent": [Path,to,data,in,JSONObj] (Only needed if archiveBy is set to secondaryEvent)
+      }
       "byteSizeWatermark": 1000000
     },
     "flushStrategy": single or multi
