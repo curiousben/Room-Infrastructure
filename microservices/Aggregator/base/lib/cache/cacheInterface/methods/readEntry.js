@@ -29,6 +29,9 @@ let readEntryObj = (key, cache) => {
   return new Promise(
     resolve => {
       let value = cache[key]
+      if (value === undefined) {
+        value = null
+      }
       resolve(value)
     }
   )

@@ -13,6 +13,45 @@ const deleteModule = require('./methods/deleteEntry.js')
 
 const utilities = require('./utilities/bufferManagement.js')
 
+this.properties = {}
+this.cacheMethods = {}
+
+/*
+* Description:
+*   This method creates the cache inteface methods that allows the developer to interact with the cache
+* Args:
+*   cacheObj (cacheObj): This Object is the cache object that represents the structure of the cache along
+* Returns:
+*   cache (Object): This object has the cache and the key methods that the microservice can use to interface
+* Throws:
+*   
+* Notes:
+*    
+* TODO:
+*   [#1]:
+*/
+
+let initCacheConfiguration = (cacheObj) => {
+  return new Promise(
+    resolve => {
+      // Cache properties
+      this.properties["cacheStrategy"] = cacheObj["properties"]["cacheStrategy"]
+      this.properties["primaryEvent"] = cacheObj["properties"]["primaryEvent"]
+      this.properties["archiveBy"] = cacheObj["properties"]["archiveBy"]
+      this.properties["secondaryEvent"] = cacheObj["properties"]["secondaryEvent"]
+      this.properties["byteSizeWatermark"] = cacheObj["properties"]["byteSizeWatermark"]
+      this.properties["eventLimit"] = cacheObj["properties"]["eventLimit"]
+      this.properties["flushOnNewEvent"] = cacheObj["properties"]["flushOnNewEvent"]
+      this.properties["flushStrategy"] = cacheObj["properties"]["flushStrategy"]
+      // Cache methods
+      this.cacheMethods["createObjPromise"] = cacheObj["methods"]["createObjPromise"]
+      this.cacheMethods["createArrayPromise"] = cacheObj["methods"]["createArrayPromise"]
+      this.cacheMethods["getSizeOfCache"] = cacheObj["methods"]["getSizeOfCache"]
+      resolve()
+    }
+  )
+}
+
 /*
 * Description:
 *   This method creates the cache inteface methods that allows the developer to interact with the cache
@@ -40,9 +79,41 @@ const utilities = require('./utilities/bufferManagement.js')
 let getCacheFunctions = (cacheObj) => {
   return new Promise(
     resolve => {
+      console.debug("Starting to get the cache interface functions ...")
+      resolve()
     }
   )
+  .then(() => initCacheFunctions(cacheObj))
+  .then(() => {})
 }
+
+/*
+* Description:
+*   
+* Args:
+*   
+* Returns:
+*   
+* Throws:
+*   
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+let processRecord = (data, cache) => {
+  return Promise.resolve()
+    .then(() => readModule.readEntryObj(data, cache))
+    .then(value => {
+      if (value === null) {
+        
+      }
+    })
+}
+
+
+
+
 
 /*
 * Description:
@@ -83,7 +154,7 @@ let addEntryToCache = (validConfigJSON) => {
 let updateEntryToCache = (validConfigJSON) => {
   return new Promise(
     resolve => {
-      
+            
     }
   )
 }

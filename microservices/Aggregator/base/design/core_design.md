@@ -27,22 +27,29 @@ Receive JSON message
 SWITCH (What storage strategy will be used?) {
   UNIQUEEVENT:
     IF (This event is new?) {
-      Add current message to cache and then flush cache
+      IF (Is cache empty?) {
+        Create cache
+        Add current message
+      } else {
+        Flush cache
+        Create cache
+        Add current message to cache
+      }
     } ELSE {
-      IF (The storage policy is uniqueData?) {
-        IF (This data entry already exists?) {
+      IF (The storage policy is secondaryEvent?) {
+        IF (This secondaryEvent entry already exists?) {
           Take cached message acknowledge it then update with current message
         } ELSE {
           Create data cache entry with new message
         }
-      } ELSE {
+      } ELSE { // storage policy is time
         Append message to cache.
       }
     }
     IF (Cache limit has been reached by failsafe or config?) {
       IF (Cache flush strategy is single?) {
         Flush cache in a sinlge message and ack all messages
-      } ELSE {
+      } ELSE { // flush strategy is multi
         Flush cache in multiple messages and ack all messages
       }
     } ELSE {
@@ -50,20 +57,25 @@ SWITCH (What storage strategy will be used?) {
     }
   PEREVENT:
     IF (This event is new?) {
-      Create new event
+      IF (The storage policy is secondaryEvent?) {
+        Create new event data cache
+        Create new secondary data cache
+        Insert data into cache for the new event for the new secondary event
+      } ELSE { // storage policy is time
+        Create new event data cache
+        Append message to cache.
+      }
     }
-
-    IF (The storage policy is uniqueData?) {
-      IF (This data entry already exists?) {
+    IF (The storage policy is secondaryEvent?) {
+      IF (This secondaryEvent entry already exists?) {
         Take cached message acknowledge it then update with current message
       } ELSE {
-        Update with current message
+        Create new secondary data cache
+        Insert data into cache for the new event for the new secondary event
       }
-      Create data cache entry with new message
     } ELSE {
       Append message to cache
     }
-
     IF (Cache limit has been reached by failsafe or config?) {
       IF (Cache flush strategy is single?) {
         Flush cache in a single message and ack all messages
