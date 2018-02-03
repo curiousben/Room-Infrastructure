@@ -17,7 +17,7 @@ let AggregatorInitializationError = require('./errors/initializationError.js')
   "cache": {
     "setup": external or internal,
     "storage": {
-      "strategy": uniqueEvent or perEvent,
+      "strategy": singleEvent or multiEvent,
       "policy": {
         "archiveBy": secondaryEvent or time,
         "eventLimit": 10,
@@ -69,8 +69,8 @@ let initAggregator = (configJSON) => {
       if (typeof storageStrategy !== 'string' && !(storageStrategy instanceof String)) {
         throw new AggregatorInitializationError('Aggregator configuration has encountered \'' + storageStrategy + '\' for the strategy configuration in the Storage section. Only strings are accepted.')
       }
-      if (storageStrategy !== 'uniqueEvent' || storageStrategy !== 'perEvent') {
-        throw new AggregatorInitializationError('Aggregator configuration has encountered \'' + storageStrategy + '\' for the strategy configuration in the Storage section. Only options \'uniqueEvent\' and \'perEvent\' are excepted.')
+      if (storageStrategy !== 'singleEvent' || storageStrategy !== 'multiEvent') {
+        throw new AggregatorInitializationError('Aggregator configuration has encountered \'' + storageStrategy + '\' for the strategy configuration in the Storage section. Only options \'singleEvent\' and \'multiEvent\' are excepted.')
       }
 
       // Policy Storage subsection

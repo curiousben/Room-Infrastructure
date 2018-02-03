@@ -16,6 +16,7 @@ const utilities = require('./utilities/bufferManagement.js')
 this.properties = {}
 this.cacheMethods = {}
 
+
 /*
 * Description:
 *   This method creates the cache inteface methods that allows the developer to interact with the cache
@@ -31,9 +32,10 @@ this.cacheMethods = {}
 *   [#1]:
 */
 
-let initCacheConfiguration = (cacheObj) => {
+let init = (logger, cacheObj) => {
   return new Promise(
     resolve => {
+      logger.debug("Cache interface is loading the configurations of the cache ...")
       // Cache properties
       this.properties["cacheStrategy"] = cacheObj["properties"]["cacheStrategy"]
       this.properties["primaryEvent"] = cacheObj["properties"]["primaryEvent"]
@@ -43,10 +45,13 @@ let initCacheConfiguration = (cacheObj) => {
       this.properties["eventLimit"] = cacheObj["properties"]["eventLimit"]
       this.properties["flushOnNewEvent"] = cacheObj["properties"]["flushOnNewEvent"]
       this.properties["flushStrategy"] = cacheObj["properties"]["flushStrategy"]
+      this.properties["sizeOfCache"] = 0
       // Cache methods
       this.cacheMethods["createObjPromise"] = cacheObj["methods"]["createObjPromise"]
       this.cacheMethods["createArrayPromise"] = cacheObj["methods"]["createArrayPromise"]
-      this.cacheMethods["getSizeOfCache"] = cacheObj["methods"]["getSizeOfCache"]
+      this.cacheMethods["getSizeOfBuffer"] = cacheObj["methods"]["getSizeOfBuffer"]
+      this.cacheMethods["createBufferFromData"] = cacheObj["methods"]["createBufferFromData"]
+      logger.debug("... the cache interface has successfully loaded the configurations of the cache")
       resolve()
     }
   )
@@ -76,14 +81,14 @@ let initCacheConfiguration = (cacheObj) => {
 *   [#1]:
 */
 
-let getCacheFunctions = (cacheObj) => {
+let getCacheFunctions = (logger, cacheObj) => {
   return new Promise(
     resolve => {
-      console.debug("Starting to get the cache interface functions ...")
+      logger.debug("Starting to get the cache interface functions ...")
       resolve()
     }
   )
-  .then(() => initCacheFunctions(cacheObj))
+  .then(() => initCacheFunctions(logger,cacheObj))
   .then(() => {})
 }
 
@@ -105,147 +110,102 @@ let processRecord = (data, cache) => {
   return Promise.resolve()
     .then(() => readModule.readEntryObj(data, cache))
     .then(value => {
-      if (value === null) {
-        
+      switch (this.properties["cacheStrategy"]) {
+        case singleEvent:
+//            if (this.methods["getSizeOfCache"]) {}
+          break
+        case multiEvent:
+          
+          break
       }
+    })
+    .catch(error => {
+      throw error
     })
 }
 
+let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
+  return Promise.resolve()
+    .then(() => readModule.readPrimaryEntry(primaryRecordEvntData, cache))
+    .then(primaryCacheEvntData => {
+      if (primaryCacheEvntData === null) {// This is a new event
+        if (this.sizeOfCache === 0) { // The cache has not collected any data and is being initialized
+          if (this.properties["archiveBy"] === "time") {
+            return addEntryToTimeCache(primaryRecordEvntData, data, cache)
+          } else if (this.properties["archiveBy"] === "secondaryEvent") {
+            return addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
+          }
+        } else { // The cache has previously collected data
+          // +++++++ FLUSH
+          resolve()
+        }
+      } else { // This event has been encountered before
+        if (this.properties["archiveBy"] === "time") {
+          return updateEntryToTimeCache(primaryCacheEvntData, data, cache)
+        } else if (this.properties["archiveBy"] === "secondaryEvent") {
+          return new Promise.resolve()
+            .then(() => readModule.readSecondaryEntry(secondaryRecordEvntData, cache))
+            .then(secondaryCacheEvntData => {
+              if (secondaryCacheEvntData === null) {
+                return addEntryToSecondCache(primaryDataEvent, secondaryDataEvent, data, cache)
+              } else {
+                return updateEntryToSecondCache(primaryDataEvent, secondaryDataEvent, data, cache)
+              }
+            })
+            .catch(error => {
+              throw error
+            })
+        }
+      }
+    })
+    .catch(error => {
+      throw error
+    })
+}
 
+addEntryToTimeCache
+addEntryToSecondCache
 
+let updateEntryToTimeCache = (primaryEventData, record, cache) => {
+  return new Promise.resolve()
+    .then(() => this.cacheMethods["createBufferFromData"](record)
+    .then(buffer => {
+      cache[primaryEventData] = record
+      resolve(buffer)
+    })
+    .then(buffer => this.cacheMethods["getSizeOfBuffer"](record))
+    .then(bufferSize => {
+      this.properties["sizeOfCache"] += bufferSize
+      resolve()
+    })
+}
 
+let updateEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache) => {
+  return new Promise.resolve()
+    .then(() => this.cacheMethods["createBufferFromData"](record)
+    .then(buffer => {
+      cache[primaryEventData][secondaryEventData] = record
+      resolve(buffer)
+    })
+    .then(buffer => this.cacheMethods["getSizeOfBuffer"](record))
+    .then(bufferSize => {
+      this.properties["sizeOfCache"] += bufferSize
+      resolve()
+    })
+}
 
-/*
-* Description:
-*   
-* Args:
-*   
-* Returns:
-*   
-* Throws:
-*   
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-let addEntryToCache = (validConfigJSON) => {
+let doesCacheNeedFlush = (cache) => {
   return new Promise(
     resolve => {
+      let sizeOfCache = this.methods["getSizeOfCache"]
+    }
+  )
+}
+
+let flushCache = (cache) => {
+  return new Promise(
+    resolve=> {
       
     }
   )
 }
-
-/*
-* Description:
-*   
-* Args:
-*   
-* Returns:
-*   
-* Throws:
-*   
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-let updateEntryToCache = (validConfigJSON) => {
-  return new Promise(
-    resolve => {
-            
-    }
-  )
-}
-
-/*
-* Description:
-*   
-* Args:
-*   
-* Returns:
-*   
-* Throws:
-*   
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-let flushUniqueCache = (validConfigJSON) => {
-  return new Promise(
-    resolve => {
-      
-    }
-  )
-}
-
-/*
-* Description:
-*   
-* Args:
-*   
-* Returns:
-*   
-* Throws:
-*   
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-let addEntryToCache = (validConfigJSON) => {
-  return new Promise(
-    resolve => {
-      
-    }
-  )
-}
-
-/*
-* Description:
-*   
-* Args:
-*   
-* Returns:
-*   
-* Throws:
-*   
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-let updateEntryToCache = (validConfigJSON) => {
-  return new Promise(
-    resolve => {
-      
-    }
-  )
-}
-
-/*
-* Description:
-*   
-* Args:
-*   
-* Returns:
-*   
-* Throws:
-*   
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-let flushCache = (validConfigJSON) => {
-  return new Promise(
-    resolve => {
-      
-    }
-  )
-}
-
-
-exports.cacheObj

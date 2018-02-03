@@ -64,21 +64,18 @@ let createCacheArray = () => {
 * TODO:
 *   [#1]:
 */
-let getSizeOfCache = (cache, typeOfCache) => {
+let getSizeOfBuffer = (buffer) => {
   return new Promise(
     resolve => {
-      if (typeOfCache === "Object"){
-        let sizeOfCache = 0
-        for (let events in cache) {
-          sizeOfEvent = Buffer.byteLength(cache[events])
-          sizeOfCache += sizeOfEvent
-        }
-        resolve(sizeOfCache)
-      } else if (typeOfCache === "Array") {
-        resolve(Buffer.byteLength(cache))
-      } else {
-        resolve(null)
-      }
+      resolve(Buffer.byteLength(buffer))
+    }
+  )
+}
+
+let createBufferFromData = (data) => {
+  return new Promise(
+    resolve => {
+      resolve(Buffer.from(data))
     }
   )
 }
@@ -87,5 +84,6 @@ let getSizeOfCache = (cache, typeOfCache) => {
 module.exports = {
   createCacheObj:  createCacheObj,
   createCacheArray: createCacheArray,
-  getSizeOfCache: getSizeOfCache
+  createBufferFromData: createBufferFromData,
+  getSizeOfBuffer: getSizeOfBuffer
 }

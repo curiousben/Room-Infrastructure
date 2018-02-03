@@ -25,7 +25,7 @@
 *   [#1]:
 */
 
-let readEntryObj = (key, cache) => {
+let readPrimaryEntry = (key, cache) => {
   return new Promise(
     resolve => {
       let value = cache[key]
@@ -52,16 +52,23 @@ let readEntryObj = (key, cache) => {
 *   [#1]:
 */
 
-let readEntryArray = (cache) => {
+let readSecondaryEntry = (key, cache) => {
   return new Promise(
     resolve => {
-      resolve(cache);
+      for (let data in cache) {
+        for (let subData in data) {
+          if (key === subData) {
+            resolve(subData)
+          }
+        }
+      }
+      resolve(null)
     }
   )
 }
 
 // Module for raw read methods for caching
 module.exports = {
-  readEntryObj: readEntryObj,
-  readEntryArray: readEntryArray
+  readSecondaryEntry: readSecondaryEntry,
+  readPrimaryEntry: readPrimaryEntry
 }

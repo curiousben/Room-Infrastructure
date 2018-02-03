@@ -28,20 +28,19 @@ const utilities = require("./utilities/utilities.js")
         "getSizeOfCache": "[Function: getSizeOfCache]"
 	    },
 	    "properties": {
-		    "cacheStrategy": "uniqueEvent" or "perEventCache",
-		    "primaryEvent": ["Path", "to", "data", "field"],
+		    "cacheStrategy": "singleEvent" or "multiEvent",
+		    "primaryEvent": "eventField",
 		    "archiveBy": "",
-		    "secondaryEvent": ["Path", "to", "data", "field"],
+		    "secondaryEvent": "eventField",
 		    "byteSizeWatermark": 50000000,
 		    "eventLimit": 10,
-		    "flushOnNewEvent": true,
 		    "flushStrategy": ""
 	    }
     }
 * TODO:
 *   [#1]:
 */
-let initializeCache = (logger, cacheConfig) => {
+let init = (logger, cacheConfig) => {
   return new Promise(
     resolve => {
       logger.debug("Starting to initialize the cache structure...")
@@ -78,23 +77,13 @@ let getCacheProps = (logger, cacheConfig) => {
   return new Promise(
     resolve => {
       logger.debug("Starting to get rules for the cache ...")
-      let flushOnNewEvent = null
-      let cacheConfig["setup"] = cacheStrategy
-      if (cacheStrategy === "uniqueEvent") {
-        flushOnNewEvent = true
-      } else if (cacheStrategy === "perEvent") {
-        flushOnNewEvent = false
-      } else {
-        throw new Exception("Encountered a bad cache strategy received " + cacheStrategy + " when expecting \'uniqueEvent\' or \'perEvent\'")
-      }
       let cacheProperties = {
-        "cacheStrategy": cacheStrategy,
-        "primaryEvent": cacheConfig["storage"]["eventTrigger"]["primaryEvent"],
+        "cacheStrategy": cacheConfig["storage"]["strategy"],
+        "primaryEvent": cacheConfig["storage"]["eventTrigger"]["primaryEvent"].slice(-1)[0],
         "archiveBy": cacheConfig["storage"]["policy"]["archiveBy"],
-        "secondaryEvent": cacheConfig["storage"]["eventTrigger"]["secondaryEvent"],
+        "secondaryEvent": cacheConfig["storage"]["eventTrigger"]["secondaryEvent"].slice(-1)[0],
         "byteSizeWatermark": cacheConfig["storage"]["byteSizeWatermark"],
         "eventLimit": cacheConfig["storage"]["policy"]["eventLimit"],
-        "flushOnNewEvent": flushOnNewEvent,
         "flushStrategy": cacheConfig["flushStrategy"]
       }
       logger.debug("... Successfully generated rules for the Unique Event Cache.")
@@ -142,4 +131,4 @@ let getCacheObj = (logger, cacheProperties) => {
  }
 
 // Exports the promise when you create this module
-exports.initializeCache = initializeCache
+exports.init = init
