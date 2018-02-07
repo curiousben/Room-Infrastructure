@@ -32,25 +32,24 @@ this.cacheMethods = {}
 *   [#1]:
 */
 
-let init = (logger, cacheObj) => {
+let init = (logger, cacheConfig, cacheMethods) => {
   return new Promise(
     resolve => {
       logger.debug("Cache interface is loading the configurations of the cache ...")
       // Cache properties
-      this.properties["cacheStrategy"] = cacheObj["properties"]["cacheStrategy"]
-      this.properties["primaryEvent"] = cacheObj["properties"]["primaryEvent"]
-      this.properties["archiveBy"] = cacheObj["properties"]["archiveBy"]
-      this.properties["secondaryEvent"] = cacheObj["properties"]["secondaryEvent"]
-      this.properties["byteSizeWatermark"] = cacheObj["properties"]["byteSizeWatermark"]
-      this.properties["eventLimit"] = cacheObj["properties"]["eventLimit"]
-      this.properties["flushOnNewEvent"] = cacheObj["properties"]["flushOnNewEvent"]
-      this.properties["flushStrategy"] = cacheObj["properties"]["flushStrategy"]
+      this.properties["storage.strategy"] = cacheConfig["storage"]["strategy"]
+      this.properties["storage.policy.archiveBy"] = cacheConfig["storage"]["policy"]["archiveBy"]
+      this.properties["storage.policy.eventLimit"] = cacheConfig["storage"]["policy"]["eventLimit"]
+      this.properties["storage.eventTrigger.primaryEvent"] = cacheConfig["storage"]["eventTrigger"]["primaryEvent"]
+      this.properties["storage.eventTrigger.secondaryEvent"] = cacheConfig["storage"]["eventTrigger"]["secondaryEvent"]
+      this.properties["storage.byteSizeWatermark"] = cacheConfig["storage"]["byteSizeWatermark"]
+      this.properties["flushStrategy"] = cacheConfig["flushStrategy"]
       this.properties["sizeOfCache"] = 0
       // Cache methods
-      this.cacheMethods["createObjPromise"] = cacheObj["methods"]["createObjPromise"]
-      this.cacheMethods["createArrayPromise"] = cacheObj["methods"]["createArrayPromise"]
-      this.cacheMethods["getSizeOfBuffer"] = cacheObj["methods"]["getSizeOfBuffer"]
-      this.cacheMethods["createBufferFromData"] = cacheObj["methods"]["createBufferFromData"]
+      this.cacheMethods["createObjPromise"] = cacheMethods["createObjPromise"]
+      this.cacheMethods["createArrayPromise"] = cacheMethods["createArrayPromise"]
+      this.cacheMethods["getSizeOfBuffer"] = cacheMethods["getSizeOfBuffer"]
+      this.cacheMethods["createBufferFromData"] = cacheMethods["createBufferFromData"]
       logger.debug("... the cache interface has successfully loaded the configurations of the cache")
       resolve()
     }
@@ -106,24 +105,6 @@ let getCacheFunctions = (logger, cacheObj) => {
 * TODO:
 *   [#1]:
 */
-let processRecord = (data, cache) => {
-  return Promise.resolve()
-    .then(() => readModule.readEntryObj(data, cache))
-    .then(value => {
-      switch (this.properties["cacheStrategy"]) {
-        case singleEvent:
-//            if (this.methods["getSizeOfCache"]) {}
-          break
-        case multiEvent:
-          
-          break
-      }
-    })
-    .catch(error => {
-      throw error
-    })
-}
-
 let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
   return Promise.resolve()
     .then(() => readModule.readPrimaryEntry(primaryRecordEvntData, cache))
@@ -163,8 +144,27 @@ let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, 
     })
 }
 
-addEntryToTimeCache
-addEntryToSecondCache
+let addEntryToTimeCache = (primaryEventData, record, cache) => {
+  return new Promise.resolve()
+    .then(() => this.cacheMethods["createCacheArray"])
+    .then(arrayCache => {
+      cache[primaryEventData] = arrayCache
+      resolve()
+    })
+    .then(() => this.cacheMethods["createBufferFromData"](record))
+    .then(buffer => {
+      cache[primaryEventData] = record
+      resolve(buffer)
+    })
+}
+
+let addEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache) => {
+  return new Promise(
+    resolve => {
+
+    }
+  )
+}
 
 let updateEntryToTimeCache = (primaryEventData, record, cache) => {
   return new Promise.resolve()

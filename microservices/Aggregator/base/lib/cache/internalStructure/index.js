@@ -5,6 +5,9 @@
 
 const utilities = require("./utilities/utilities.js")
 
+this.cache = null 
+this.cacheMethods = null
+
 /*
 * Description:
 *   This Promise returns the cache, the properties, and methods to govern the manangement the structure of the cache.
@@ -19,38 +22,29 @@ const utilities = require("./utilities/utilities.js")
 * Throws:
 *   N/A
 * Notes:
-*   Example output:
-    {
-	    "cache": {},
-	    "methods": {
-		    "createObjPromise": "[Function: createObj]",
-		    "createArrayPromise": "[Function: createArray]",
-        "getSizeOfCache": "[Function: getSizeOfCache]"
-	    },
-	    "properties": {
-		    "cacheStrategy": "singleEvent" or "multiEvent",
-		    "primaryEvent": "eventField",
-		    "archiveBy": "",
-		    "secondaryEvent": "eventField",
-		    "byteSizeWatermark": 50000000,
-		    "eventLimit": 10,
-		    "flushStrategy": ""
-	    }
-    }
+*
 * TODO:
 *   [#1]:
 */
+
 let init = (logger, cacheConfig) => {
   return new Promise(
     resolve => {
       logger.debug("Starting to initialize the cache structure...")
-      resolve(getCacheProps(logger, cacheConfig))
+      resolve()
     }
   )
-  .then(cacheProperties => getCacheObj(logger, cacheProperties))
-  .then(cacheObj => {
+  .then(() => validCacheProps(logger, cacheConfig))
+  .then(() => {
+    this.cache = {},
+    this.cacheMethods = {
+      "createCacheObj": utilities.createCacheObj,
+      "createCacheArray": utilities.createCacheArray,
+      "createBufferFromData": utilities.createBufferFromData,
+      "getSizeOfBuffer": utilities.getSizeOfBuffer
+    }
     logger.debug("... Finished initializing the cache structure.")
-    resolve(cacheObj)
+    resolve(this)
   })
   .catch(error => {
     logger.debug("Encountered an Error when creating the cache structure. Details:\n\t" + error.message)
@@ -73,62 +67,32 @@ let init = (logger, cacheConfig) => {
 * TODO:
 *   [#1]:
 */
-let getCacheProps = (logger, cacheConfig) => {
+
+let validCacheProps = (logger, cacheConfig) => {
   return new Promise(
     resolve => {
-      logger.debug("Starting to get rules for the cache ...")
-      let cacheProperties = {
-        "cacheStrategy": cacheConfig["storage"]["strategy"],
-        "primaryEvent": cacheConfig["storage"]["eventTrigger"]["primaryEvent"].slice(-1)[0],
-        "archiveBy": cacheConfig["storage"]["policy"]["archiveBy"],
-        "secondaryEvent": cacheConfig["storage"]["eventTrigger"]["secondaryEvent"].slice(-1)[0],
-        "byteSizeWatermark": cacheConfig["storage"]["byteSizeWatermark"],
-        "eventLimit": cacheConfig["storage"]["policy"]["eventLimit"],
-        "flushStrategy": cacheConfig["flushStrategy"]
+      logger.debug("Starting to validate rules for the cache structure...")
+      let storagePolicy = cacheConfig["storage"]["policy"]
+      if (storagePolicy === "secondaryEvent") {
+        let secondaryEventPath = cacheConfig["storage"]["eventTrigger"]["secondaryEvent"]
+        if (secondaryEventPath.length === 0) {
+          throw new Exception("The data path encountered for the cache's secondary event Data storage event trigger was: [" + secondaryEventPath + "]. This data path can not be empty.")
+        }
       }
-      logger.debug("... Successfully generated rules for the Unique Event Cache.")
-      resolve(cacheProperties)
+
+      let waterMark = cacheConfig["storage"]["byteSizeWatermark"]
+      if (waterMark < 5000000) {
+        throw new Exception("It is recommended to have at least 5MB of space for cached data")
+      } else if (100000000 < waterMark) {
+        logger.warning("Be mindful that have an internal cache should be used for small caches")
+      } else {}
+      logger.debug("... Successfully validate rules for the Cache.")
+      resolve()
     }
   )
 }
 
-/*
-* Description:
-*   This promise resolves to the caching object that has the properties and cache
-* Args:
-*   logger (Logger): This is the logger that is provided by external processes
-*   cacheProperties (Object): This is the cache properties extracted from the configuration file.
-* Returns:
-*   cacheObj (Object): This promise resolves to the cache Object, properties of a cache, and methods
-*     for altering the structure of the cache
-* Throws:
-*   N/A
-* Notes:
-*   {}
-* TODO:
-*   [#1]:
-*/
-let getCacheObj = (logger, cacheProperties) => {
-  return new Promise(
-    resolve => {
-      logger.debug("Starting to create the Caching Object ...")
-      resolve(utilities.createCacheObj())
-    }
-  )
-  .then(cache => {
-     let cacheObj = {
-        "cache": cache,
-        "methods": {
-          "createObj": utilities.createCacheObj,
-          "createArray": utilities.createCacheArray,
-          "getSizeOfCache": utilities.getSizeOfCache
-        },
-        "properties": cacheProperties
-      }
-      logger.debug("... Successfully created the Caching Object for the Unique Event Cache.")
-      resolve(cacheObj)
-  })
- }
-
 // Exports the promise when you create this module
-exports.init = init
+module.exports = {
+  init: init
+}
