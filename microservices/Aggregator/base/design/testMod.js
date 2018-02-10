@@ -1,7 +1,7 @@
 'use strict';
 
 this.configA = 0
-
+/*
 let testPromise = (input) => {
   return new Promise(
     resolve => {
@@ -10,7 +10,8 @@ let testPromise = (input) => {
     }
   )
 }
-
+*/
+/*
 let testInit = (configJSON) => {
   return new Promise(
     resolve => {
@@ -24,5 +25,19 @@ let testInit = (configJSON) => {
     }
   )
 }
-
 exports.testInit = testInit 
+*/
+this.testVar = null
+
+let init = () => {
+  return new Promise(
+    resolve => {
+      this.testVar = "PEWPEWPEW!!!"
+      resolve(this)
+    }
+  )
+}
+
+module.exports = {
+  init: init
+}

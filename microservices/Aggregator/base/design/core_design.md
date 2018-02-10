@@ -70,16 +70,17 @@ SWITCH (What storage strategy will be used?) {
         Create new event data cache
         Append message to cache.
       }
-    }
-    IF (The storage policy is secondaryEvent?) {
-      IF (This secondaryEvent entry already exists?) {
-        Take cached message acknowledge it then update with current message
-      } ELSE {
-        Create new secondary data cache
-        Insert data into cache for the new event for the new secondary event
-      }
     } ELSE {
-      Append message to cache
+      IF (The storage policy is secondaryEvent?) {
+        IF (This secondaryEvent entry already exists?) {
+          Take cached message acknowledge it then update with current message
+        } ELSE {
+          Create new secondary data cache
+          Insert data into cache for the new event for the new secondary event
+        }
+      } ELSE {
+        Append message to cache
+      }
     }
     IF (Cache limit has been reached by failsafe or config?) {
       IF (Cache flush strategy is single?) {
