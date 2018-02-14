@@ -1,19 +1,18 @@
 {
   "cache": {
-    "setup": "internal",
-    "data": {
-      "RecordLabel": ["Path","to","data","in","JSONObj"], 
-      "SubRecordLabel": ["Path","to","data","in","JSONObj"],
-    },
+    "setup": external or internal,
     "storage": {
-      "strategy": "perEvent",
+      "strategy": singleEvent or multiEvent,
       "policy": {
-        "uniqueData": true,
+        "archiveBy": secondaryEvent or time,
         "eventLimit": 10,
       },
+      "eventTrigger": {
+        "primaryEvent": ["Path","to","data","in","JSONObj"],
+        "secondaryEvent": ["Path","to","data","in","JSONObj"] (Only needed if archiveBy is set to secondaryEvent)
+      }
       "byteSizeWatermark": 1000000
     },
-    "flushStrategy": "single"
+    "flushStrategy": single or multi
   }
 }
-
