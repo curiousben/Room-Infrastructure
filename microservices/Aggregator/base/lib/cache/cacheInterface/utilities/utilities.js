@@ -4,6 +4,12 @@
 'use strict';
 
 /*
+* Module design:
+*   This module houses the utility functions that allows interactions
+*     with the structure of the cache
+*/
+
+/*
 * Description:
 *   This promise resolves to the raw cache object.
 * Args:
@@ -49,41 +55,9 @@ let createCacheArray = () => {
   )
 }
 
-/*
-* Description:
-*   This promise resolves to the amount of space the the Buffered cache is taking up
-* Args:
-*   cache (Object|Array): This is the cache that is being evaluated.
-*   typeOfCache (String): This is the type of cache that is being evaluated.
-* Returns:
-*   sizeOfCache (Promise): This promise resolves to the size of the cache.
-* Throws:
-*   N/A
-* Notes:
-*   If the type is not Object or Array a null will be thrown.
-* TODO:
-*   [#1]:
-*/
-let getSizeOfBuffer = (buffer) => {
-  return new Promise(
-    resolve => {
-      resolve(Buffer.byteLength(buffer))
-    }
-  )
-}
-
-let createBufferFromData = (data) => {
-  return new Promise(
-    resolve => {
-      resolve(Buffer.from(data))
-    }
-  )
-}
 
 // Exports the promise when you create this module
 module.exports = {
   createCacheObj:  createCacheObj,
   createCacheArray: createCacheArray,
-  createBufferFromData: createBufferFromData,
-  getSizeOfBuffer: getSizeOfBuffer
 }

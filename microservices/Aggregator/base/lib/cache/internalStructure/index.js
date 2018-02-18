@@ -3,26 +3,23 @@
 
 'use strict';
 
-const utilities = require("./utilities/utilities.js")
-
-this.cache = null 
-this.cacheMethods = null
+/*
+* Module design:
+*   This module will initialize the internal cache structure and validate the confiurations for the cache
+*/
 
 /*
 * Description:
-*   This Promise returns the cache, the properties, and methods to govern the manangement the structure of the cache.
-*     The output will be sololy for library functions to interact with.
+*   This Promise returns the cache and if it returned the cache then the cache configurations were validated as well 
 * Args:
 *   logger (Logger): This is the logger that is provided by external processes
-*   configJSON (Obj): This obj has the configurations for the structure of the cache
+*   configJSON (Obj): This obj has the configurations for the cache
 * Returns:
-*   cache (Promise): This Promise resolves to an object that has the cache object and properties
-*     that was generated from the configuration like cache size limitation, how to organize data
-*     in the cache, flush conditiions, etc. It also has some methods to create sub caches and get sizes of the caches
+*   cache (Promise): This Promise resolves to an object that has the cache object
 * Throws:
 *   N/A
 * Notes:
-*
+*   N/A
 * TODO:
 *   [#1]:
 */
@@ -30,48 +27,42 @@ this.cacheMethods = null
 let init = (logger, cacheConfig) => {
   return new Promise(
     resolve => {
-      logger.debug("Starting to initialize the cache structure...")
+      logger.log("log", "Starting to initialize the cache structure...")
       resolve()
     }
   )
-  .then(() => validCacheProps(logger, cacheConfig))
+  .then(() => validateCacheProps(logger, cacheConfig))
   .then(() => {
-    this.cache = {},
-    this.cacheMethods = {
-      "createCacheObj": utilities.createCacheObj,
-      "createCacheArray": utilities.createCacheArray,
-      "createBufferFromData": utilities.createBufferFromData,
-      "getSizeOfBuffer": utilities.getSizeOfBuffer
-    }
-    logger.debug("... Finished initializing the cache structure.")
-    resolve(this)
+    let cache = {},
+    logger.log("log", "... Finished initializing the cache structure.")
+    resolve(cache)
   })
   .catch(error => {
-    logger.debug("Encountered an Error when creating the cache structure. Details:\n\t" + error.message)
+    logger.log("error","Encountered an Error when creating the cache structure. Details:\n\t%s", error)
     throw error
   })
 }
 
 /*
 * Description:
-*   This promise resolves to an object of properties that governs structures and how the cache can be interacted with.
+*   This promise validates the  properties that governs structure of the cache 
 * Args:
 *   logger (Logger): This is the logger that is provided by external processes
 *   cacheConfig (Object): This is the cache configuration that the cache's properties will be modeled after.
 * Returns:
-*   cache (Object): This promise resolves to an object of properties that defines the cache.
+*   N/A 
 * Throws:
 *   N/A
 * Notes:
-*   N/A
+*   This promise is only here for validation and so nothing will be returned if successful
 * TODO:
 *   [#1]:
 */
 
-let validCacheProps = (logger, cacheConfig) => {
+let validateCacheProps = (logger, cacheConfig) => {
   return new Promise(
     resolve => {
-      logger.debug("Starting to validate rules for the cache structure...")
+      logger.log("debug", "Starting to validate rules for the cache structure...")
       let storagePolicy = cacheConfig["storage"]["policy"]
       if (storagePolicy === "secondaryEvent") {
         let secondaryEventPath = cacheConfig["storage"]["eventTrigger"]["secondaryEvent"]
@@ -84,9 +75,9 @@ let validCacheProps = (logger, cacheConfig) => {
       if (waterMark < 5000000) {
         throw new Exception("It is recommended to have at least 5MB of space for cached data")
       } else if (100000000 < waterMark) {
-        logger.warning("Be mindful that have an internal cache should be used for small caches")
+        logger.log("warn", "Be mindful that have an internal cache should be used for small caches")
       } else {}
-      logger.debug("... Successfully validate rules for the Cache.")
+      logger.log("debug", "... Successfully validate rules for the Cache.")
       resolve()
     }
   )

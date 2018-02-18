@@ -3,7 +3,7 @@
 
 let utils = require('./utilities/initialize.js')
 let aggregatorErrors = require('./errors/aggregatorError.js')
-let 
+let cache = require("./cache/index.js")
 
 /*
 * Description:

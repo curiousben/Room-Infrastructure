@@ -1,6 +1,11 @@
 /*eslint-env node*/
 /*eslint no-console:['error', { allow: ['info', 'error'] }]*/
 
+/*
+* Module design:
+*   This module will check to see if the configuration file has the correct fields
+*/
+
 let AggregatorInitializationError = require('./errors/initializationError.js')
 
 /*
@@ -38,7 +43,6 @@ let AggregatorInitializationError = require('./errors/initializationError.js')
 * TODO:
 *   [#1]:
 */
-
 
 let initAggregator = (configJSON) => {
   return new Promise(

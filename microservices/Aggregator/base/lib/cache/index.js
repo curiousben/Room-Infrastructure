@@ -39,23 +39,23 @@ let cache = null;
 let initCache = (logger, configJSON) => {
   return new Promise(
     resolve => {  
-      logger.debug("Starting to initialize a Cache client ...")
+      logger.log("debug", "Starting to initialize a Cache client ...")
       resolve()
     }
   )
   .then(() => {
     let cacheType = configJSON["setup"]
     if (cacheType === "internal") {
-      logger.debug("... The type of cache is internal ...")
+      logger.log("debug", "... The type of cache is internal ...")
       return new Promise.resolve()
         .then(() => internalCache.init(logger, configJSON))
         .then(cacheObj => {
           cache = cacheObj.cache
-          logger.debug("... Internal cache structure has been created ...")
+          logger.log("debug", "... Internal cache structure has been created ...")
           resolve(cacheObj.cacheMethods)
         })
     } else if (cacheType === "external"){
-      logger.debug("... The type of cache is external ...")
+      logger.log("debug", "... The type of cache is external ...")
       return externalCache.init(logger, configJSON)
     } else {
       throw new Exception("The cache type is invalid expecting \'internal\' or \'external\' but received: " + cacheType)
@@ -63,7 +63,7 @@ let initCache = (logger, configJSON) => {
   })
   .then(cacheMethods => cacheInterface.init(logger, configJSON, cacheMethods))
   .then(cacheClient => {
-    logger.debug("... Successfully created a Cache client.")
+    logger.log("debug", "... Successfully created a Cache client.")
     resolve(cacheClient)
   })
 }
