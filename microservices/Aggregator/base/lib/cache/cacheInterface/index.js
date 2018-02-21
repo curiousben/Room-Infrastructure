@@ -46,12 +46,12 @@ let init = (logger, cacheConfig) => {
       this.properties["storage.byteSizeWatermark"] = cacheConfig["storage"]["byteSizeWatermark"]
       this.properties["flushStrategy"] = cacheConfig["flushStrategy"]
       this.properties["sizeOfCache"] = {
-                                        "mainCache" = 0,
-                                        "secondaryCaches":{}
+                                        "all" = 0,
+                                        "eventCaches":{}
                                        }
       this.properties["numberOfEvents"] = {
-                                            "mainCache" = 0,
-                                            "secondaryCaches":{}
+                                            "all" = 0,
+                                            "eventCaches":{}
                                           }
       logger.log("debug", "... the cache interface has successfully loaded the configurations of the cache")
       resolve()
@@ -304,10 +304,24 @@ let updateEntryToSecondCache = (primaryEventData, secondaryEventData, record, ca
 * TODO:
 *   [#1]:
 */
-let increaseBufferSize = (bufferSize) => {
+let increaseBufferSize = (bufferSize, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      this.properties["sizeOfCache"] += bufferSize
+      if (secondaryEventLabel !== null) {
+        if (!(mainEvent in this.properties.sizeOfCache.eventCaches)) {
+          this.properties.sizeOfCache.eventCaches.mainEvent = {}
+        }
+        if (secondaryEventLabel in this.properties.sizeOfCache.mainEvent) {
+          this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEventLabel += bufferSize
+        } else {
+          this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEventLabel = bufferSize
+        }
+      } else {
+        if (!(mainEvent in this.properties.sizeOfCache.eventCaches)) {
+          this.properties.sizeOfCache.eventCaches.mainEvent = bufferSize
+        }
+      }
+      this.properties.sizeOfCache.all += bufferSize
       resolve()
     }
   )
@@ -327,11 +341,27 @@ let increaseBufferSize = (bufferSize) => {
 * TODO:
 *   [#1]:
 */
-let increaseEventSize = () => {
+let increaseEventSize = (mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
       this.properties["numberOfEvents"] += 1
       resolve()
+      if (secondaryEventLabel !== null) {
+        if (!(mainEvent in this.properties.numberOfEvents.eventCaches)) {
+          this.properties.numberOfEvents.eventCaches.mainEvent = {}
+        }
+        if (secondaryEventLabel in this.properties.numberOfEvents.mainEvent) {
+          this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEventLabel += 1
+        } else {
+          this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEventLabel = 1
+        }
+      } else {
+        if (!(mainEvent in this.properties.numberOfEvents.eventCaches)) {
+          this.properties.numberOfEvents.eventCaches.mainEvent = 1
+        }
+      }
+      this.properties.numberOfEvents.all += 1
+      resolve()
     }
   )
 }
@@ -350,11 +380,11 @@ let increaseEventSize = () => {
 * TODO:
 *   [#1]:
 */
-let doesCacheNeedFlush = (cache) => {
+let doesCacheNeedFlush = (mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      bufferManagement.getSizeOfCache()
-        .then(() => )
+      if (this.properties["storage.strategy"] === "") {
+      }
     }
   )
 }
