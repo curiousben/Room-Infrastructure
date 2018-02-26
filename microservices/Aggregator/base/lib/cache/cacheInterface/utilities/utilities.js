@@ -1,7 +1,7 @@
-/*eslint-env node*/
-/*eslint no-console:['error', { allow: ['info', 'error'] }]*/
+/* eslint-env node */
+/* eslint no-console:['error', { allow: ['info', 'error'] }] */
 
-'use strict';
+'use strict'
 
 /*
 * Module design:
@@ -55,9 +55,8 @@ let createCacheArray = () => {
   )
 }
 
-
 // Exports the promise when you create this module
 module.exports = {
-  createCacheObj:  createCacheObj,
-  createCacheArray: createCacheArray,
+  createCacheObj: createCacheObj,
+  createCacheArray: createCacheArray
 }

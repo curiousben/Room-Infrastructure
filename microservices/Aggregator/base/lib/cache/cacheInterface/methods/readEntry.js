@@ -1,12 +1,12 @@
-/*eslint-env node*/
-/*eslint no-console:["error", { allow: ["info", "error"] }]*/
+/* eslint-env node */
+/* eslint no-console:["error", { allow: ["info", "error"] }] */
 
 /*
-* Module design: 
+* Module design:
 *   This module will be responsible for adding entrys into the internal cache.
 */
 
-"use strict";
+'use strict'
 
 /*
 * Description:
@@ -37,9 +37,9 @@ let hasPrimaryEntry = (key, cache) => {
       resolve(result)
     }
   )
-  .catch(error => {
-    throw error
-  })
+    .catch(error => {
+      throw error
+    })
 }
 
 /*
@@ -72,13 +72,13 @@ let hasSecondaryEntry = (key, subKey, cache) => {
       resolve(result)
     }
   )
-  .catch(error => {
-    throw error
-  })
+    .catch(error => {
+      throw error
+    })
 }
 
 // Module for raw read methods for caching
 module.exports = {
   hasSecondaryEntry: searchSecondaryEntry,
-  hasPrimaryEntry: searchPrimaryEntry,
+  hasPrimaryEntry: searchPrimaryEntry
 }

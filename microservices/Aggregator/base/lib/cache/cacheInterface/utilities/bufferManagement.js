@@ -1,17 +1,17 @@
-/*eslint-env node*/
-/*eslint no-console:['error', { allow: ['info', 'error'] }]*/
+/* eslint-env node */
+/* eslint no-console:['error', { allow: ['info', 'error'] }] */
 
-'use strict';
+'use strict'
 
 /*
 * Module design:
-*   This module houses the utility buffer functions that allows 
+*   This module houses the utility buffer functions that allows
 *     interactions with buffer entites
 */
 
 /*
 * Description:
-*   This method returns a JSON Object of the data that was  
+*   This method returns a JSON Object of the data that was
 * Args:
 *   buffer (Buffer): This Buffer is a String Buffer that has been passed in
 * Returns:
@@ -61,7 +61,7 @@ let getBufferByteLength = (string) => {
 * Args:
 *   buffer (buffer): This is a buffer that is passed in that will be evaluated
 * Returns:
-*   sizeOfbuffer (Integer): This promise will resolve to a size or length of the 
+*   sizeOfbuffer (Integer): This promise will resolve to a size or length of the
 *     buffer that is passed in.
 * Throws:
 *   N/A
@@ -91,7 +91,7 @@ let getSizeOfBuffer = (buffer) => {
 *     Buffer, String, Array, Object, or ArrayBuffer.
 * Notes:
 *   It might be possible to cast everything that is passed into this fuction as
-*     either Buffer, String, Array, Object, or ArrayBuffer but this will add 
+*     either Buffer, String, Array, Object, or ArrayBuffer but this will add
 *     overhead it might be better to get it before it even is passed in
 * TODO:
 *   [#1]:
@@ -103,7 +103,6 @@ let createBufferFromData = (data) => {
     }
   )
 }
-
 
 // Exports the promise when you create this module
 module.exports = {

@@ -1,12 +1,12 @@
-/*eslint-env node*/
-/*eslint no-console:["error", { allow: ["info", "error"] }]*/
+/* eslint-env node */
+/* eslint no-console:["error", { allow: ["info", "error"] }] */
 
 /*
-* Module design: 
+* Module design:
 *   This module will be responsible for adding values into the internal cache.
 */
 
-"use strict";
+'use strict'
 
 /*
 * Description:
@@ -30,7 +30,7 @@
 let createCacheEntry = (cache, key, entry) => {
   return new Promise(
     resolve => {
-      cache[key] = entry 
+      cache[key] = entry
       resolve()
     }
   )

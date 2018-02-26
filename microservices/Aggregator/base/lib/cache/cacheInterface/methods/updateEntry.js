@@ -1,13 +1,13 @@
-/*eslint-env node*/
-/*eslint no-console:["error", { allow: ["info", "error"] }]*/
+/* eslint-env node */
+/* eslint no-console:["error", { allow: ["info", "error"] }] */
 
 /*
-* Module design: 
+* Module design:
 *   This module will be responsible for updating entrys into the internal cache. NOTE: this
-*     modeule only has methods that can manipulate 
+*     modeule only has methods that can manipulate
 */
 
-"use strict";
+'use strict'
 
 /*
 * Description:
@@ -62,7 +62,7 @@ let addValueToArray = (cache, key, value) => {
   )
 }
 
-// Module for raw update methods for caching 
+// Module for raw update methods for caching
 module.exports = {
   addValueToObj: addValueToObj,
   addValueToArray: addValueToArray

@@ -1,12 +1,12 @@
-/*eslint-env node*/
-/*eslint no-console:["error", { allow: ["info", "error"] }]*/
+/* eslint-env node */
+/* eslint no-console:["error", { allow: ["info", "error"] }] */
 
 /*
-* Module design: 
+* Module design:
 *   This module will be responsible for deleting entrys from the internal cache.
 */
 
-"use strict";
+'use strict'
 
 /*
 * Description:
@@ -60,6 +60,6 @@ let deleteEntryArray = (cache) => {
 
 // Module for raw delete methods for caching
 module.exports = {
-  "deleteEntryObj": deleteEntryObj,
-  "deleteEntryArray": deleteEntryArray
+  'deleteEntryObj': deleteEntryObj,
+  'deleteEntryArray': deleteEntryArray
 }

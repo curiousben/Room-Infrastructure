@@ -1,5 +1,5 @@
-/*eslint-env node*/
-/*eslint no-console:['error', { allow: ['info', 'error'] }]*/
+/* eslint-env node */
+/* eslint no-console:['error', { allow: ['info', 'error'] }] */
 
 /*
 * Module design:
@@ -55,13 +55,13 @@ let initAggregator = (configJSON) => {
       }
       // Setup configuration
       const setupSection = aggregatorConfig['setup']
-      if (typeof setupSection  !== 'string' && !(setupSection instanceof String)) {
+      if (typeof setupSection !== 'string' && !(setupSection instanceof String)) {
         throw new AggregatorInitializationError('Aggregator configuration has encountered \'' + setupSection + '\' for the setup configuration in the Setup section. Only strings are accepted.')
       }
       if (setupSection !== 'internal' || setupSection !== 'external') {
         throw new AggregatorInitializationError('Aggregator configuration has encountered \'' + setupSection + '\' for the setup configuration in the Setup section. Only options \'internal\' and \'external\' are excepted.')
       }
-      
+
       // Storage configuration
       const storageSection = aggregatorConfig['storage']
       if (!('strategy' in storageSection) || !('policy' in storageSection) || !('eventTrigger' in storageSection) || !('byteSizeWatermark' in storageSection)) {
