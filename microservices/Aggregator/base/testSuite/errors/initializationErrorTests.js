@@ -1,9 +1,9 @@
-let AggregatorInitializationError = require("../../lib/errors/initializationError.js")
+let initializationError = require("../../lib/errors/initializationError.js")
 let chai = require("chai");
 let chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 
-let expect = chai.expect
+chai.should();
 
 let initializationErrorThrow = () => {
   return new Promise(
@@ -16,4 +16,8 @@ let initializationErrorThrow = () => {
   })
 }
 
-return expect(initializationErrorThrow).to.throw(AggregatorInitializationError)
+describe("InitializationError", function(){
+  it("repond with a throw error", function() {
+    return initializationErrorThrow().should.be.rejectedWith(initializationError)
+  })
+})
