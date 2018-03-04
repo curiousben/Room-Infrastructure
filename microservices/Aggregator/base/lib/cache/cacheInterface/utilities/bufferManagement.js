@@ -28,7 +28,7 @@
 let getJSONFromBuffer = (buffer) => {
   return new Promise(
     resolve => {
-      resolve(JSON.parse(bufObj.toString()))
+      resolve(JSON.parse(buffer.toString()))
     }
   )
 }

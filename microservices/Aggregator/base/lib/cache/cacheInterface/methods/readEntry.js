@@ -79,6 +79,6 @@ let hasSecondaryEntry = (key, subKey, cache) => {
 
 // Module for raw read methods for caching
 module.exports = {
-  hasSecondaryEntry: searchSecondaryEntry,
-  hasPrimaryEntry: searchPrimaryEntry
+  hasSecondaryEntry: hasSecondaryEntry,
+  hasPrimaryEntry: hasPrimaryEntry
 }

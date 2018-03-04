@@ -72,7 +72,7 @@ let init = (logger, cacheConfig) => {
 *   [#1]:
 */
 let addEntryToTimeCache = (primaryEventData, record, cache) => {
-  return new Promise.resolve()
+  return new (Promise.resolve()
     .then(() => utilities.createCacheArray())
     .then(arrayCache => createModule.createCacheEntry(cache, primaryEventData, arrayCache))
     .then(() => bufferManagement.createBufferFromData(record))
@@ -82,7 +82,7 @@ let addEntryToTimeCache = (primaryEventData, record, cache) => {
     .then(() => increaseEventSize(primaryEventData, null))
     .catch(error => {
       throw error
-    })
+    }))()
 }
 
 /*
@@ -101,7 +101,7 @@ let addEntryToTimeCache = (primaryEventData, record, cache) => {
 */
 
 let addEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache) => {
-  return new Promise.resolve()
+  return new (Promise.resolve()
     .then(() => utilities.createCacheObj())
     .then(objCache => createModule.createCacheEntry(cache[primaryEventData], secondaryEventData, objCache))
     .then(() => bufferManagement.createBufferFromData(record))
@@ -111,7 +111,7 @@ let addEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache
     .then(() => increaseEventSize(primaryEventData, secondaryEventData))
     .catch(error => {
       throw error
-    })
+    }))()
 }
 
 /*
@@ -129,12 +129,12 @@ let addEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache
 *   [#1]:
 */
 let addEntryToPrimaryCache = (primaryEventData, cache) => {
-  return new Promise.resolve()
+  return new (Promise.resolve()
     .then(() => utilities.createCacheObj())
     .then(objCache => createModule.createCacheEntry(cache, primaryEventData, objCache))
     .catch(error => {
       throw error
-    })
+    }))()
 }
 
 /*
@@ -152,7 +152,7 @@ let addEntryToPrimaryCache = (primaryEventData, cache) => {
 *   [#1]:
 */
 let updateEntryToTimeCache = (primaryEventData, record, cache) => {
-  return new Promise.resolve()
+  return new (Promise.resolve()
     .then(() => bufferManagement.createBufferFromData(record))
     .then(buffer => updateModule.addValueToArray(cache, primaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
@@ -160,7 +160,7 @@ let updateEntryToTimeCache = (primaryEventData, record, cache) => {
     .then(() => increaseEventSize(primaryEventData, null))
     .catch(error => {
       throw error
-    })
+    }))()
 }
 
 /*
@@ -178,7 +178,7 @@ let updateEntryToTimeCache = (primaryEventData, record, cache) => {
 *   [#1]:
 */
 let updateEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache) => {
-  return new Promise.resolve()
+  return new (Promise.resolve()
     .then(() => bufferManagement.createBufferFromData(record))
     .then(buffer => updateModule.addValueToObj(cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
@@ -186,7 +186,7 @@ let updateEntryToSecondCache = (primaryEventData, secondaryEventData, record, ca
     .then(() => increaseEventSize(primaryEventData, secondaryEventData))
     .catch(error => {
       throw error
-    })
+    }))()
 }
 
 /*

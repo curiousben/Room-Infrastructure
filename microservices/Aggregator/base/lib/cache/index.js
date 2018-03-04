@@ -12,8 +12,6 @@ const internalCache = require('./internalStructure/index.js')
 const externalCache = require('./externalStructure/index.js')
 const cacheInterface = require('./cacheInterface/index.js')
 
-let cache = null
-
 /*
 * Description:
 *   This function resolves with an object that has the cache and its respective functions that the microservice
@@ -47,24 +45,30 @@ let initCache = (logger, configJSON) => {
       let cacheType = configJSON['setup']
       if (cacheType === 'internal') {
         logger.log('debug', '... The type of cache is internal ...')
-        return new Promise.resolve()
+        return new (Promise.resolve()
           .then(() => internalCache.init(logger, configJSON))
           .then(cacheObj => {
             cache = cacheObj.cache
             logger.log('debug', '... Internal cache structure has been created ...')
             resolve(cacheObj.cacheMethods)
           })
+          .catch(error => {
+            throw error
+          }))()
       } else if (cacheType === 'external') {
         logger.log('debug', '... The type of cache is external ...')
         return externalCache.init(logger, configJSON)
       } else {
-        throw new Exception("The cache type is invalid expecting \'internal\' or \'external\' but received: " + cacheType)
+        throw new Exception("The cache type is invalid expecting \"internal\" or \"external\" but received: " + cacheType)
       }
     })
     .then(cacheMethods => cacheInterface.init(logger, configJSON, cacheMethods))
     .then(cacheClient => {
       logger.log('debug', '... Successfully created a Cache client.')
       resolve(cacheClient)
+    })
+    .catch(error => {
+      throw error
     })
 }
 
