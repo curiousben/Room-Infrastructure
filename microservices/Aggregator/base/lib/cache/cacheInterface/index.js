@@ -15,48 +15,6 @@ const deleteModule = require('./methods/deleteEntry.js')
 const bufferManagement = require('./utilities/bufferManagement.js')
 const utilities = require('./utilities/utilities.js')
 
-this.properties = {}
-
-/*
-* Description:
-*   This method creates the cache inteface methods that allows the developer to interact with the cache
-* Args:
-*   cacheObj (cacheObj): This Object is the cache object that represents the structure of the cache along
-* Returns:
-*   cache (Object): This object has the cache and the key methods that the microservice can use to interface
-* Throws:
-*
-* Notes:
-*
-* TODO:
-*   [#1]:
-*/
-let init = (logger, cacheConfig) => {
-  return new Promise(
-    resolve => {
-      logger.log('debug', 'Cache interface is loading the configurations of the cache ...')
-      // Cache properties
-      this.properties['storage.strategy'] = cacheConfig['storage']['strategy']
-      this.properties['storage.policy.archiveBy'] = cacheConfig['storage']['policy']['archiveBy']
-      this.properties['storage.policy.eventLimit'] = cacheConfig['storage']['policy']['eventLimit']
-      this.properties['storage.eventTrigger.primaryEvent'] = cacheConfig['storage']['eventTrigger']['primaryEvent']
-      this.properties['storage.eventTrigger.secondaryEvent'] = cacheConfig['storage']['eventTrigger']['secondaryEvent']
-      this.properties['storage.byteSizeWatermark'] = cacheConfig['storage']['byteSizeWatermark']
-      this.properties['flushStrategy'] = cacheConfig['flushStrategy']
-      this.properties['sizeOfCache'] = {
-        'all': 0,
-        'eventCaches': {}
-      }
-      this.properties['numberOfEvents'] = {
-        'all': 0,
-        'eventCaches': {}
-      }
-      logger.log('debug', '... the cache interface has successfully loaded the configurations of the cache')
-      resolve()
-    }
-  )
-}
-
 /*
 * Description:
 *
@@ -71,14 +29,14 @@ let init = (logger, cacheConfig) => {
 * TODO:
 *   [#1]:
 */
-let addEntryToTimeCache = (primaryEventData, record, cache) => {
+let addEntryToTimeCache = (that, primaryEventData, record) => {
   return new (Promise.resolve()
     .then(() => utilities.createCacheArray())
-    .then(arrayCache => createModule.createCacheEntry(cache, primaryEventData, arrayCache))
+    .then(arrayCache => createModule.createCacheEntry(that.cache, primaryEventData, arrayCache))
     .then(() => bufferManagement.createBufferFromData(record))
-    .then(buffer => updateModule.addValueToArray(cache, primaryEventData, buffer))
+    .then(buffer => updateModule.addValueToArray(that.cache, primaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBuffer(record))
-    .then(bufferSize => increaseBufferSize(bufferSize, primaryEventData, null))
+    .then(bufferSize => increaseBufferSize(that.properties, bufferSize, primaryEventData, null))
     .then(() => increaseEventSize(primaryEventData, null))
     .catch(error => {
       throw error
@@ -100,18 +58,18 @@ let addEntryToTimeCache = (primaryEventData, record, cache) => {
 *   [#1]:
 */
 
-let addEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache) => {
-  return new (Promise.resolve()
+let addEntryToSecondCache = (that, primaryEventData, secondaryEventData, record) => {
+  return (Promise.resolve()
     .then(() => utilities.createCacheObj())
-    .then(objCache => createModule.createCacheEntry(cache[primaryEventData], secondaryEventData, objCache))
+    .then(objCache => createModule.createCacheEntry(that.cache[primaryEventData], secondaryEventData, objCache))
     .then(() => bufferManagement.createBufferFromData(record))
-    .then(buffer => updateModule.addValueToObj(cache[primaryEventData], secondaryEventData, buffer))
+    .then(buffer => updateModule.addValueToObj(that.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
-    .then(bufferSize => increaseBufferSize(bufferSize, primaryEventData, secondaryEventData))
+    .then(bufferSize => increaseBufferSize(that.properties, bufferSize, primaryEventData, secondaryEventData))
     .then(() => increaseEventSize(primaryEventData, secondaryEventData))
     .catch(error => {
       throw error
-    }))()
+    }))
 }
 
 /*
@@ -128,13 +86,13 @@ let addEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache
 * TODO:
 *   [#1]:
 */
-let addEntryToPrimaryCache = (primaryEventData, cache) => {
-  return new (Promise.resolve()
+let addEntryToPrimaryCache = (that, primaryEventData) => {
+  return (Promise.resolve()
     .then(() => utilities.createCacheObj())
-    .then(objCache => createModule.createCacheEntry(cache, primaryEventData, objCache))
+    .then(objCache => createModule.createCacheEntry(that.cache, primaryEventData, objCache))
     .catch(error => {
       throw error
-    }))()
+    }))
 }
 
 /*
@@ -151,12 +109,12 @@ let addEntryToPrimaryCache = (primaryEventData, cache) => {
 * TODO:
 *   [#1]:
 */
-let updateEntryToTimeCache = (primaryEventData, record, cache) => {
+let updateEntryToTimeCache = (that, primaryEventData, record) => {
   return new (Promise.resolve()
     .then(() => bufferManagement.createBufferFromData(record))
-    .then(buffer => updateModule.addValueToArray(cache, primaryEventData, buffer))
+    .then(buffer => updateModule.addValueToArray(that.cache, primaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
-    .then(bufferSize => increaseBufferSize(bufferSize, primaryEventData, null))
+    .then(bufferSize => increaseBufferSize(that.properties, bufferSize, primaryEventData, null))
     .then(() => increaseEventSize(primaryEventData, null))
     .catch(error => {
       throw error
@@ -177,16 +135,16 @@ let updateEntryToTimeCache = (primaryEventData, record, cache) => {
 * TODO:
 *   [#1]:
 */
-let updateEntryToSecondCache = (primaryEventData, secondaryEventData, record, cache) => {
-  return new (Promise.resolve()
+let updateEntryToSecondCache = (that, primaryEventData, secondaryEventData, record) => {
+  return (Promise.resolve()
     .then(() => bufferManagement.createBufferFromData(record))
-    .then(buffer => updateModule.addValueToObj(cache[primaryEventData], secondaryEventData, buffer))
+    .then(buffer => updateModule.addValueToObj(that.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
-    .then(bufferSize => increaseBufferSize(bufferSize, primaryEventData, secondaryEventData))
+    .then(bufferSize => increaseBufferSize(that.properties, bufferSize, primaryEventData, secondaryEventData))
     .then(() => increaseEventSize(primaryEventData, secondaryEventData))
     .catch(error => {
       throw error
-    }))()
+    }))
 }
 
 /*
@@ -203,26 +161,26 @@ let updateEntryToSecondCache = (primaryEventData, secondaryEventData, record, ca
 * TODO:
 *   [#1]:
 */
-let increaseBufferSize = (bufferSize, mainEvent, secondaryEvent) => {
+let increaseBufferSize = (thatProperties, bufferSize, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
       if (secondaryEvent !== null) { // implies time cache
-        if (!(mainEvent in this.properties.sizeOfCache.eventCaches)) {
-          this.properties.sizeOfCache.eventCaches.mainEvent = {}
+        if (!(mainEvent in thatProperties.sizeOfCache['eventCaches'])) {
+          thatProperties.sizeOfCache['eventCaches']['mainEvent'] = {}
         }
-        if (secondaryEvent in this.properties.sizeOfCache.mainEvent) {
-          this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEventLabel += bufferSize
+        if (secondaryEvent in thatProperties.sizeOfCache[mainEvent]) {
+          thatProperties.sizeOfCache['eventCaches'][mainEvent][secondaryEventLabel] += bufferSize
         } else {
-          this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEventLabel = bufferSize
+          thatProperties.sizeOfCache['eventCaches'][mainEvent][secondaryEventLabel] = bufferSize
         }
       } else {
-        if (!(mainEvent in this.properties.sizeOfCache.eventCaches)) {
-          this.properties.sizeOfCache.eventCaches.mainEvent = bufferSize
+        if (!(mainEvent in thatProperties.sizeOfCache['eventCaches'])) {
+          thatProperties.sizeOfCache['eventCaches'][mainEvent] = bufferSize
         } else {
-          this.properties.sizeOfCache.eventCaches.mainEvent += bufferSize
+          thatProperties.sizeOfCache['eventCaches'][mainEvent] += bufferSize
         }
       }
-      this.properties.sizeOfCache.all += bufferSize
+      thatProperties.sizeOfCache['all'] += bufferSize
       resolve()
     }
   )
@@ -242,26 +200,26 @@ let increaseBufferSize = (bufferSize, mainEvent, secondaryEvent) => {
 * TODO:
 *   [#1]:
 */
-let increaseEventSize = (mainEvent, secondaryEvent) => {
+let increaseEventSize = (thatProperties, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
       if (secondaryEvent !== null) { // implies time cache
-        if (!(mainEvent in this.properties.numberOfEvents.eventCaches)) {
-          this.properties.numberOfEvents.eventCaches.mainEvent = {}
+        if (!(mainEvent in thisProperties.numberOfEvents['eventCaches'])) {
+          thatProperties.numberOfEvents['eventCaches'][mainEvent] = {}
         }
-        if (secondaryEvent in this.properties.numberOfEvents.mainEvent) {
-          this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEventLabel += 1
+        if (secondaryEvent in thatProperties.numberOfEvents['eventCaches'][mainEvent]) {
+          thatProperties.numberOfEvents['eventCaches'][mainEvent][secondaryEventLabel] += 1
         } else {
-          this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEventLabel = 1
+          thatProperties.numberOfEvents['eventCaches'][mainEvent][secondaryEventLabel] = 1
         }
       } else {
-        if (!(mainEvent in this.properties.numberOfEvents.eventCaches)) {
-          this.properties.numberOfEvents.eventCaches.mainEvent = 1
+        if (!(mainEvent in thatProperties.numberOfEvents['eventCaches'])) {
+          thatProperties.numberOfEvents['eventCaches'][mainEvent] = 1
         } else {
-          this.properties.numberOfEvents.eventCaches.mainEvent += 1
+          thatProperties.numberOfEvents['eventCaches'][mainEvent] += 1
         }
       }
-      this.properties.numberOfEvents.all += 1
+      thatProperties.numberOfEvents['all'] += 1
       resolve()
     }
   )
@@ -308,42 +266,58 @@ let doesCacheNeedFlush = (mainEvent, secondaryEvent) => {
 * TODO:
 *   [#1]:
 */
-let flushCache = (cache, mainEvent, secondaryEvent) => {
+let flushSecondaryEventCache = (cache, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      let cacheData = null
-      // 1. Determine how to reset by what parameters are passed in
-      if (secondaryEvent !== null) {
-        // 1. Subtract secondaryEvent event count from all section
-        this.properties.numberOfEvents.all -= this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEvent
-        // 2. Wax secondaryEvent object section in eventcache metadata
-        delete this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEvent
-        // 3. Subtract secondaryEvent cache size from all section
-        this.properties.sizeOfCache.all -= this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEvent
-        // 4. Wax secondaryEvent object section in cachecache metadata
-        delete this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEvent
-        // 5. Extract cache data
-        cacheData = cache.mainEvent.secondaryEvent
-        // 6. Delete data section in cache
-        delete cache.mainEvent.secondaryEvent
-      } else {
-        // 1. Subtract mainEvent count from all section
-        this.properties.numberOfEvents.all -= this.properties.numberOfEvents.eventCaches.mainEvent
-        // 2. Wax mainEvent object section in eventcache metadata
-        delete this.properties.numberOfEvents.eventCaches.mainEvent
-        // 3. Subtract mainEvent cache size from all section
-        this.properties.sizeOfCache.all -= this.properties.sizeOfCache.eventCaches.mainEvent
-        // 4. Wax mainEvent object section in cachecache metadata
-        delete this.properties.sizeOfCache.eventCaches.mainEvent
-        // 5. Extract cache data
-        cacheData = cache.mainEvent.secondaryEvent
-        // 6. Delete data section in cache
-        delete cache.mainEvent.secondaryEvent
-      }
-      // 2. Return cache data
-      resolve(cacheData)
+      // 1. Subtract secondaryEvent event count from all section
+      this.properties.numberOfEvents.all -= this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEvent
+      // 2. Wax secondaryEvent object section in eventcache metadata
+      delete this.properties.numberOfEvents.eventCaches.mainEvent.secondaryEvent
+      // 3. Subtract secondaryEvent cache size from all section
+      this.properties.sizeOfCache.all -= this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEvent
+      // 4. Wax secondaryEvent object section in cachecache metadata
+      delete this.properties.sizeOfCache.eventCaches.mainEvent.secondaryEvent
+      resolve()
     }
   )
+  .then(() => deleteModule.removeEntryObj(mainEvent, secondaryEvent, cache))
+  .catch(error => {
+    throw error
+  })
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+let flushTimeCache = (cache, mainEvent) => {
+  return new Promise(
+    resolve => {
+      // 1. Subtract secondaryEvent event count from all section
+      this.properties.numberOfEvents.all -= this.properties.numberOfEvents.eventCaches.mainEvent
+      // 2. Wax secondaryEvent object section in eventcache metadata
+      delete this.properties.numberOfEvents.eventCaches.mainEvent
+      // 3. Subtract secondaryEvent cache size from all section
+      this.properties.sizeOfCache.all -= this.properties.sizeOfCache.eventCaches.mainEvent
+      // 4. Wax secondaryEvent object section in cachecache metadata
+      delete this.properties.sizeOfCache.eventCaches.mainEvent
+      resolve()
+    }
+  )
+  .then(() => deleteModule.removeEntryArray(mainEvent, cache))
+  .catch(error => {
+    throw error
+  })
 }
 
 /*
@@ -486,7 +460,7 @@ let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, 
 * TODO:
 *   [#1]:
 */
-let processRecordMultiCache = (primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
+let processRecordMultiCache = (that, primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
   return Promise.resolve()
     .then(() => readModule.hasPrimaryEntry(primaryRecordEvntData, cache))
     .then(hasPrimaryEntry => {
@@ -536,7 +510,6 @@ let processRecordMultiCache = (primaryRecordEvntData, secondaryRecordEvntData, d
 }
 
 module.exports = {
-  init: init,
   processRecordSingleCache: processRecordSingleCache,
   processRecordMultiCache: processRecordMultiCache
 }

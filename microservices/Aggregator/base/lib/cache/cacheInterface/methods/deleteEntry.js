@@ -25,11 +25,12 @@
 *     Decrease memory footprint that the cache will take up when adding Strings
 */
 
-let deleteEntryObj = (key, cache) => {
+let removeEntryObj = (mainEvent, secondaryEvent, cache) => {
   return new Promise(
     resolve => {
-      delete cache.key
-      resolve(cache)
+      cacheData = cache.mainEvent.secondaryEvent
+      delete cache.mainEvent.secondaryEvent
+      resolve(cacheData)
     }
   )
 }
@@ -49,17 +50,18 @@ let deleteEntryObj = (key, cache) => {
 *   [#1]:
 */
 
-let deleteEntryArray = (cache) => {
+let removeEntryArray = (mainEvent, cache) => {
   return new Promise(
     resolve => {
-      cache.length = 0
-      resolve(cache)
+      cacheData = cache.mainEvent
+      delete cache.mainEvent
+      resolve(cacheData)
     }
   )
 }
 
 // Module for raw delete methods for caching
 module.exports = {
-  'deleteEntryObj': deleteEntryObj,
-  'deleteEntryArray': deleteEntryArray
+  'removeEntryObj': removeEntryObj,
+  'removeEntryArray': removeEntryArray
 }

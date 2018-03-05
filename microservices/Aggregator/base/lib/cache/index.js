@@ -12,6 +12,9 @@ const internalCache = require('./internalStructure/index.js')
 const externalCache = require('./externalStructure/index.js')
 const cacheInterface = require('./cacheInterface/index.js')
 
+this.cache = null
+this.config = {}
+this.properties = {}
 /*
 * Description:
 *   This function resolves with an object that has the cache and its respective functions that the microservice
@@ -39,33 +42,30 @@ let initCache = (logger, configJSON) => {
     resolve => {
       logger.log('debug', 'Starting to initialize a Cache client ...')
       resolve()
-    }
-  )
+    })
     .then(() => {
       let cacheType = configJSON['setup']
       if (cacheType === 'internal') {
-        logger.log('debug', '... The type of cache is internal ...')
-        return new (Promise.resolve()
-          .then(() => internalCache.init(logger, configJSON))
-          .then(cacheObj => {
-            cache = cacheObj.cache
-            logger.log('debug', '... Internal cache structure has been created ...')
-            resolve(cacheObj.cacheMethods)
-          })
+        logger.log('info', '... The type of cache is internal ...')
+        return (Promise.resolve()
+          .then(() => internalCache.init(this, logger, configJSON))
           .catch(error => {
             throw error
-          }))()
+          }))
       } else if (cacheType === 'external') {
-        logger.log('debug', '... The type of cache is external ...')
-        return externalCache.init(logger, configJSON)
+        logger.log('info', '... The type of cache is external ...')
+        return (Promise.resolve()
+          .then(() => externalCache.init(this, logger, configJSON))
+          .catch(error => {
+            throw error
+          }))
       } else {
-        throw new Exception("The cache type is invalid expecting \"internal\" or \"external\" but received: " + cacheType)
+        throw new Error('The cache type is invalid expecting \'internal\' or \'external\' but received: ' + cacheType)
       }
     })
-    .then(cacheMethods => cacheInterface.init(logger, configJSON, cacheMethods))
-    .then(cacheClient => {
+    .then(() => cacheInterface.init(this, logger))
+    .then(() => {
       logger.log('debug', '... Successfully created a Cache client.')
-      resolve(cacheClient)
     })
     .catch(error => {
       throw error
@@ -73,8 +73,7 @@ let initCache = (logger, configJSON) => {
 }
 
 module.exports = {
-  'createAggCache': createAggCache,
-  'addEntryToCache': addEntryToCache,
-  'updateEntryToCache': updateEntryToCache,
-  'flushCache': flushCache
+  initCache: initCache,
+  addEntryToCache: cacheInterface.addEntryToCache,
+  flushCache: cacheInterface.flushCache
 }
