@@ -15,6 +15,7 @@ const cacheInterface = require('./cacheInterface/index.js')
 this.cache = null
 this.config = {}
 this.properties = {}
+
 /*
 * Description:
 *   This function resolves with an object that has the cache and its respective functions that the microservice
@@ -66,6 +67,142 @@ let initCache = (logger, configJSON) => {
     .then(() => cacheInterface.init(this, logger))
     .then(() => {
       logger.log('debug', '... Successfully created a Cache client.')
+    })
+    .catch(error => {
+      throw error
+    })
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
+  return Promise.resolve()
+    .then(() => readModule.hasPrimaryEntry(primaryRecordEvntData, cache))
+    .then(hasPrimaryEntry => {
+      if (hasPrimaryEntry) { // This event has been encountered before
+        if (this.properties['storage.policy.archiveBy'] === 'time') {
+          return updateEntryToTimeCache(primaryRecordEvntData, data, cache)
+        } else if (this.properties['storage.policy.archiveBy'] === 'secondaryEvent') {
+          return readModule.hasSecondaryEntry(primaryRecordEvntData, secondaryRecordEvntData, cache)
+            .then(hasSecondaryEntry => {
+              if (hasSecondaryEntry) {
+                return updateEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
+              } else {
+                return addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
+              }
+            })
+            .catch(error => {
+              throw error
+            })
+        } else {
+          return 'UNIMPLEMENTED'
+        }
+      } else { // This is a new event
+        if (this.sizeOfCache === 0) { // The cache has not collected any data and is being initialized
+          if (this.properties['storage.policy.archiveBy'] === 'time') {
+            return addEntryToTimeCache(primaryRecordEvntData, data, cache)
+          } else if (this.properties['storage.policy.archiveBy'] === 'secondaryEvent') {
+            return addEntryToPrimaryCache(primaryRecordEvntData, cache)
+              .then(() => addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache))
+          }
+        } else { // The cache has previously collected data
+          return true
+        }
+      }
+    })
+    .then(processingResult => {
+      if (processingResult !== true) {
+        return doesCacheNeedFlush(primaryRecordEvntData, secondaryRecordEvntData)
+      } else {
+        return processingResult
+      }
+    })
+    .then(cacheNeedsFlush => {
+      if (cacheNeedsFlush) {
+        return flushCache(cache, primaryRecordEvntData, secondaryRecordEvntData)
+          .catch(error => {
+            throw error
+          })
+      } else {
+        return 'OK'
+      }
+    })
+    .catch(error => {
+      throw error
+    })
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let processRecordMultiCache = (that, primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
+  return Promise.resolve()
+    .then(() => readModule.hasPrimaryEntry(primaryRecordEvntData, cache))
+    .then(hasPrimaryEntry => {
+      if (hasPrimaryEntry) { // This primary event has been encountered before
+        if (this.properties['storage.policy.archiveBy'] === 'time') {
+          return updateEntryToTimeCache(primaryRecordEvntData, data, cache)
+        } else if (this.properties['storage.policy.archiveBy'] === 'secondaryEvent') {
+          return readModule.hasSecondaryEntry(primaryRecordEvntData, secondaryRecordEvntData, cache)
+            .then(hasSecondaryEntry => {
+              if (hasSecondaryEntry) { // This secondary event has been encountered before
+                return updateEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
+              } else { // This secondary event is new
+                return addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
+              }
+            })
+            .catch(error => {
+              throw error
+            })
+        } else {
+          return 'UNIMPLEMENTED'
+        }
+      } else { // This primary event is a new event
+        if (this.properties['storage.policy.archiveBy'] === 'time') {
+          return addEntryToTimeCache(primaryRecordEvntData, data, cache)
+        } else if (this.properties['storage.policy.archiveBy'] === 'secondaryEvent') {
+          return addEntryToPrimaryCache(primaryRecordEvntData, cache)
+            .then(() => addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache))
+        } else {
+          return 'UNIMPLEMENTED'
+        }
+      }
+    })
+    .then(() => doesCacheNeedFlush(primaryRecordEvntData, secondaryRecordEvntData))
+    .then(cacheNeedsFlush => {
+      if (cacheNeedsFlush) {
+        return flushCache(cache, primaryRecordEvntData, secondaryRecordEvntData)
+          .catch(error => {
+            throw error
+          })
+      } else {
+        return 'OK'
+      }
     })
     .catch(error => {
       throw error
