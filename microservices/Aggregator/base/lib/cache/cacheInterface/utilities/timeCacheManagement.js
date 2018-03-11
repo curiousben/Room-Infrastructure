@@ -56,7 +56,7 @@ let increaseEventSize = (cacheNumberOfEvents, mainEvent) => {
 let increaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent) => {
   return new Promise(
     resolve => {
-      if (!(mainEvent in thatProperties.sizeOfCache['eventCaches'])) {
+      if (!(mainEvent in cacheSizeOfCache['eventCaches'])) {
         cacheSizeOfCache['eventCaches'][mainEvent] = bufferSize
       } else {
         cacheSizeOfCache['eventCaches'][mainEvent] += bufferSize
@@ -107,7 +107,7 @@ let resetEventSize = (cacheNumberOfEvents, mainEvent) => {
 *   [#1]:
 */
 
-let resetBufferSize  = (cacheSizeOfCache, mainEvent) => {
+let resetBufferSize = (cacheSizeOfCache, mainEvent) => {
   return new Promise(
     resolve => {
       cacheSizeOfCache['all'] -= cacheSizeOfCache['eventCaches'][mainEvent]
@@ -169,6 +169,6 @@ module.exports = {
   getCacheSize: getCacheSize,
   increaseEventSize: increaseEventSize,
   increaseBufferSize: increaseBufferSize,
-  resetEventSize: resetEventSize, 
-  resetBufferSize: resetBufferSize 
+  resetEventSize: resetEventSize,
+  resetBufferSize: resetBufferSize
 }

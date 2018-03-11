@@ -25,6 +25,7 @@
 * TODO:
 *   [#1]:
 */
+
 let getJSONFromBuffer = (buffer) => {
   return new Promise(
     resolve => {
@@ -47,7 +48,7 @@ let getJSONFromBuffer = (buffer) => {
 * TODO:
 *   [#1]:
 */
-let getBufferByteLength = (string) => {
+let getSizeOfBufferFromString = (string) => {
   return new Promise(
     resolve => {
       resolve(Buffer.byteLength(string, 'utf8'))
@@ -71,7 +72,7 @@ let getBufferByteLength = (string) => {
 * TODO:
 *   [#1]:
 */
-let getSizeOfBuffer = (buffer) => {
+let getSizeOfBufferFromBuffer = (buffer) => {
   return new Promise(
     resolve => {
       resolve(Buffer.byteLength(buffer))
@@ -96,7 +97,7 @@ let getSizeOfBuffer = (buffer) => {
 * TODO:
 *   [#1]:
 */
-let createBufferFromData = (data) => {
+let createBufferFromString = (data) => {
   return new Promise(
     resolve => {
       resolve(Buffer.from(data))
@@ -107,7 +108,7 @@ let createBufferFromData = (data) => {
 // Exports the promise when you create this module
 module.exports = {
   getJSONFromBuffer: getJSONFromBuffer,
-  getBufferByteLength: getBufferByteLength,
-  getSizeOfBuffer: getSizeOfBuffer,
-  createBufferFromData: createBufferFromData
+  getSizeOfBufferFromString: getSizeOfBufferFromString,
+  getSizeOfBufferFromBuffer: getSizeOfBufferFromBuffer,
+  createBufferFromString: createBufferFromString
 }

@@ -28,8 +28,8 @@
 let removeEntryObj = (mainEvent, secondaryEvent, cache) => {
   return new Promise(
     resolve => {
-      cacheData = cache.mainEvent.secondaryEvent
-      delete cache.mainEvent.secondaryEvent
+      let cacheData = cache[mainEvent][secondaryEvent]
+      delete cache[mainEvent][secondaryEvent]
       resolve(cacheData)
     }
   )
@@ -53,8 +53,8 @@ let removeEntryObj = (mainEvent, secondaryEvent, cache) => {
 let removeEntryArray = (mainEvent, cache) => {
   return new Promise(
     resolve => {
-      cacheData = cache.mainEvent
-      delete cache.mainEvent
+      let cacheData = cache[mainEvent]
+      delete cache[mainEvent]
       resolve(cacheData)
     }
   )
@@ -62,6 +62,6 @@ let removeEntryArray = (mainEvent, cache) => {
 
 // Module for raw delete methods for caching
 module.exports = {
-  'removeEntryObj': removeEntryObj,
-  'removeEntryArray': removeEntryArray
+  removeEntryObj: removeEntryObj,
+  removeEntryArray: removeEntryArray
 }

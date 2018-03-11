@@ -26,10 +26,10 @@
 *   [#1]:
 */
 
-let addValueToObj = (obj, key, value) => {
+let addValueToObj = (cache, key, value) => {
   return new Promise(
     resolve => {
-      obj[key] = value
+      cache[key] = value
       resolve(value)
     }
   )

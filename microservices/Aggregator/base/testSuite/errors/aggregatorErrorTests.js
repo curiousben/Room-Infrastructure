@@ -1,20 +1,22 @@
-let AggregatorError = require('../../lib/errors/AggregatorError.js')
+let AggregatorError = require('../../lib/errors/aggregatorError.js')
 let chai = require('chai')
 let chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
 chai.should()
 
-let AggregatorErrorThrow = () => {
+let aggregatorErrorThrow = () => {
   return new Promise(
     resolve => {
       throw new AggregatorError('Test AggregatorError')
-    }
-  )
+    })
+    .catch(error => {
+      throw error
+    })
 }
 
-describe('AggregatorInitializationError', function () {
-  it('repond with a throw error', function () {
-    return AggregatorErrorThrow().should.be.rejectedWith(AggregatorError)
+describe('Testing the AggregatorError module', function () {
+  it('Throw an AggregatorError', function () {
+    return aggregatorErrorThrow().should.be.rejectedWith(AggregatorError, 'Test AggregatorError')
   })
 })

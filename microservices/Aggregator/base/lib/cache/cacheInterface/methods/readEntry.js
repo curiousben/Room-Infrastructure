@@ -10,75 +10,57 @@
 
 /*
 * Description:
-*   This method searches for an entry in the cache that is the primary event. This can be used for
-*     time and secondary storage policy.
+*   This method searches for an entry in the cache that is the primary event.
 * Args:
 *   key (String): This String is the key that the entry could be located in
 *   cache (Object): This Object is the internal cache that is being searched
 * Returns:
-*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
+*   result (Promise): This promise resolves to the value located at the Primary
+*     place in the object.
 * Throws:
 *   N/A
 * Notes:
-*   To work around a for loop that searchs the whole Object we suppose the value exists and change the boolean
-*     statement if it is false.
+*   N/A
 * TODO:
 *   [#1]:
 */
 
-let hasPrimaryEntry = (key, cache) => {
+let readPrimaryEntry = (key, cache) => {
   return new Promise(
     resolve => {
-      let value = cache[key]
-      let result = true
-      if (value === undefined) {
-        result = false
-      }
-      resolve(result)
+      resolve(cache[key])
     }
   )
-    .catch(error => {
-      throw error
-    })
 }
 
 /*
 * Description:
-*   This method searches for an entry in the cache that is the secondary event. This only makes sense
-*     if used for secondary strorage policy.
+*   This method searches for an entry in the cache that is the secondary event.
 * Args:
 *   key (String): This String is the key that represents the primary event.
 *   subkey (String): This String is the key that represents the secondary event.
 *   cache (Object): This Object is the internal cache that is being searched
 * Returns:
-*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
+*   result (Promise): This promise resolves to the value located at the Primary
+*     place in the object.
 * Throws:
 *   N/A
 * Notes:
-*   To work around a for loop that searchs the whole Object we suppose the value exists and change the boolean
-*     statement if it is false.
+*   N/A
 * TODO:
 *   [#1]:
 */
 
-let hasSecondaryEntry = (key, subKey, cache) => {
+let readSecondaryEntry = (key, subKey, cache) => {
   return new Promise(
     resolve => {
-      let result = true
-      let subValue = cache[key][subKey]
-      if (subValue === undefined) {
-        result = false
-      }
-      resolve(result)
+      resolve(cache[key][subKey])
     }
   )
-    .catch(error => {
-      throw error
-    })
 }
 
 // Module for raw read methods for caching
 module.exports = {
-  hasSecondaryEntry: hasSecondaryEntry,
-  hasPrimaryEntry: hasPrimaryEntry
+  readSecondaryEntry: readSecondaryEntry,
+  readPrimaryEntry: readPrimaryEntry
 }

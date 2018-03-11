@@ -88,9 +88,9 @@ let initCache = (logger, configJSON) => {
 *   [#1]:
 */
 
-let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
+let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data) => {
   return Promise.resolve()
-    .then(() => readModule.hasPrimaryEntry(primaryRecordEvntData, cache))
+    .then(() => cacheInterface.hasPrimaryEntry(primaryRecordEvntData, this.cache))
     .then(hasPrimaryEntry => {
       if (hasPrimaryEntry) { // This event has been encountered before
         if (this.properties['storage.policy.archiveBy'] === 'time') {
