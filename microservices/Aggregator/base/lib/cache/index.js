@@ -10,7 +10,8 @@
 
 const internalCache = require('./internalStructure/index.js')
 const externalCache = require('./externalStructure/index.js')
-const cacheInterface = require('./cacheInterface/index.js')
+const timeCacheInterface = require('./cacheInterface/timeCache.js')
+const secondaryCacheInterface = require('./cacheInterface/secondaryCache.js')
 
 this.cache = null
 this.config = {}

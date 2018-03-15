@@ -11,7 +11,7 @@ describe('Testing the createEntry module', function () {
   })
   it('Create entry in cache', function (done) {
     createEntryModule.createCacheEntry(cache, 'testKey', 'testValue').should.be.fulfilled.then(function () {
-        Promise.resolve(cache).should.become({'testKey': 'testValue'})
+      Promise.resolve(cache).should.become({'testKey': 'testValue'})
     }).should.notify(done)
   })
 })

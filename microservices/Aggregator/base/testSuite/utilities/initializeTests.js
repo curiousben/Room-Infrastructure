@@ -8,11 +8,11 @@ const validConfig = {
       'strategy': 'singleEvent',
       'policy': {
         'archiveBy': 'time',
-        'eventLimit': 10,
+        'eventLimit': 10
       },
       'eventTrigger': {
-        'primaryEvent': ['Path','to','data','in','JSONObj'],
-        'secondaryEvent': ['Path','to','data','in','JSONObj']
+        'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
+        'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
       },
       'byteSizeWatermark': 1000000
     },
@@ -27,11 +27,11 @@ const invalidConfig = {
       'strategy': 42,
       'policy': {
         'archiveBy': 'time',
-        'eventLimit': 10,
+        'eventLimit': 10
       },
       'eventTrigger': {
-        'primaryEvent': ['Path','to','data','in','JSONObj'],
-        'secondaryEvent': ['Path','to','data','in','JSONObj']
+        'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
+        'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
       },
       'byteSizeWatermark': 1000000
     },

@@ -14,12 +14,12 @@ describe('Testing the delete module', function () {
   })
   it('Delete array entry in cache', function (done) {
     deleteEntryModule.removeEntryArray('testPrimeKey', arrayCache).should.become(['testPrimeValue1', 'testPrimeValue2', 'testPrimeValue3']).then(function () {
-        Promise.resolve(arrayCache).should.become({})
+      Promise.resolve(arrayCache).should.become({})
     }).should.notify(done)
   })
   it('Delete object entry in cache', function (done) {
     deleteEntryModule.removeEntryObj('testPrimeKey', 'testSecondaryKey', objectCache).should.become('testSecondaryValue').then(function () {
-        Promise.resolve(objectCache).should.become({testPrimeKey: {}})
+      Promise.resolve(objectCache).should.become({testPrimeKey: {}})
     }).should.notify(done)
   })
 })

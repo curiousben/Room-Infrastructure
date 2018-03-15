@@ -17,7 +17,6 @@ describe('Testing the secondary cache management module', function () {
       'all': 0,
       'eventCaches': {}
     }
-
   })
 
   it('Increase Event Size', function (done) {
@@ -55,5 +54,4 @@ describe('Testing the secondary cache management module', function () {
       Promise.resolve(cache.properties.sizeOfCache['eventCaches']['testPrimaryKey']).should.become({})
     }).should.notify(done)
   })
-
 })
