@@ -88,7 +88,7 @@ let initCache = (logger, configJSON) => {
 * TODO:
 *   [#1]:
 */
-
+/*
 let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data) => {
   return Promise.resolve()
     .then(() => cacheInterface.hasPrimaryEntry(primaryRecordEvntData, this.cache))
@@ -145,7 +145,7 @@ let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, 
       throw error
     })
 }
-
+*/
 /*
 * Description:
 *
@@ -160,7 +160,7 @@ let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, 
 * TODO:
 *   [#1]:
 */
-
+/*
 let processRecordMultiCache = (that, primaryRecordEvntData, secondaryRecordEvntData, data, cache) => {
   return Promise.resolve()
     .then(() => readModule.hasPrimaryEntry(primaryRecordEvntData, cache))
@@ -209,9 +209,9 @@ let processRecordMultiCache = (that, primaryRecordEvntData, secondaryRecordEvntD
       throw error
     })
 }
-
+*/
 module.exports = {
-  initCache: initCache,
-  addEntryToCache: cacheInterface.addEntryToCache,
-  flushCache: cacheInterface.flushCache
+  initCache: initCache
+//  addEntryToCache: cacheInterface.addEntryToCache,
+//  flushCache: cacheInterface.flushCache
 }

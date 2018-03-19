@@ -10,7 +10,7 @@
 
 /*
 * Description:
-*   This method adds a key-value pair to the existing cache
+*   This method adds a key-value pair to the existing cache. This will overwrite any thing previously there to ensure itonly adds
 * Args:
 *   key (String): This String is the key that the value will be associated with
 *   value (String): This String is the value that the key will be mapped to
@@ -30,6 +30,7 @@
 let createCacheEntry = (cache, key, entry) => {
   return new Promise(
     resolve => {
+      delete cache[key]
       cache[key] = entry
       resolve()
     }

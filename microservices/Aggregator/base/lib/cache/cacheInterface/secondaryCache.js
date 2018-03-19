@@ -32,10 +32,10 @@ const secondaryCacheManagement = require('./utilities/secondaryCacheManagement.j
 
 let addEntryToSecondCache = (that, primaryEventData, secondaryEventData, record) => {
   return (Promise.resolve()
-    .then(() => createModule.createCacheEntry(that.cache[primaryEventData], secondaryEventData, {}))
-    .then(() => bufferManagement.createBufferFromData(record))
+    .then(() => createModule.createCacheEntry(that.cache, primaryEventData, {}))
+    .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => updateModule.addValueToObj(that.cache[primaryEventData], secondaryEventData, buffer))
-    .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
+    .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => secondaryCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
     .then(() => secondaryCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .catch(error => {
@@ -57,35 +57,12 @@ let addEntryToSecondCache = (that, primaryEventData, secondaryEventData, record)
 * TODO:
 *   [#1]:
 */
-
-let addEntryToPrimaryCache = (that, primaryEventData) => {
-  return (Promise.resolve()
-    .then(() => createModule.createCacheEntry(that.cache, primaryEventData, {}))
-    .catch(error => {
-      throw error
-    }))
-}
-
-/*
-* Description:
-*
-* Args:
-*
-* Returns:
-*
-* Throws:
-*
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-
+// NEEDS to return the stored message since it needs to be handled by the microservice logic mainly acked so the message is removed from the microservice queue.
 let updateEntryToSecondCache = (that, primaryEventData, secondaryEventData, record) => {
   return (Promise.resolve()
-    .then(() => bufferManagement.createBufferFromData(record))
+    .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => updateModule.addValueToObj(that.cache[primaryEventData], secondaryEventData, buffer))
-    .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
+    .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => secondaryCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
     .then(() => secondaryCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .catch(error => {
@@ -109,15 +86,15 @@ let updateEntryToSecondCache = (that, primaryEventData, secondaryEventData, reco
 */
 
 let doesCacheSecondaryNeedFlush = (that, mainEvent, secondaryEvent) => {
-  return Promise.all([secondaryCacheManagement.getEventSize(that.properties.sizeOfCache, mainEvent, secondaryEvent), secondaryCacheManagement.getCacheSize(that.properties.sizeOfCache, mainEvent, secondaryEvent)])
+  return Promise.all([secondaryCacheManagement.getEventSize(that.properties.numberOfEvents, mainEvent, secondaryEvent), secondaryCacheManagement.getCacheSize(that.properties.sizeOfCache, mainEvent, secondaryEvent)])
     .then(results => {
-      let doesCacheNeedFlush = false
       let eventSize = results[0]
       let cacheSize = results[1]
-      if (eventSize >= that.config['storage']['policy']['eventLimit'] || cacheSize >= that.properties['storage']['byteSizeWatermark']) {
-        doesCacheNeedFlush = true
+      if (eventSize >= that.config['storage']['policy']['eventLimit'] || cacheSize >= that.config['storage']['byteSizeWatermark']) {
+        return true
+      } else {
+        return false
       }
-      return doesCacheNeedFlush
     })
 }
 
@@ -141,39 +118,10 @@ let flushSecondaryEventCache = (that, mainEvent, secondaryEvent) => {
     .then(() => secondaryCacheManagement.resetEventSize(that.properties.numberOfEvents, mainEvent, secondaryEvent))
     .then(() => secondaryCacheManagement.resetBufferSize(that.properties.sizeOfCache, mainEvent, secondaryEvent))
     .then(() => deleteModule.removeEntryObj(mainEvent, secondaryEvent, that.cache))
+    .then(buffer => bufferManagement.getJSONFromBuffer(buffer))
     .catch(error => {
       throw error
     }))
-}
-
-/*
-* Description:
-*   This method searches for an entry in the cache that is the primary event. This can be used for
-*     time and secondary storage policy.
-* Args:
-*   key (String): This String is the key that the entry could be located in
-*   cache (Object): This Object is the internal cache that is being searched
-* Returns:
-*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
-* Throws:
-*   N/A
-* Notes:
-*   To work around a for loop that searchs the whole Object we suppose the value exists and change the boolean
-*     statement if it is false.
-* TODO:
-*   [#1]:
-*/
-
-let hasPrimaryEntry = (key, cache) => {
-  return Promise.resolve()
-    .then(() => readModule.readPrimaryEntry(key, cache))
-    .then(value => {
-      if (value === undefined) {
-        return false
-      } else {
-        return true
-      }
-    })
 }
 
 /*
@@ -197,22 +145,30 @@ let hasPrimaryEntry = (key, cache) => {
 
 let hasSecondaryEntry = (key, subKey, cache) => {
   return Promise.resolve()
-    .then(() => readModule.readSecondaryEntry(key, subKey, cache))
-    .then(subValue => {
-      if (subValue === undefined) {
-        return false
+    .then(() => readModule.readPrimaryEntry(key, cache))
+    .then(value => {
+      if (value !== undefined) {
+        return readModule.readSecondaryEntry(key, subKey, cache)
+          .then(subValue => {
+            if (subValue === undefined) {
+              return false
+            } else {
+              return true
+            }
+          })
+          .catch(error => {
+            throw error
+          })
       } else {
-        return true
+        return false
       }
     })
 }
 
 module.exports = {
-  addEntryToPrimaryCache: addEntryToPrimaryCache,
   addEntryToSecondCache: addEntryToSecondCache,
   updateEntryToSecondCache: updateEntryToSecondCache,
   doesCacheSecondaryNeedFlush: doesCacheSecondaryNeedFlush,
   flushSecondaryEventCache: flushSecondaryEventCache,
-  hasPrimaryEntry: hasPrimaryEntry,
   hasSecondaryEntry: hasSecondaryEntry
 }

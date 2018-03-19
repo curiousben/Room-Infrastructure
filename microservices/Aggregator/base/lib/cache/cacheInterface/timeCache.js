@@ -33,9 +33,9 @@ const timeCacheManagement = require('./utilities/timeCacheManagement.js')
 let addEntryToTimeCache = (that, primaryEventData, record) => {
   return (Promise.resolve()
     .then(() => createModule.createCacheEntry(that.cache, primaryEventData, []))
-    .then(() => bufferManagement.createBufferFromData(record))
+    .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => updateModule.addValueToArray(that.cache, primaryEventData, buffer))
-    .then(buffer => bufferManagement.getSizeOfBuffer(record))
+    .then(buffer => bufferManagement.getSizeOfBufferFromString(record))
     .then(bufferSize => timeCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData))
     .then(() => timeCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData))
     .catch(error => {
@@ -58,12 +58,9 @@ let addEntryToTimeCache = (that, primaryEventData, record) => {
 *   [#1]:
 */
 
-let addEntryToPrimaryCache = (that, primaryEventData) => {
+let addEntryToPrimaryCache = (that, primaryEvent) => {
   return (Promise.resolve()
-    .then(() => createModule.createCacheEntry(that.cache, primaryEventData, {}))
-    .catch(error => {
-      throw error
-    }))
+    .then(() => createModule.createCacheEntry(that.cache, primaryEvent, {})))
 }
 
 /*
@@ -81,13 +78,13 @@ let addEntryToPrimaryCache = (that, primaryEventData) => {
 *   [#1]:
 */
 
-let updateEntryToTimeCache = (that, primaryEventData, record) => {
+let updateEntryToTimeCache = (that, primaryEvent, record) => {
   return (Promise.resolve()
-    .then(() => bufferManagement.createBufferFromData(record))
-    .then(buffer => updateModule.addValueToArray(that.cache, primaryEventData, buffer))
-    .then(buffer => bufferManagement.getSizeOfBuffer(buffer))
-    .then(bufferSize => timeCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData))
-    .then(() => timeCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData))
+    .then(() => bufferManagement.createBufferFromString(record))
+    .then(buffer => updateModule.addValueToArray(that.cache, primaryEvent, buffer))
+    .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
+    .then(bufferSize => timeCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEvent))
+    .then(() => timeCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEvent))
     .catch(error => {
       throw error
     }))
@@ -106,18 +103,35 @@ let updateEntryToTimeCache = (that, primaryEventData, record) => {
 *   N/A
 * TODO:
 *   [#1]:
+  return new Promise(
+    resolve => {
+      Promise.all([timeCacheManagement.getEventSize(that.properties.numberOfEvents, mainEvent), timeCacheManagement.getCacheSize(that.properties.sizeOfCache, mainEvent)])
+      .then(results => {
+        let eventSize = results[0]
+        let cacheSize = results[1]
+        if (eventSize >= that.config['storage']['policy']['eventLimit'] || cacheSize >= that.config['storage']['byteSizeWatermark']) {
+          console.log('return should be true')
+          resolve(true)
+        } else {
+          console.log('return should be false')
+          resolve(false)
+        }
+      })
+    }
+  )
+*
 */
 
 let doesCacheTimeNeedFlush = (that, mainEvent) => {
-  return Promise.all([timeCacheManagement.getEventSize(that.properties.sizeOfCache, mainEvent), timeCacheManagement.getCacheSize(that.properties.sizeOfCache, mainEvent)])
+  return Promise.all([timeCacheManagement.getEventSize(that.properties.numberOfEvents, mainEvent), timeCacheManagement.getCacheSize(that.properties.sizeOfCache, mainEvent)])
     .then(results => {
-      let doesCacheNeedFlush = false
       let eventSize = results[0]
       let cacheSize = results[1]
-      if (eventSize >= that.config['storage']['policy']['eventLimit'] || cacheSize >= that.properties['storage']['byteSizeWatermark']) {
-        doesCacheNeedFlush = true
+      if (cacheSize >= that.config['storage']['byteSizeWatermark'] || eventSize >= that.config['storage']['policy']['eventLimit']) {
+        return true
+      } else {
+        return false
       }
-      return doesCacheNeedFlush
     })
 }
 
@@ -136,7 +150,7 @@ let doesCacheTimeNeedFlush = (that, mainEvent) => {
 *   [#1]:
 */
 
-let flushTimeCache = (that, cache, mainEvent) => {
+let flushTimeCache = (that, mainEvent) => {
   return (Promise.resolve()
     .then(() => timeCacheManagement.resetEventSize(that.properties.numberOfEvents, mainEvent))
     .then(() => timeCacheManagement.resetBufferSize(that.properties.sizeOfCache, mainEvent))
@@ -164,9 +178,9 @@ let flushTimeCache = (that, cache, mainEvent) => {
 *   [#1]:
 */
 
-let hasPrimaryEntry = (key, cache) => {
+let hasPrimaryEntry = (cache, primaryEvent) => {
   return Promise.resolve()
-    .then(() => readModule.readPrimaryEntry(key, cache))
+    .then(() => readModule.readPrimaryEntry(primaryEvent, cache))
     .then(value => {
       if (value === undefined) {
         return false
