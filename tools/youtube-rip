@@ -1,0 +1,38 @@
+#!/bin/bash
+
+echo "---INFO: Checking arguments passed in ..."
+if [ $# -ne 1 ]
+then
+  echo "----ERROR: Incorrect arguments. Correct Syntax $(basename $0) <Youtube-URL>" 
+  exit 1
+fi
+echo "---INFO: ... Enough arguments have been passed in"
+
+echo "---INFO: Downloading the youtube file at the URL $1 ..."
+
+FILE=$(youtube-dl -q -f bestaudio $1 --exec 'echo {}' | sed 's/\/tmp\///' | sed 's/\.webm//') \
+
+if [ $? -ne 0 ]
+then
+  echo "----ERROR: Failed to down load the video at the URL $1"
+  exit 1
+fi
+echo "---INFO: ... Successfully downloaded the youtube file $FILE at the URL $1 ..."
+
+echo "---INFO: Beginning to convert the youtube file $FILE to a mp4 file ..."
+ffmpeg -fflags +genpts -i /tmp/"$FILE".webm -r 24 /tmp/"$FILE".mp4
+if [ $? -ne 0 ]
+then
+  echo "----ERROR: ... Failed to convert the file into mp4"
+  exit 1
+fi
+echo "---INFO: ... Successfully converted the youtube file $FILE to a mp4 file ..."
+
+echo "---INFO: Beginning to convert the file $FILE from a mp4 format to a m4a format ..."
+ffmpeg -i /tmp/"$FILE".mp4 -map a -c copy ~/Desktop/"$FILE".m4a
+if [ $? -ne 0 ]
+then
+  echo "----ERROR: Failed to convert the file into m4a"
+  exit 1
+fi
+echo "---INFO: ... Successfully converted the $FILE to a m4a file ..."
