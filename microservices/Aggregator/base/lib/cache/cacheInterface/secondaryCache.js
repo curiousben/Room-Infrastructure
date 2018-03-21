@@ -54,17 +54,41 @@ let addEntryToSecondCache = (that, primaryEventData, secondaryEventData, record)
 *
 * Notes:
 *   N/A
+*
 * TODO:
 *   [#1]:
+*
+* Design:
+*   1.  Retrieve Record at secondary key
+*   2.  Decrease event count by 1
+*   3.  Decrease cache size by retrieved record size
+*   4.  Create buffer from retrieved Record
+*   5.  Insert record at secondary cache location
+*   6.  Increase event count by 1
+*   7.  Increase cache size by new record size
+*   8.  Return retrieve record
+*
 */
-// NEEDS to return the stored message since it needs to be handled by the microservice logic mainly acked so the message is removed from the microservice queue.
+
 let updateEntryToSecondCache = (that, primaryEventData, secondaryEventData, record) => {
+  let oldRecord = null
   return (Promise.resolve()
+    .then(() => readModule.readSecondaryEntry(primaryEventData, secondaryEventData, that.cache))
+    .then(oldCacheEntry => {
+      oldRecord = oldCacheEntry
+      return oldCacheEntry
+    })
+    .then(oldCacheEntry => bufferManagement.getSizeOfBufferFromBuffer(oldCacheEntry))
+    .then(bufferSize => secondaryCacheManagement.decreaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
+    .then(() => secondaryCacheManagement.decreaseEventSize(that.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => updateModule.addValueToObj(that.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => secondaryCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
     .then(() => secondaryCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData, secondaryEventData))
+    .then(() => {
+      return oldRecord
+    })
     .catch(error => {
       throw error
     }))
