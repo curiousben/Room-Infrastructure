@@ -25,11 +25,11 @@
 *     Decrease memory footprint that the cache will take up when adding Strings
 */
 
-let removeEntryObj = (mainEvent, secondaryEvent, cache) => {
+let removeEntryObj = (mainEvent, cache) => {
   return new Promise(
     resolve => {
-      let cacheData = cache[mainEvent][secondaryEvent]
-      delete cache[mainEvent][secondaryEvent]
+      let cacheData = cache[mainEvent]
+      delete cache[mainEvent]
       resolve(cacheData)
     }
   )

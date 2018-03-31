@@ -59,64 +59,24 @@ describe('Testing the secondary Cache Interface module', function () {
         Promise.resolve(that.cache['testPrimaryKey']['testSecondaryKey']).should.become(Buffer.from(JSON.stringify({'testKeyThatisLargerByThanThePrevious': 'testValueThatisLargerByThanThePrevious'})))
       }).should.notify(done)
   })
-/*
-  it('Checking if cache needs to be flushed', function () {
-    return secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush().should.become()
-  })
-  it('Flush secondary cache', function () {
-    return secondaryCacheInterfaceModule.flushSecondaryEventCache().should.become()
-  })
-*/
-})
 
-/*
-  it('Create an entry in the time cache', function (done) {
-    timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'})).should.be.fulfilled.then(function () {
-      Promise.resolve(that.cache['testPrimaryKey']).should.become([Buffer.from(JSON.stringify({'test': 'test1'}))])
-      Promise.resolve(that.properties.sizeOfCache['all']).should.become(16)
-      Promise.resolve(that.properties.sizeOfCache['eventCaches']['testPrimaryKey']).should.become(16)
-      Promise.resolve(that.properties.numberOfEvents['all']).should.become(1)
-      Promise.resolve(that.properties.numberOfEvents['eventCaches']['testPrimaryKey']).should.become(1)
-    }).should.notify(done)
+  it('Checking if event cache need to be flushed', function (done) {
+    secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
+    .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(false).should.be.fulfilled
+    .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+    .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(true).should.notify(done)
   })
 
-  it('Create an entry primary cache', function (done) {
-    timeCacheInterfaceModule.addEntryToPrimaryCache(that, 'testPrimaryKey').should.be.fulfilled.then(function () {
-      Promise.resolve(that.cache['testPrimaryKey']).should.become({})
-    }).should.notify(done)
-  })
-
-  it('Update the entry to time cache', function (done) {
-    timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'})).should.be.fulfilled
-    .then(timeCacheInterfaceModule.updateEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'}))).should.be.fulfilled
+  it('Flush secondary cache', function (done) {
+    secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
+    .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+    .then(() => secondaryCacheInterfaceModule.flushSecondaryEventCache(that, 'testPrimaryKey')).should.become({'testSecondaryKey1':{'testKey': 'testValue'},'testSecondaryKey2': {'testKey': 'testValue'}})
     .then(function () {
-      Promise.resolve(that.cache['testPrimaryKey']).should.become([Buffer.from(JSON.stringify({'test': 'test1'})), Buffer.from(JSON.stringify({'test': 'test1'}))])
-      Promise.resolve(that.properties.sizeOfCache['all']).should.become(32)
-      Promise.resolve(that.properties.sizeOfCache['eventCaches']['testPrimaryKey']).should.become(32)
-      Promise.resolve(that.properties.numberOfEvents['all']).should.become(2)
-      Promise.resolve(that.properties.numberOfEvents['eventCaches']['testPrimaryKey']).should.become(2)
+      Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
+      Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
+      Promise.resolve(that.properties.sizeOfCache['all']).should.become(0)
+      Promise.resolve(that.properties.sizeOfCache['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
+      Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey')
     }).should.notify(done)
-  })
-
-  it('Checking to see if cache needs to be flushed', function (done) {
-    timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'})).should.be.fulfilled
-    .then(function () {
-      Promise.resolve().then(() => timeCacheInterfaceModule.doesCacheTimeNeedFlush(that, 'testPrimaryKey')).should.become(false)
-    }).then(() => timeCacheInterfaceModule.updateEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'}))).should.be.fulfilled.then(function () {
-      Promise.resolve().then(() => timeCacheInterfaceModule.doesCacheTimeNeedFlush(that, 'testPrimaryKey')).should.become(true)
-    }).should.notify(done)
-  })
-
-  it('Flushing the time cache', function () {
-    return timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'})).should.be.fulfilled
-    .then(timeCacheInterfaceModule.updateEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'}))).should.be.fulfilled
-    .then(timeCacheInterfaceModule.flushTimeCache(that, 'testPrimaryKey').should.become([Buffer.from(JSON.stringify({'test': 'test1'})), Buffer.from(JSON.stringify({'test': 'test1'}))]))
-  })
-
-  it('Checking to see if the primary entry exists', function () {
-    return timeCacheInterfaceModule.hasPrimaryEntry(that.cache, 'testPrimaryKey').should.become(false).should.be.fulfilled
-    .then(timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'}))).should.be.fulfilled
-    .then(timeCacheInterfaceModule.hasPrimaryEntry(that.cache, 'testPrimaryKey').should.become(true))
   })
 })
-*/

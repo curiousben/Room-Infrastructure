@@ -32,12 +32,22 @@ const secondaryCacheManagement = require('./utilities/secondaryCacheManagement.j
 
 let addEntryToSecondCache = (that, primaryEventData, secondaryEventData, record) => {
   return (Promise.resolve()
-    .then(() => createModule.createCacheEntry(that.cache, primaryEventData, {}))
+    .then(() => readModule.readPrimaryEntry(primaryEventData, that.cache))
+    .then(value => {
+      if (value == undefined) {
+        return createModule.createCacheEntry(that.cache, primaryEventData, {})
+      } else {
+        return
+      }
+    })
     .then(() => bufferManagement.createBufferFromString(record))
-    .then(buffer => updateModule.addValueToObj(that.cache[primaryEventData], secondaryEventData, buffer))
+    .then(buffer => createModule.createCacheEntry(that.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
-    .then(bufferSize => secondaryCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
-    .then(() => secondaryCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData, secondaryEventData))
+    .then(bufferSize => secondaryCacheManagement.increaseBufferSize(that.properties.sizeOfCache, bufferSize, primaryEventData))
+    .then(() => secondaryCacheManagement.increaseEventSize(that.properties.numberOfEvents, primaryEventData))
+    .then(() => {
+      return
+    })
     .catch(error => {
       throw error
     }))
@@ -112,8 +122,7 @@ let updateEntryToSecondCache = (that, primaryEventData, secondaryEventData, reco
 let doesCacheSecondaryNeedFlush = (that, mainEvent, secondaryEvent) => {
   return Promise.all([secondaryCacheManagement.getEventSize(that.properties.numberOfEvents, mainEvent, secondaryEvent), secondaryCacheManagement.getCacheSize(that.properties.sizeOfCache, mainEvent, secondaryEvent)])
     .then(results => {
-      let eventSize = results[0]
-      let cacheSize = results[1]
+      let eventSize = results[0], cacheSize = results[1]
       if (eventSize >= that.config['storage']['policy']['eventLimit'] || cacheSize >= that.config['storage']['byteSizeWatermark']) {
         return true
       } else {
@@ -137,12 +146,34 @@ let doesCacheSecondaryNeedFlush = (that, mainEvent, secondaryEvent) => {
 *   [#1]:
 */
 
-let flushSecondaryEventCache = (that, mainEvent, secondaryEvent) => {
+let flushSecondaryEventCache = (that, mainEvent) => {
+  let cacheObj = {}
   return (Promise.resolve()
-    .then(() => secondaryCacheManagement.resetEventSize(that.properties.numberOfEvents, mainEvent, secondaryEvent))
-    .then(() => secondaryCacheManagement.resetBufferSize(that.properties.sizeOfCache, mainEvent, secondaryEvent))
-    .then(() => deleteModule.removeEntryObj(mainEvent, secondaryEvent, that.cache))
-    .then(buffer => bufferManagement.getJSONFromBuffer(buffer))
+    .then(() => secondaryCacheManagement.resetEventSize(that.properties.numberOfEvents, mainEvent))
+    .then(() => secondaryCacheManagement.resetBufferSize(that.properties.sizeOfCache, mainEvent))
+    .then(() => deleteModule.removeEntryObj(mainEvent, that.cache))
+    .then(rawCacheObj => {
+      let promiseArray = []
+      for (let key of Object.keys(rawCacheObj)) {
+        promiseArray.push(new Promise(
+          resolve => {
+            resolve(bufferManagement.getJSONFromBuffer(rawCacheObj[key]))
+          })
+          .then(JSON => {
+            cacheObj[key] = JSON
+            return
+          })
+          .catch(error => {
+            throw error
+          })
+        )
+      }
+      return promiseArray
+    })
+    .then(promiseArray => Promise.all(promiseArray))
+    .then(() => {
+      return cacheObj
+    })
     .catch(error => {
       throw error
     }))

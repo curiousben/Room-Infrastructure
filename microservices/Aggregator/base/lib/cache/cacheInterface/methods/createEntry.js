@@ -30,7 +30,6 @@
 let createCacheEntry = (cache, key, entry) => {
   return new Promise(
     resolve => {
-      delete cache[key]
       cache[key] = entry
       resolve()
     }

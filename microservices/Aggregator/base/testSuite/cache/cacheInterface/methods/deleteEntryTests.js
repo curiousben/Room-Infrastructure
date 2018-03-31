@@ -10,7 +10,7 @@ describe('Testing the delete module', function () {
   before(function () {
     arrayCache.testPrimeKey = ['testPrimeValue1', 'testPrimeValue2', 'testPrimeValue3']
     objectCache.testPrimeKey = {}
-    objectCache.testPrimeKey.testSecondaryKey = 'testSecondaryValue'
+    objectCache.testPrimeKey['testSecondaryKey'] = 'testSecondaryValue'
   })
   it('Delete array entry in cache', function (done) {
     deleteEntryModule.removeEntryArray('testPrimeKey', arrayCache).should.become(['testPrimeValue1', 'testPrimeValue2', 'testPrimeValue3']).then(function () {
@@ -18,8 +18,8 @@ describe('Testing the delete module', function () {
     }).should.notify(done)
   })
   it('Delete object entry in cache', function (done) {
-    deleteEntryModule.removeEntryObj('testPrimeKey', 'testSecondaryKey', objectCache).should.become('testSecondaryValue').then(function () {
-      Promise.resolve(objectCache).should.become({testPrimeKey: {}})
+    deleteEntryModule.removeEntryObj('testPrimeKey', objectCache).should.become({'testSecondaryKey': 'testSecondaryValue'}).then(function () {
+      Promise.resolve(objectCache).should.become({})
     }).should.notify(done)
   })
 })

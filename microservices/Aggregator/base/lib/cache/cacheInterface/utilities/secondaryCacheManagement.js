@@ -24,10 +24,10 @@
 *   [#1]:
 */
 
-let decreaseEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
+let decreaseEventSize = (cacheNumberOfEvents, mainEvent) => {
   return new Promise(
     resolve => {
-      cacheNumberOfEvents['eventCaches'][mainEvent][secondaryEvent] -= 1
+      cacheNumberOfEvents['eventCaches'][mainEvent] -= 1
       cacheNumberOfEvents['all'] -= 1
       resolve()
     }
@@ -49,10 +49,10 @@ let decreaseEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
 *   [#1]:
 */
 
-let decreaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent, secondaryEvent) => {
+let decreaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent) => {
   return new Promise(
     resolve => {
-      cacheSizeOfCache['eventCaches'][mainEvent][secondaryEvent] -= bufferSize
+      cacheSizeOfCache['eventCaches'][mainEvent] -= bufferSize
       cacheSizeOfCache['all'] -= bufferSize
       resolve()
     }
@@ -74,16 +74,13 @@ let decreaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent, secondaryEven
 *   [#1]:
 */
 
-let increaseEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
+let increaseEventSize = (cacheNumberOfEvents, mainEvent) => {
   return new Promise(
     resolve => {
-      if (!(mainEvent in cacheNumberOfEvents['eventCaches'])) {
-        cacheNumberOfEvents['eventCaches'][mainEvent] = {}
-      }
-      if (secondaryEvent in cacheNumberOfEvents['eventCaches'][mainEvent]) {
-        cacheNumberOfEvents['eventCaches'][mainEvent][secondaryEvent] += 1
+      if (mainEvent in cacheNumberOfEvents['eventCaches']) {
+        cacheNumberOfEvents['eventCaches'][mainEvent] += 1
       } else {
-        cacheNumberOfEvents['eventCaches'][mainEvent][secondaryEvent] = 1
+        cacheNumberOfEvents['eventCaches'][mainEvent] = 1
       }
       cacheNumberOfEvents['all'] += 1
       resolve()
@@ -106,16 +103,13 @@ let increaseEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
 *   [#1]:
 */
 
-let increaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent, secondaryEvent) => {
+let increaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent) => {
   return new Promise(
     resolve => {
-      if (!(mainEvent in cacheSizeOfCache['eventCaches'])) {
-        cacheSizeOfCache['eventCaches'][mainEvent] = {}
-      }
-      if (secondaryEvent in cacheSizeOfCache['eventCaches'][mainEvent]) {
-        cacheSizeOfCache['eventCaches'][mainEvent][secondaryEvent] += bufferSize
+      if (mainEvent in cacheSizeOfCache['eventCaches']) {
+        cacheSizeOfCache['eventCaches'][mainEvent] += bufferSize
       } else {
-        cacheSizeOfCache['eventCaches'][mainEvent][secondaryEvent] = bufferSize
+        cacheSizeOfCache['eventCaches'][mainEvent] = bufferSize
       }
       cacheSizeOfCache['all'] += bufferSize
       resolve()
@@ -141,8 +135,8 @@ let increaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent, secondaryEven
 let resetEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      cacheNumberOfEvents['all'] -= cacheNumberOfEvents['eventCaches'][mainEvent][secondaryEvent]
-      delete cacheNumberOfEvents['eventCaches'][mainEvent][secondaryEvent]
+      cacheNumberOfEvents['all'] -= cacheNumberOfEvents['eventCaches'][mainEvent]
+      delete cacheNumberOfEvents['eventCaches'][mainEvent]
       resolve()
     }
   )
@@ -166,8 +160,8 @@ let resetEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
 let resetBufferSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      cacheSizeOfCache['all'] -= cacheSizeOfCache['eventCaches'][mainEvent][secondaryEvent]
-      delete cacheSizeOfCache['eventCaches'][mainEvent][secondaryEvent]
+      cacheSizeOfCache['all'] -= cacheSizeOfCache['eventCaches'][mainEvent]
+      delete cacheSizeOfCache['eventCaches'][mainEvent]
       resolve()
     }
   )
@@ -191,7 +185,7 @@ let resetBufferSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
 let getEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      resolve(cacheNumberOfEvents['eventCaches'][mainEvent][secondaryEvent])
+      resolve(cacheNumberOfEvents['eventCaches'][mainEvent])
     }
   )
 }
@@ -214,7 +208,53 @@ let getEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
 let getCacheSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
   return new Promise(
     resolve => {
-      resolve(cacheSizeOfCache['eventCaches'][mainEvent][secondaryEvent])
+      resolve(cacheSizeOfCache['eventCaches'][mainEvent])
+    }
+  )
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let getAllEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
+  return new Promise(
+    resolve => {
+      resolve(cacheNumberOfEvents['eventCaches']['all'])
+    }
+  )
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let getAllCacheSize = (cacheSizeOfCache) => {
+  return new Promise(
+    resolve => {
+      resolve(cacheSizeOfCache['eventCaches']['all'])
     }
   )
 }
