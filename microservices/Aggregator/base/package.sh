@@ -76,6 +76,7 @@ then
 fi
 
 rm docker/$REDISMQVERSION/${MICROSERVICE,,}.tar.gz
+  && docker/$REDISMQVERSION/${MICROSERVICE,,}.testSuite.tar.gz
 if [ $? -ne 0 ]
 then
   echo "----ERROR: Failed to remove $MICROSERVICE tarball from docker directory"
