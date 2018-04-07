@@ -182,7 +182,7 @@ let resetBufferSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
 *   [#1]:
 */
 
-let getEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
+let getEventSize = (cacheNumberOfEvents, mainEvent) => {
   return new Promise(
     resolve => {
       resolve(cacheNumberOfEvents['eventCaches'][mainEvent])
@@ -205,56 +205,10 @@ let getEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
 *   [#1]:
 */
 
-let getCacheSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
+let getCacheSize = (cacheSizeOfCache) => {
   return new Promise(
     resolve => {
-      resolve(cacheSizeOfCache['eventCaches'][mainEvent])
-    }
-  )
-}
-
-/*
-* Description:
-*
-* Args:
-*
-* Returns:
-*
-* Throws:
-*
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-
-let getAllEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
-  return new Promise(
-    resolve => {
-      resolve(cacheNumberOfEvents['eventCaches']['all'])
-    }
-  )
-}
-
-/*
-* Description:
-*
-* Args:
-*
-* Returns:
-*
-* Throws:
-*
-* Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-
-let getAllCacheSize = (cacheSizeOfCache) => {
-  return new Promise(
-    resolve => {
-      resolve(cacheSizeOfCache['eventCaches']['all'])
+      resolve(cacheSizeOfCache['all'])
     }
   )
 }

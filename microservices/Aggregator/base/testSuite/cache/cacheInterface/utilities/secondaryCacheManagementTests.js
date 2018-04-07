@@ -38,7 +38,7 @@ describe('Testing the secondary cache management module', function () {
   })
 
   it('Retreive Buffer Size', function () {
-    return secondaryCacheManagementModule.getCacheSize(cache.properties.sizeOfCache, 'testPrimaryKey').should.become(42)
+    return secondaryCacheManagementModule.getCacheSize(cache.properties.sizeOfCache).should.become(42)
   })
 
   it('Reset Event Size', function (done) {
@@ -57,11 +57,11 @@ describe('Testing the secondary cache management module', function () {
 
   it('Descrease Event Size', function (done) {
     secondaryCacheManagementModule.increaseEventSize(cache.properties.numberOfEvents, 'testPrimaryKey').should.be.fulfilled
-    .then(() => secondaryCacheManagementModule.decreaseEventSize(cache.properties.numberOfEvents, 'testPrimaryKey', 'testSecondaryKey')).should.be.fulfilled
-    .then(function () {
-      Promise.resolve(cache.properties.numberOfEvents['all']).should.become(0)
-      Promise.resolve(cache.properties.numberOfEvents['eventCaches']['testPrimaryKey']).should.become(0)
-    }).should.notify(done)
+      .then(() => secondaryCacheManagementModule.decreaseEventSize(cache.properties.numberOfEvents, 'testPrimaryKey', 'testSecondaryKey')).should.be.fulfilled
+      .then(function () {
+        Promise.resolve(cache.properties.numberOfEvents['all']).should.become(0)
+        Promise.resolve(cache.properties.numberOfEvents['eventCaches']['testPrimaryKey']).should.become(0)
+      }).should.notify(done)
   })
 
   it('Decrease Buffer Size', function (done) {
@@ -71,5 +71,5 @@ describe('Testing the secondary cache management module', function () {
         Promise.resolve(cache.properties.sizeOfCache['all']).should.become(22)
         Promise.resolve(cache.properties.sizeOfCache['eventCaches']['testPrimaryKey']).should.become(22)
       }).should.notify(done)
-    })
+  })
 })

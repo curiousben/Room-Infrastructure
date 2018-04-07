@@ -31,7 +31,7 @@ let createCacheEntry = (cache, key, entry) => {
   return new Promise(
     resolve => {
       cache[key] = entry
-      resolve()
+      resolve(entry)
     }
   )
 }

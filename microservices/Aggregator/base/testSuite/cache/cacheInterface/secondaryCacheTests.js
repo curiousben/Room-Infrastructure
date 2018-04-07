@@ -37,8 +37,8 @@ describe('Testing the secondary Cache Interface module', function () {
 
   it('Checking if Secondary Entry exist', function (done) {
     secondaryCacheInterfaceModule.hasSecondaryEntry('testPrimaryKey', 'testSecondaryKey', that.cache).should.become(false).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.hasSecondaryEntry('testPrimaryKey', 'testSecondaryKey', that.cache)).should.become(true).should.notify(done)
+      .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.hasSecondaryEntry('testPrimaryKey', 'testSecondaryKey', that.cache)).should.become(true).should.notify(done)
   })
 
   it('Create a Secondary Entry in cache', function (done) {
@@ -62,21 +62,37 @@ describe('Testing the secondary Cache Interface module', function () {
 
   it('Checking if event cache need to be flushed', function (done) {
     secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(false).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(true).should.notify(done)
+      .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(false).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(true).should.notify(done)
   })
 
   it('Flush secondary cache', function (done) {
     secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-    .then(() => secondaryCacheInterfaceModule.flushSecondaryEventCache(that, 'testPrimaryKey')).should.become({'testSecondaryKey1':{'testKey': 'testValue'},'testSecondaryKey2': {'testKey': 'testValue'}})
-    .then(function () {
-      Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
-      Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
-      Promise.resolve(that.properties.sizeOfCache['all']).should.become(0)
-      Promise.resolve(that.properties.sizeOfCache['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
-      Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey')
-    }).should.notify(done)
+      .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.flushSecondaryEventCache(that, 'testPrimaryKey')).should.become({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}})
+      .then(function () {
+        Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
+        Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
+        Promise.resolve(that.properties.sizeOfCache['all']).should.become(0)
+        Promise.resolve(that.properties.sizeOfCache['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
+        Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey')
+      }).should.notify(done)
   })
+
+  it('Flush whole cache', function (done) {
+    secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey1', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey1', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.flushCache(that)).should.become({"testPrimaryKey": {"testSecondaryKey1": {"testKey": "testValue"}, "testSecondaryKey2": {"testKey": "testValue" }}, "testPrimaryKey1": {"testSecondaryKey1": {"testKey": "testValue"}, "testSecondaryKey2": { "testKey": "testValue" }}})
+      .then(function () {
+        Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
+        Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
+        Promise.resolve(that.properties.sizeOfCache['all']).should.become(0)
+        Promise.resolve(that.properties.sizeOfCache['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
+        Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey')
+      }).should.notify(done)
+  })
+
 })
