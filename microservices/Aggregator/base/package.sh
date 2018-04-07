@@ -11,6 +11,31 @@ fi
 
 readonly REDISMQVERSION=$1
 
+echo "---INFO: Packaging $MICROSERVICE testSuite tarball" \
+  && mkdir ${MICROSERVICE,,} \
+  && cp package.json ${MICROSERVICE,,}/ \
+  && cp -R lib/ ${MICROSERVICE,,}/ \
+  && cp -R bin/ ${MICROSERVICE,,}/ \
+  && cp -R testSuite/ ${MICROSERVICE,,}/ \
+  && tar -czvf ${MICROSERVICE,,}.testSuite.tar.gz ${MICROSERVICE,,}/ \
+  && rm -r ${MICROSERVICE,,}
+if [ $? -ne 0 ]
+then
+  echo "----ERROR: Failed to create $MICROSERVICE testSuite tarball" \
+    && rm -r ${MICROSERVICE,,} \
+    && rm ${MICROSERVICE,,}.testSuite.tar.gz
+  exit 1
+fi
+
+echo "----INFO: Moving $MICROSERVICE tarball to the dist and docker folder" \
+  && mv ${MICROSERVICE,,}.testSuite.tar.gz docker/$REDISMQVERSION/${MICROSERVICE,,}.testSuite.tar.gz
+if [ $? -ne 0 ]
+then 
+  echo "----ERROR: Failed to move $MICROSERVICE tarball to dist folder" \
+    && rm ${MICROSERVICE,,}.testSuite.tar.gz
+  exit 1
+fi 
+
 echo "---INFO: Packaging $MICROSERVICE tarball" \
   && mkdir ${MICROSERVICE,,} \
   && cp package.json ${MICROSERVICE,,}/ \

@@ -85,7 +85,7 @@ describe('Testing the secondary Cache Interface module', function () {
       .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey1', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToSecondCache(that, 'testPrimaryKey1', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.flushCache(that)).should.become({"testPrimaryKey": {"testSecondaryKey1": {"testKey": "testValue"}, "testSecondaryKey2": {"testKey": "testValue" }}, "testPrimaryKey1": {"testSecondaryKey1": {"testKey": "testValue"}, "testSecondaryKey2": { "testKey": "testValue" }}})
+      .then(() => secondaryCacheInterfaceModule.flushCache(that)).should.become({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}, 'testPrimaryKey1': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}})
       .then(function () {
         Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
         Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
@@ -94,5 +94,4 @@ describe('Testing the secondary Cache Interface module', function () {
         Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey')
       }).should.notify(done)
   })
-
 })

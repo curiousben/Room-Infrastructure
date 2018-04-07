@@ -24,14 +24,14 @@
 *   [#1]:
 */
 
-let init = (that, logger, cacheConfig) => {
+let init = (cacheInst, logger, cacheConfig) => {
   return new Promise(
     resolve => {
       logger.log('debug', 'Starting to initialize the cache structure...')
       resolve()
     })
     .then(() => validateCacheProps(logger, cacheConfig))
-    .then(() => loadCacheAndProps(that, logger, cacheConfig))
+    .then(() => loadCacheAndProps(cacheInst, logger, cacheConfig))
     .then(() => {
       logger.log('debug', '... Finished initializing the cache structure.')
     })
@@ -68,7 +68,6 @@ let validateCacheProps = (logger, cacheConfig) => {
           throw new Error('The data path encountered for the cache\'s secondary event Data storage event trigger was: [' + secondaryEventPath + ']. This data path can not be empty.')
         }
       }
-
       let waterMark = cacheConfig['storage']['byteSizeWatermark']
       if (waterMark < 5000000) {
         throw new Error('It is recommended to have at least 5MB of space for cached data')
@@ -99,21 +98,20 @@ let validateCacheProps = (logger, cacheConfig) => {
 *   [#1]:
 */
 
-let loadCacheAndProps = (that, logger, cacheConfig) => {
+let loadCacheAndProps = (cacheInst, logger, cacheConfig) => {
   return new Promise(
     resolve => {
       logger.log('debug', 'Starting to load the configurations for the cache and create the cache...')
-      that.cache = {}
-      that.config = cacheConfig
-      that.properties.sizeOfCache = {
+      cacheInst.cache = {}
+      cacheInst.config = cacheConfig
+      cacheInst.properties.sizeOfCache = {
         'all': 0,
         'eventCaches': {}
       }
-      that.properties.numberOfEvents = {
+      cacheInst.properties.numberOfEvents = {
         'all': 0,
         'eventCaches': {}
       }
-
       logger.log('debug', '... Successfully loaded configurations and created the cache.')
       resolve()
     }
