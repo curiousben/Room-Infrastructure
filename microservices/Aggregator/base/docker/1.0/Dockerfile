@@ -3,6 +3,23 @@
 # Author: BenSmith(CuriousBen)
 ####################################
 
+#----INFO: Image to run test suite
+FROM curiousben/redismq-nodejs-amd:latest
+
+COPY ./aggregator.testSuite.tar.gz /tmp/
+
+RUN apt-update \
+
+#----INFO: Installing the Aggregator testing Suite App
+  && tar -xzvf /tmp/aggregator.tar.gz -C /opt/ \
+  && npm install --only=dev --prefix /opt/aggregator/ \
+  && rm /tmp/aggregator.tar.gz \
+  && rm -rf /var/lib/apt/lists/* \
+
+#----INFO: Installing the Aggregator testing Suite App
+  && /opt/aggregator/node_modules/.bin/eslint /opt/aggregator/
+  && /opt/aggregator/node_modules/.bin/mocha --recursive /opt/aggregator/
+
 FROM curiousben/redismq-nodejs-amd:latest
 
 #----INFO: Labeling the image
