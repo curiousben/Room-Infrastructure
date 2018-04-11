@@ -11,9 +11,9 @@ COPY ./aggregator.testSuite.tar.gz /tmp/
 RUN apt-update \
 
 #----INFO: Installing the Aggregator testing Suite App
-  && tar -xzvf /tmp/aggregator.tar.gz -C /opt/ \
+  && tar -xzvf /tmp/aggregator.testSuite.tar.gz -C /opt/ \
   && npm install --only=dev --prefix /opt/aggregator/ \
-  && rm /tmp/aggregator.tar.gz \
+  && rm /tmp/aggregator.testingSuite.tar.gz \
   && rm -rf /var/lib/apt/lists/* \
 
 #----INFO: Installing the Aggregator testing Suite App
