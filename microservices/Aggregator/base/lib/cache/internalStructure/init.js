@@ -8,6 +8,8 @@
 *   This module will initialize the internal cache structure and validate the confiurations for the cache
 */
 
+const util = require('util')
+
 /*
 * Description:
 *   This Promise returns the cache and if it returned the cache then the cache configurations were validated as well
@@ -36,8 +38,8 @@ let init = (cacheInst, logger, cacheConfig) => {
       logger.log('debug', '... Finished initializing the cache structure.')
     })
     .catch(error => {
-      logger.log('error', 'Encountered an Error when creating the cache structure. Details:\n\t%s', error)
-      throw error
+      logger.log('error', )
+      throw new Error(util.format('Encountered an Error when creating the cache structure. Details:\n\t%s', error.message))
     })
 }
 
@@ -65,7 +67,7 @@ let validateCacheProps = (logger, cacheConfig) => {
       if (storagePolicy === 'secondaryEvent') {
         let secondaryEventPath = cacheConfig['storage']['eventTrigger']['secondaryEvent']
         if (secondaryEventPath.length === 0) {
-          throw new Error('The data path encountered for the cache\'s secondary event Data storage event trigger was: [' + secondaryEventPath + ']. This data path can not be empty.')
+          throw new Error(util.format('The data path encountered for the cache\'s secondary event Data storage event trigger was: [%s]. This data path can not be empty.', secondaryEventPath))
         }
       }
       let waterMark = cacheConfig['storage']['byteSizeWatermark']
