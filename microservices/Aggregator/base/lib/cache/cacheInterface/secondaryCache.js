@@ -14,7 +14,7 @@ const readModule = require('./methods/readEntry.js')
 const updateModule = require('./methods/updateEntry.js')
 const deleteModule = require('./methods/deleteEntry.js')
 const bufferManagement = require('./utilities/bufferManagement.js')
-const secondaryCacheManagement = require('./utilities/secondaryCacheManagement.js')
+const cacheManagement = require('./utilities/cacheManagement.js')
 
 /*
 * Description:
@@ -48,8 +48,8 @@ let addEntryToObjectCache = (logger, cacheInst, primaryEventData, secondaryEvent
     .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => createModule.createCacheEntry(cacheInst.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
-    .then(bufferSize => secondaryCacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData))
-    .then(() => secondaryCacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData))
+    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData))
+    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData))
     .then(() => {
       logger.log('debug', '... Successfully added the %s data to the %s cache', secondaryEventData, primaryEventData)
       return undefined
@@ -99,13 +99,13 @@ let updateEntryToObjectCache = (logger, cacheInst, primaryEventData, secondaryEv
       return oldCacheEntry
     })
     .then(oldCacheEntry => bufferManagement.getSizeOfBufferFromBuffer(oldCacheEntry))
-    .then(bufferSize => secondaryCacheManagement.decreaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
-    .then(() => secondaryCacheManagement.decreaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData, secondaryEventData))
+    .then(bufferSize => cacheManagement.decreaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
+    .then(() => cacheManagement.decreaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => updateModule.addValueToObj(cacheInst.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
-    .then(bufferSize => secondaryCacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
-    .then(() => secondaryCacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData, secondaryEventData))
+    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
+    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .then(() => {
       logger.log('debug', '... Successfully updated the %s data to the %s cache', secondaryEventData, primaryEventData)
       return oldRecord
@@ -136,7 +136,7 @@ let doesCacheSecondaryNeedFlush = (logger, cacheInst, mainEvent, secondaryEvent)
       logger.log('debug', 'Starting to determine if data for %s for the %s cache needs to be flushed ...', secondaryEvent, mainEvent)
       return undefined
     })
-    .then(() => secondaryCacheManagement.getEventSize(cacheInst.properties.numberOfEvents, mainEvent, secondaryEvent))
+    .then(() => cacheManagement.getEventSize(cacheInst.properties.numberOfEvents, mainEvent, secondaryEvent))
     .then(eventSize => {
       if (eventSize >= cacheInst.config['storage']['policy']['eventLimit']) {
         logger.log('debug', '... The data for %s for the %s cache needs to be flushed.')
@@ -172,7 +172,7 @@ let doesCacheNeedFlush = (logger, cacheInst) => {
       logger.log('debug', 'Starting to determine if the cache needs to be flushed ...')
       return undefined
     })
-    .then(() => secondaryCacheManagement.getCacheSize(cacheInst.properties.sizeOfCache))
+    .then(() => cacheManagement.getCacheSize(cacheInst.properties.sizeOfCache))
     .then(cacheSize => {
       if (cacheSize >= cacheInst.config['storage']['byteSizeWatermark']) {
         logger.log('debug', '... The cache needs to be flushed ...')
@@ -209,8 +209,8 @@ let flushSecondaryEventCache = (logger, cacheInst, mainEvent) => {
       logger.log('debug', 'Starting to flush the %s cache ...', mainEvent)
       return undefined
     })
-    .then(() => secondaryCacheManagement.resetEventSize(cacheInst.properties.numberOfEvents, mainEvent))
-    .then(() => secondaryCacheManagement.resetBufferSize(cacheInst.properties.sizeOfCache, mainEvent))
+    .then(() => cacheManagement.resetEventSize(cacheInst.properties.numberOfEvents, mainEvent))
+    .then(() => cacheManagement.resetBufferSize(cacheInst.properties.sizeOfCache, mainEvent))
     .then(() => deleteModule.removeEntryObj(mainEvent, cacheInst.cache))
     .then(rawCacheObj => {
       let promiseArray = []

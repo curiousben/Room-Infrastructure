@@ -1,4 +1,11 @@
 const timeCacheInterfaceModule = require('../../../lib/cache/cacheInterface/timeCache.js')
+const winston = require('winston')
+var logger = new winston.Logger({
+  level: 'error',
+  transports: [
+    new (winston.transports.Console)()
+  ]
+})
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
@@ -35,6 +42,12 @@ describe('Testing the Time Cache Interface module', function () {
     }
   })
 
+  it('Checking to see if the primary entry exists', function () {
+    return timeCacheInterfaceModule.hasPrimaryEntry(that.cache, 'testPrimaryKey').should.become(false).should.be.fulfilled
+      .then(timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'}))).should.be.fulfilled
+      .then(timeCacheInterfaceModule.hasPrimaryEntry(that.cache, 'testPrimaryKey').should.become(true))
+  })
+
   it('Create an entry in the time cache', function (done) {
     timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'})).should.be.fulfilled.then(function () {
       Promise.resolve(that.cache['testPrimaryKey']).should.become([Buffer.from(JSON.stringify({'test': 'test1'}))])
@@ -46,7 +59,7 @@ describe('Testing the Time Cache Interface module', function () {
   })
 
   it('Create an entry primary cache', function (done) {
-    timeCacheInterfaceModule.addEntryToPrimaryCache(that, 'testPrimaryKey').should.be.fulfilled.then(function () {
+    timeCacheInterfaceModule.addEntryToCache(that, 'testPrimaryKey').should.be.fulfilled.then(function () {
       Promise.resolve(that.cache['testPrimaryKey']).should.become({})
     }).should.notify(done)
   })
@@ -78,9 +91,4 @@ describe('Testing the Time Cache Interface module', function () {
       .then(timeCacheInterfaceModule.flushTimeCache(that, 'testPrimaryKey').should.become([Buffer.from(JSON.stringify({'test': 'test1'})), Buffer.from(JSON.stringify({'test': 'test1'}))]))
   })
 
-  it('Checking to see if the primary entry exists', function () {
-    return timeCacheInterfaceModule.hasPrimaryEntry(that.cache, 'testPrimaryKey').should.become(false).should.be.fulfilled
-      .then(timeCacheInterfaceModule.addEntryToTimeCache(that, 'testPrimaryKey', JSON.stringify({'test': 'test1'}))).should.be.fulfilled
-      .then(timeCacheInterfaceModule.hasPrimaryEntry(that.cache, 'testPrimaryKey').should.become(true))
-  })
 })
