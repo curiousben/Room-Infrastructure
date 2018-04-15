@@ -11,13 +11,14 @@
 
 /*
 * Description:
-*
+*   This method decrease the event size by one. This is under the assumption that the 'mainEvent' has recieved only one event
 * Args:
-*
+*   cacheNumberOfEvents (Object): This Object is the meta data for the cache.
+*   mainEvent (String): This String is the name of the event that needs to have its event decreased by one
 * Returns:
-*
+*   N/A: This promise resolves to the nothing
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
@@ -36,13 +37,15 @@ let decreaseEventSize = (cacheNumberOfEvents, mainEvent) => {
 
 /*
 * Description:
-*
+*   This method decreases the reported size of the buffer by the size of the new record that is being processed.
 * Args:
-*
+*   cacheSizeOfCache (Object): This Object has the reported meta data about the size of the buffer.
+*   bufferSize (bufferSize): This number represents the size of the buffer that will be reduced from the cache
+*   mainEvent (mainEvent): This String is the name of the event that will have the size of it's data be subtracted from the reported size of the cache.
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
@@ -61,13 +64,14 @@ let decreaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent) => {
 
 /*
 * Description:
-*
+*   This method increases the event size of the buffer by one record.
 * Args:
-*
+*   cacheSizeOfCache (Object): This Object has the reported meta data about the size of the buffer.
+*   mainEvent (mainEvent): This String is the name of the event that needs to have its event increased by one
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
@@ -90,13 +94,15 @@ let increaseEventSize = (cacheNumberOfEvents, mainEvent) => {
 
 /*
 * Description:
-*
+*   This method increases the reported size of the buffer by the size of the new record that is being processed.
 * Args:
-*
+*   cacheSizeOfCache (Object): This Object has the reported meta data about the size of the buffer.
+*   bufferSize (bufferSize): This number represents the size of the buffer that will be reduced from the cache
+*   mainEvent (mainEvent): This String is the name of the event that will have the size of it's data be added to the reported size of the cache.
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
@@ -119,20 +125,21 @@ let increaseBufferSize = (cacheSizeOfCache, bufferSize, mainEvent) => {
 
 /*
 * Description:
-*
+*   This method resets the event size of a particular event.
 * Args:
-*
+*   cacheSizeOfCache (Object): This Object has the reported meta data about the size of the buffer.
+*   mainEvent (mainEvent): This String is the name of the event that needs to have its event size reset.
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
 
-let resetEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
+let resetEventSize = (cacheNumberOfEvents, mainEvent) => {
   return new Promise(
     resolve => {
       cacheNumberOfEvents['all'] -= cacheNumberOfEvents['eventCaches'][mainEvent]
@@ -144,20 +151,21 @@ let resetEventSize = (cacheNumberOfEvents, mainEvent, secondaryEvent) => {
 
 /*
 * Description:
-*
+*   This method resets the reported size of the buffers in the cache.
 * Args:
-*
+*   cacheSizeOfCache (Object): This Object has the reported meta data about the size of the buffer.
+*   mainEvent (mainEvent): This String is the name of the event that will have it's cache reset.
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
 
-let resetBufferSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
+let resetBufferSize = (cacheSizeOfCache, mainEvent) => {
   return new Promise(
     resolve => {
       cacheSizeOfCache['all'] -= cacheSizeOfCache['eventCaches'][mainEvent]
@@ -169,13 +177,14 @@ let resetBufferSize = (cacheSizeOfCache, mainEvent, secondaryEvent) => {
 
 /*
 * Description:
-*
+*   This method retrieves the event size of an event in the cache.
 * Args:
-*
+*   cacheNumberOfEvents (Object): This Object has the reported meta data about the event size of the buffer.
+*   mainEvent (mainEvent): This String is the event that will have it's size retrieved
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:
@@ -192,13 +201,13 @@ let getEventSize = (cacheNumberOfEvents, mainEvent) => {
 
 /*
 * Description:
-*
+*   This method retrieves the reported size of the cache.
 * Args:
-*
+*   cacheSizeOfCache (Object): This Object has the reported meta data about the size of the buffer.
 * Returns:
-*
+*   N/A: This promise doesn't return anything upon completion
 * Throws:
-*
+*   N/A: Any rejections will happen at run time since the methods used here are very generic
 * Notes:
 *   N/A
 * TODO:

@@ -37,7 +37,14 @@ let addEntryToTimeCache = (logger, cacheInst, primaryEventData, record) => {
       logger.log('debug', 'Starting to add data to the %s event cache', primaryEventData)
       return undefined
     })
-    .then(() => createModule.createCacheEntry(cacheInst.cache, primaryEventData, []))
+    .then(() => readModule.readPrimaryEntry(primaryEventData, cacheInst.cache))
+    .then(value => {
+      if (value === undefined) {
+        return createModule.createCacheEntry(cacheInst.cache, primaryEventData, [])
+      } else {
+        return undefined
+      }
+    })
     .then(() => bufferManagement.createBufferFromString(record))
     .then(buffer => updateModule.addValueToArray(cacheInst.cache, primaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromString(record))
@@ -62,38 +69,7 @@ let addEntryToTimeCache = (logger, cacheInst, primaryEventData, record) => {
 * Throws:
 *
 * Notes:
-*   N/A
-* TODO:
-*   [#1]:
-*/
-
-let addEntryToCache = (logger, cacheInst, primaryEvent) => {
-  return (Promise.resolve()
-    .then(() => {
-      logger.log('debug', 'Starting to add the event cache, %s, to the system cache ...', primaryEvent)
-      return undefined
-    })
-    .then(() => createModule.createCacheEntry(cacheInst.cache, primaryEvent, {}))
-    .then(entry => {
-      logger.log('debug', '... Successfully added the event cache, %s, to the system cache.', primaryEvent)
-      return entry
-    })
-    .catch(error => {
-      throw new Error(util.format('... Failed to add the event cache, %s, to the system cache. Details:%s', primaryEvent, error.message))
-    }))
-}
-
-/*
-* Description:
-*
-* Args:
-*
-* Returns:
-*
-* Throws:
-*
-* Notes:
-*   N/A
+*  There does exist a case where the addition of data exceeds the caceh watermark, but will later cause the cache to be flushed.
 * TODO:
 *   [#1]:
 */
@@ -206,6 +182,7 @@ let doesCacheNeedFlush = (logger, cacheInst) => {
 */
 
 let flushTimeCache = (logger, cacheInst, mainEvent) => {
+  let eventCacheArray = []
   return (Promise.resolve()
     .then(() => {
       logger.log('debug', 'Starting to flush the %s cache ...', mainEvent)
@@ -214,9 +191,30 @@ let flushTimeCache = (logger, cacheInst, mainEvent) => {
     .then(() => cacheManagement.resetEventSize(cacheInst.properties.numberOfEvents, mainEvent))
     .then(() => cacheManagement.resetBufferSize(cacheInst.properties.sizeOfCache, mainEvent))
     .then(() => deleteModule.removeEntryArray(mainEvent, cacheInst.cache))
-    .then(cacheData => {
+    .then(rawArrayCache => {
+      let promiseArray = []
+      for (const [key, value] of Object.entries(rawArrayCache)) {
+        promiseArray.push(new Promise(
+          resolve => {
+            resolve(bufferManagement.getJSONFromBuffer(value))
+          })
+          .then(JSON => {
+            eventCacheArray.push(JSON)
+            return undefined
+          })
+          .catch(error => {
+            throw error
+          })
+        )
+      }
+      return promiseArray
+    })
+    .then(promiseArray => Promise.all(promiseArray))
+    .then(() => {
+      let finalCache = {}
+      finalCache[mainEvent] = eventCacheArray
       logger.log('debug', '... Successfully flushed the %s cache.', mainEvent)
-      return cacheData
+      return finalCache 
     })
     .catch(error => {
       throw new Error(util.format('... Failed to flush the %s cache. Details:%s', mainEvent, error.message))
@@ -313,7 +311,6 @@ let hasPrimaryEntry = (logger, cache, primaryEvent) => {
 }
 
 module.exports = {
-  addEntryToCache: addEntryToCache,
   addEntryToTimeCache: addEntryToTimeCache,
   updateEntryToTimeCache: updateEntryToTimeCache,
   doesCacheTimeNeedFlush: doesCacheTimeNeedFlush,

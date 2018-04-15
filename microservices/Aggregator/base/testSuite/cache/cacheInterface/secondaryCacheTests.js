@@ -27,7 +27,7 @@ describe('Testing the secondary Cache Interface module', function () {
           'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
           'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
         },
-        'byteSizeWatermark': 1000000
+        'byteSizeWatermark': 46
       },
       'flushStrategy': 'single'
     }
@@ -42,7 +42,7 @@ describe('Testing the secondary Cache Interface module', function () {
     }
   })
 
-  it('Checking if Secondary Entry exist', function (done) {
+  it('Checking if Secondary Entry exists', function (done) {
     secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache).should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache)).should.become(true).should.notify(done)
@@ -67,11 +67,18 @@ describe('Testing the secondary Cache Interface module', function () {
       }).should.notify(done)
   })
 
-  it('Checking if event cache need to be flushed', function (done) {
+  it('Checking if event cache needs to be flushed', function (done) {
     secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(logger, that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(logger, that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(true).should.notify(done)
+  })
+
+  it('Checking if whole cache needs to be flushed', function (done) {
+    secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.doesCacheNeedFlush(logger, that)).should.become(false).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.doesCacheNeedFlush(logger, that)).should.become(true).should.notify(done)
   })
 
   it('Flush secondary cache', function (done) {
@@ -99,6 +106,7 @@ describe('Testing the secondary Cache Interface module', function () {
         Promise.resolve(that.properties.sizeOfCache['all']).should.become(0)
         Promise.resolve(that.properties.sizeOfCache['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
         Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey')
+        Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey1')
       }).should.notify(done)
   })
 })
