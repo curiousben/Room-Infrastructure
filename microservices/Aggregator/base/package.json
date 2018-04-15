@@ -8,8 +8,11 @@
   },
   "author": "Benjamin Smith",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "winston": "^2.4.1"
+  },
   "devDependencies": {
+    "winston": "^2.4.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "eslint": "^4.18.1",
