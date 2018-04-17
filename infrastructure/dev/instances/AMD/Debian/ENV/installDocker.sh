@@ -21,24 +21,24 @@ then
 	exit 1
 fi
 echo "----INFO: Successfully grabbed Docker package name" \
-  && echo "----INFO: Starting to download the Docker Debian package"
-wget $DOCKERREPO$DOCKERPACKAGE -P /tmp/
+  && echo "----INFO: Starting to download the Docker Debian package" \
+  && wget $DOCKERREPO$DOCKERPACKAGE -P /tmp/
 if [ $? -ne "0" ]
 then 
 	echo "----ERROR: Failed to download the Docker Debian package"
 	exit 1
 fi
 echo "----INFO: Successfully downloaded the Docker Debian package" \
-  && echo "----INFO: Starting to install Docker"
-dpkg -i /tmp/$DOCKERPACKAGE
+  && echo "----INFO: Starting to install Docker" \
+  && dpkg -i /tmp/$DOCKERPACKAGE
 if [ $? -ne "0" ]
 then 
 	echo "----ERROR: Failed to install Docker"
 	exit 1
 fi
 echo "----INFO: Successfully installed Docker" \
-  && echo "----INFO: Starting to test Docker"
-docker run hello-world \
+  && echo "----INFO: Starting to test Docker" \
+  && docker run hello-world \
   && docker rm -f hello-world
 if [ $? -ne "0" ]
 then 
@@ -46,6 +46,6 @@ then
 	exit 1
 fi
 echo "----INFO: Docker test was successful" \
-  && echo "----INFO: Granting rights to the infrastructure user"
-groupadd docker \
+  && echo "----INFO: Granting rights to the infrastructure user" \
+  && groupadd docker \
   && usermod -aG docker $INFRAUSER
