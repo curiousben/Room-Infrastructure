@@ -1,21 +1,32 @@
 /* eslint-env node */
 /* eslint no-console:["error", { allow: ["info", "error"] }] */
 
+'use strict'
+
 /*
 * Module design:
 *   This module will be responsible for initializing the correct cache and subsequent methods for interacting
 *   with the cache that this microservice is responsible for. The object that will be returned will be the
 *   cache (for the internal or external) and methods for interacting with.
+*
+* Interface:
+*   This interface has a response structure that all calls will adhere to. This will removes the responsiblity of the interface having to know how to react to an overfilled cache, misconfiguration, or common responses.
+*   This follows a simliar design model of how a microservice should interact with an external endpoint.
+*   The following will the be the data structure that is returned after a request is made to the internal data structure:
+*     {
+*       "status": 1 or 0,
+*       "response": "JSON Object with payload that relates to status"
+*     }
 */
 
-const internalCache = require('./internalStructure/index.js')
-const externalCache = require('./externalStructure/index.js')
+const internalCache = require('./internalStructure/init.js')
+const externalCache = require('./externalStructure/init.js')
 const timeCacheInterface = require('./cacheInterface/timeCache.js')
 const secondaryCacheInterface = require('./cacheInterface/secondaryCache.js')
+const util = require('util')
 
-this.cache = null
-this.config = {}
-this.properties = {}
+let storageStrategy = null
+let storagePolicyArchiveBy = null
 
 /*
 * Description:
@@ -50,24 +61,26 @@ let initCache = (logger, configJSON) => {
       if (cacheType === 'internal') {
         logger.log('info', '... The type of cache is internal ...')
         return (Promise.resolve()
-          .then(() => internalCache.init(this, logger, configJSON))
+          .then(() => internalCache.init(logger, this, configJSON))
           .catch(error => {
             throw error
           }))
       } else if (cacheType === 'external') {
         logger.log('info', '... The type of cache is external ...')
         return (Promise.resolve()
-          .then(() => externalCache.init(this, logger, configJSON))
+          .then(() => externalCache.init(logger, this, configJSON))
           .catch(error => {
             throw error
           }))
       } else {
-        throw new Error('The cache type is invalid expecting \'internal\' or \'external\' but received: ' + cacheType)
+        throw new Error(util.format('The cache type is invalid expecting \'internal\' or \'external\' but received: %s', cacheType))
       }
     })
-    .then(() => cacheInterface.init(this, logger))
     .then(() => {
+      storageStrategy = this.config['storage']['strategy']
+      storagePolicyArchiveBy = this.config['storage']['policy']['archiveBy']
       logger.log('debug', '... Successfully created a Cache client.')
+      return undefined
     })
     .catch(error => {
       throw error
@@ -88,64 +101,102 @@ let initCache = (logger, configJSON) => {
 * TODO:
 *   [#1]:
 */
+
+let processRecord = (logger, data, primaryRecordEvntData, secondaryRecordEvntData) => {
+  if (storageStrategy === 'singleEvent') {
+    if (storagePolicyArchiveBy === 'time') {
+      return Promise.resolve()
+        .then(() => timeCacheInterface.singleTimeCache(logger, this, primaryRecordEvntData))
+        .catch(error => {
+          throw error
+        })
+    } else {
+      return Promise.resolve()
+        .then(() => secondaryCacheInterface.hasPrimaryEntry())
+    }
+  } else if (storageStrategy === 'multiEvent') {
+    if (storagePolicyArchiveBy === 'time') {
+      return Promise.resolve()
+        .then(() => timeCacheInterface.hasPrimaryEntry(logger, this.cache, primaryRecordEvntData))
+    } else {
+      return Promise.resolve()
+        .then(() => secondaryCacheInterface.hasPrimaryEntry())
+    }
+  } else {
+    throw new Error(util.format('Failed to process record please intialize the client first.'))
+  }
+}
+
 /*
-let processRecordSingleCache = (primaryRecordEvntData, secondaryRecordEvntData, data) => {
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+let singleTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
   return Promise.resolve()
-    .then(() => cacheInterface.hasPrimaryEntry(primaryRecordEvntData, this.cache))
+    .then(() => timeCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryRecordEvntData))
     .then(hasPrimaryEntry => {
-      if (hasPrimaryEntry) { // This event has been encountered before
-        if (this.properties['storage.policy.archiveBy'] === 'time') {
-          return updateEntryToTimeCache(primaryRecordEvntData, data, cache)
-        } else if (this.properties['storage.policy.archiveBy'] === 'secondaryEvent') {
-          return readModule.hasSecondaryEntry(primaryRecordEvntData, secondaryRecordEvntData, cache)
-            .then(hasSecondaryEntry => {
-              if (hasSecondaryEntry) {
-                return updateEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
-              } else {
-                return addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache)
-              }
-            })
-            .catch(error => {
-              throw error
-            })
-        } else {
-          return 'UNIMPLEMENTED'
-        }
-      } else { // This is a new event
-        if (this.sizeOfCache === 0) { // The cache has not collected any data and is being initialized
-          if (this.properties['storage.policy.archiveBy'] === 'time') {
-            return addEntryToTimeCache(primaryRecordEvntData, data, cache)
-          } else if (this.properties['storage.policy.archiveBy'] === 'secondaryEvent') {
-            return addEntryToPrimaryCache(primaryRecordEvntData, cache)
-              .then(() => addEntryToSecondCache(primaryRecordEvntData, secondaryRecordEvntData, data, cache))
-          }
-        } else { // The cache has previously collected data
-          return true
-        }
-      }
-    })
-    .then(processingResult => {
-      if (processingResult !== true) {
-        return doesCacheNeedFlush(primaryRecordEvntData, secondaryRecordEvntData)
-      } else {
-        return processingResult
-      }
-    })
-    .then(cacheNeedsFlush => {
-      if (cacheNeedsFlush) {
-        return flushCache(cache, primaryRecordEvntData, secondaryRecordEvntData)
+      if (hasPrimaryEntry) {
+        return timeCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryRecordEvntData, record)
           .catch(error => {
             throw error
           })
       } else {
-        return 'OK'
+        return timeCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryRecordEvntData, record)
+          .catch(error => {
+            throw error
+          })
+      }
+    })
+    .then(() => timeCacheInterface.doesCacheNeedFlush(logger, cacheInst))
+    .then(doesCacheNeedFlush => {
+      if (doesCacheNeedFlush) {
+        return timeCacheInterface.flushCache(logger, cacheInst)
+          .then(cacheObj => {
+            let cacheInterfaceResponse {}
+            cacheInterfaceResponse['status'] = 1
+            cacheInterfaceResponse['response'] = cacheObj
+            return cacheObj
+          })
+          .catch(error => {
+            // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
+            throw error
+          })
+      } else {
+        return timeCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryRecordEvntData)
+          .then(doesCacheTimeNeedFlush = {
+            if (doesCacheTimeNeedFlush) {
+              return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryRecordEvntData)
+                .then(finalCache => {
+                  return {'status': 0, 'response': finalCache}
+                })
+                .catch(error => {
+                  throw error
+                })
+            } else {
+              // Message has been successfully placed into the cache
+              return {'status': 0, 'response': 'OK'}
+            }
+          })
+          .catch(error => {
+            throw error
+          })
       }
     })
     .catch(error => {
-      throw error
+      throw new Error(util.format('Failed to process data %s for the cache %s. Details: %s', JSON.stringify(record), primaryRecordEvntData, error.message))
     })
 }
-*/
+
 /*
 * Description:
 *
@@ -212,6 +263,6 @@ let processRecordMultiCache = (that, primaryRecordEvntData, secondaryRecordEvntD
 */
 module.exports = {
   initCache: initCache
-//  addEntryToCache: cacheInterface.addEntryToCache,
-//  flushCache: cacheInterface.flushCache
+  addEntryToCache: cacheInterface.addEntryToCache,
+  flushCache: cacheInterface.flushCache
 }
