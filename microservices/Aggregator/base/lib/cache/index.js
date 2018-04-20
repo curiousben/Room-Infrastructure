@@ -141,7 +141,8 @@ let processRecord = (logger, data, primaryRecordEvntData, secondaryRecordEvntDat
 * TODO:
 *   [#1]:
 */
-let singleTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
+
+let multiTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
   return Promise.resolve()
     .then(() => timeCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryRecordEvntData))
     .then(hasPrimaryEntry => {
@@ -194,6 +195,77 @@ let singleTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
     })
     .catch(error => {
       throw new Error(util.format('Failed to process data %s for the cache %s. Details: %s', JSON.stringify(record), primaryRecordEvntData, error.message))
+    })
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let multiSecondaryCache = (logger, cacheInst, mainEvent, secondaryEvent, record) => {
+  return Promise.resolve()
+    .then(() => secondaryCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, mainEvent))
+    .then(hasSecondaryEntry => {
+      if (hasSecondaryEntry) {
+        return secondaryCacheInterface.updateEntryToObjectCache(logger, cacheInst, mainEvent, secondaryEvent, record)
+          .catch(error => {
+            throw error
+          })
+      } else {
+        return secondaryCacheInterface.addEntryToTimeCache(logger, cacheInst, mainEvent, secondaryEvent, record)
+          .catch(error => {
+            throw error
+          })
+      }
+    })
+    .then(() => secondaryCacheInterface.doesCacheNeedFlush(logger, cacheInst))
+    .then(doesCacheNeedFlush => {
+      if (doesCacheNeedFlush) {
+        return secondaryCacheInterface.flushCache(logger, cacheInst)
+          .then(cacheObj => {
+            let cacheInterfaceResponse {}
+            cacheInterfaceResponse['status'] = 1
+            cacheInterfaceResponse['response'] = cacheObj
+            return cacheObj
+          })
+          .catch(error => {
+            // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
+            throw error
+          })
+      } else {
+        return secondaryCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, mainEvent, secondaryEvent)
+          .then(doesCacheSecondaryNeedFlush = {
+            if (doesCacheSecondaryNeedFlush) {
+              return secondaryCacheInterface.flushSecondaryEventCache(logger, cacheInst, mainEvent)
+                .then(finalCache => {
+                  return {'status': 0, 'response': finalCache}
+                })
+                .catch(error => {
+                  throw error
+                })
+            } else {
+              // Message has been successfully placed into the cache
+              return {'status': 0, 'response': 'OK'}
+            }
+          })
+          .catch(error => {
+            throw error
+          })
+      }
+    })
+    .catch(error => {
+      throw new Error(util.format('Failed to process data %s for the cache %s. Details: %s', JSON.stringify(record), mainEvent, error.message))
     })
 }
 

@@ -311,22 +311,22 @@ let flushCache = (logger, cacheInst) => {
 *   [#1]:
 */
 
-let hasSecondaryEntry = (logger, key, subKey, cache) => {
+let hasSecondaryEntry = (logger, mainEvent, secondaryEvent, cache) => {
   return Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to check to see if there is data for %s for the cache %s', subKey, key)
+      logger.log('debug', 'Starting to check to see if there is data for %s for the cache %s', secondaryEvent, mainEvent)
       return undefined
     })
-    .then(() => readModule.readPrimaryEntry(key, cache))
+    .then(() => readModule.readPrimaryEntry(mainEvent, cache))
     .then(value => {
       if (value !== undefined) {
-        return readModule.readSecondaryEntry(key, subKey, cache)
+        return readModule.readSecondaryEntry(mainEvent, secondaryEvent, cache)
           .then(subValue => {
             if (subValue === undefined) {
-              logger.log('debug', '... There is no data for %s for the %s cache', subKey, key)
+              logger.log('debug', '... There is no data for %s for the %s cache', secondaryEvent, mainEvent)
               return false
             } else {
-              logger.log('debug', '... There is data for %s for the %s cache', subKey, key)
+              logger.log('debug', '... There is data for %s for the %s cache', secondaryEvent, mainEvent)
               return true
             }
           })
@@ -334,12 +334,12 @@ let hasSecondaryEntry = (logger, key, subKey, cache) => {
             throw error
           })
       } else {
-        logger.log('debug', '... There was no cache object for %s', key)
+        logger.log('debug', '... There was no cache object for %s', mainEvent)
         return false
       }
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to check to see if there was data for %s for the cache %s. Details:%s', subKey, key, error.message))
+      throw new Error(util.format('... Failed to check to see if there was data for %s for the cache %s. Details:%s', secondaryEvent, mainEvent, error.message))
     })
 }
 
