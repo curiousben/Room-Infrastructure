@@ -142,6 +142,88 @@ let processRecord = (logger, data, primaryRecordEvntData, secondaryRecordEvntDat
 *   [#1]:
 */
 
+let singleTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
+  return Promise.resolve()
+    .then(() => timeCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryRecordEvntData))
+    .then(hasPrimaryEntry => {
+      if (hasPrimaryEntry) {
+        return timeCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache)
+          .then(isCacheEmpty => {
+            if (isCacheEmpty) {
+              return timeCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryRecordEvntData, record)
+                .catch(error => {
+                  throw error
+                })
+            } else {
+              return timeCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryRecordEvntData, record)
+                .catch(error => {
+                  throw error
+                })
+            }
+          })
+        })
+        .then(() => timeCacheInterface.doesCacheNeedFlush(logger, cacheInst))
+        .then(doesCacheNeedFlush => {
+          if (doesCacheNeedFlush) {
+            return timeCacheInterface.flushCache(logger, cacheInst)
+              .then(cacheObj => {
+                return {'status': 1, 'responseType': 'cacheFlush', 'payload': cacheObj, 'error': ''}
+              })
+              .catch(error => {
+                // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
+                throw error
+              })
+          } else {
+            return timeCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryRecordEvntData)
+              .then(doesCacheTimeNeedFlush = {
+                if (doesCacheTimeNeedFlush) {
+                  return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryRecordEvntData)
+                    .then(finalCache => {
+                      return {'status': 0, 'responseType': 'eventFlush', 'payload': finalCache, 'error': ''}
+                    })
+                    .catch(error => {
+                      throw error
+                    })
+                } else {
+                  // Message has been successfully placed into the cache
+                  return {'status': 0, 'responseType': 'insert', 'payload': '',  'error': ''}
+                }
+              })
+              .catch(error => {
+                throw error
+              })
+          }
+        })
+        .catch(error => {
+          return {'status': 1, 'responseType': 'error', 'payload': record, 'error': util.format('Failed to process the data event for the cache %s. Details: %s', mainEvent, error.message)}
+        })
+      } else {
+        return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryRecordEvntData)
+          .then(finalCache => {
+            return {'status': 0, 'responseType': 'eventFlush', 'payload': finalCache, 'error': ''}
+          })
+          .catch(error => {
+            throw error
+          })
+      }
+    })
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
 let multiTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
   return Promise.resolve()
     .then(() => timeCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryRecordEvntData))
@@ -163,10 +245,7 @@ let multiTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
       if (doesCacheNeedFlush) {
         return timeCacheInterface.flushCache(logger, cacheInst)
           .then(cacheObj => {
-            let cacheInterfaceResponse {}
-            cacheInterfaceResponse['status'] = 1
-            cacheInterfaceResponse['response'] = cacheObj
-            return cacheObj
+            return {'status': 1, 'responseType': 'cacheFlush', 'payload': cacheObj, 'error': ''}
           })
           .catch(error => {
             // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
@@ -178,14 +257,14 @@ let multiTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
             if (doesCacheTimeNeedFlush) {
               return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryRecordEvntData)
                 .then(finalCache => {
-                  return {'status': 0, 'response': finalCache}
+                  return {'status': 0, 'responseType': 'eventFlush', 'payload': finalCache, 'error': ''}
                 })
                 .catch(error => {
                   throw error
                 })
             } else {
               // Message has been successfully placed into the cache
-              return {'status': 0, 'response': 'OK'}
+              return {'status': 0, 'responseType': 'insert', 'payload': '',  'error': ''}
             }
           })
           .catch(error => {
@@ -194,7 +273,88 @@ let multiTimeCache = (logger, cacheInst, primaryRecordEvntData, record) => {
       }
     })
     .catch(error => {
-      throw new Error(util.format('Failed to process data %s for the cache %s. Details: %s', JSON.stringify(record), primaryRecordEvntData, error.message))
+      return {'status': 1, 'responseType': 'error', 'payload': record, 'error': util.format('Failed to process the data event for the cache %s. Details: %s', mainEvent, error.message)}
+    })
+}
+
+/*
+* Description:
+*
+* Args:
+*
+* Returns:
+*
+* Throws:
+*
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let singleSecondaryCache = (logger, cacheInst, primaryEventData, secondaryEventData, record) => {
+  return Promise.resolve()
+    .then(() => secondaryCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData))
+    .then(hasPrimaryEntry => {
+      if (hasPrimaryEntry) {
+        return secondaryCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache)
+          .then(isCacheEmpty => {
+            if (isCacheEmpty) {
+              return secondaryCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+                .catch(error => {
+                  throw error
+                })
+            } else {
+              return secondaryCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+                .catch(error => {
+                  throw error
+                })
+            }
+          })
+          .then(() => secondaryCacheInterface.doesCacheNeedFlush(logger, cacheInst))
+          .then(doesCacheNeedFlush => {
+            if (doesCacheNeedFlush) {
+              return secondaryCacheInterface.flushCache(logger, cacheInst)
+                .then(cacheObj => {
+                  return {'status': 1, 'responseType': 'cacheFlush', 'payload': cacheObj, 'error': ''}
+                })
+                .catch(error => {
+                  // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
+                  throw error
+                })
+            } else {
+              return secondaryCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, secondaryEventData)
+                .then(doesCacheSecondaryNeedFlush = {
+                  if (doesCacheSecondaryNeedFlush) {
+                    return secondaryCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
+                      .then(finalCache => {
+                        return {'status': 0, 'responseType': 'eventFlush', 'payload': finalCache, 'error': ''}
+                      })
+                      .catch(error => {
+                        throw error
+                      })
+                  } else {
+                    // Message has been successfully placed into the cache
+                    return {'status': 0, 'responseType': 'insert', 'payload': '',  'error': ''}
+                  }
+                })
+                .catch(error => {
+                  throw error
+                })
+            }
+          })
+          .catch(error => {
+            return {'status': 1, 'responseType': 'error', 'payload': record, 'error': util.format('Failed to process the data event for the cache %s. Details: %s', mainEvent, error.message)}
+          })
+      } else {
+        return secondaryCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
+          .then(finalCache => {
+            return {'status': 0, 'responseType': 'eventFlush', 'payload': finalCache, 'error': ''}
+          })
+          .catch(error => {
+            throw error
+          })
+      }
     })
 }
 
@@ -234,10 +394,7 @@ let multiSecondaryCache = (logger, cacheInst, mainEvent, secondaryEvent, record)
       if (doesCacheNeedFlush) {
         return secondaryCacheInterface.flushCache(logger, cacheInst)
           .then(cacheObj => {
-            let cacheInterfaceResponse {}
-            cacheInterfaceResponse['status'] = 1
-            cacheInterfaceResponse['response'] = cacheObj
-            return cacheObj
+            return {'status': 1, 'responseType': 'cacheFlush', 'payload': cacheObj, 'error': ''}
           })
           .catch(error => {
             // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
@@ -249,14 +406,14 @@ let multiSecondaryCache = (logger, cacheInst, mainEvent, secondaryEvent, record)
             if (doesCacheSecondaryNeedFlush) {
               return secondaryCacheInterface.flushSecondaryEventCache(logger, cacheInst, mainEvent)
                 .then(finalCache => {
-                  return {'status': 0, 'response': finalCache}
+                  return {'status': 0, 'responseType': 'eventFlush', 'payload': finalCache, 'error': ''}
                 })
                 .catch(error => {
                   throw error
                 })
             } else {
               // Message has been successfully placed into the cache
-              return {'status': 0, 'response': 'OK'}
+              return {'status': 0, 'responseType': 'insert', 'payload': '',  'error': ''}
             }
           })
           .catch(error => {
@@ -265,7 +422,7 @@ let multiSecondaryCache = (logger, cacheInst, mainEvent, secondaryEvent, record)
       }
     })
     .catch(error => {
-      throw new Error(util.format('Failed to process data %s for the cache %s. Details: %s', JSON.stringify(record), mainEvent, error.message))
+      return {'status': 1, 'responseType': 'error', 'payload': record, 'error': util.format('Failed to process the data event for the cache %s. Details: %s', mainEvent, error.message)}
     })
 }
 

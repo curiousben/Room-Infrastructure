@@ -109,4 +109,10 @@ describe('Testing the secondary Cache Interface module', function () {
         Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey1')
       }).should.notify(done)
   })
+
+  it('Check empty cache detection is valid', function (done) {
+    secondaryCacheInterfaceModule.isCacheEmpty(logger, that.properties.sizeOfCache).should.become(true).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.isCacheEmpty(logger, that.properties.sizeOfCache)).should.become(false).should.be.fulfilled.should.notify(done)
+  })
 })

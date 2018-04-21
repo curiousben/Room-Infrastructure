@@ -343,6 +343,43 @@ let hasSecondaryEntry = (logger, mainEvent, secondaryEvent, cache) => {
     })
 }
 
+/*
+* Description:
+*   This method checks to see if the cache is empty
+* Args:
+*   cacheInstSizeOfCache (Object): This is the metadata of the cache size.
+*   logger (Object): The Winston logger that logs the actions of this interface method.
+* Returns:
+*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
+* Throws:
+*   N/A
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let isCacheEmpty = (logger, cacheInstSizeOfCache) => {
+  return Promise.resolve()
+    .then(() => {
+      logger.log('debug', 'Starting to determine if the cache for is empty ...')
+      return undefined
+    })
+    .then(() => cacheManagement.getCacheSize(cacheInstSizeOfCache))
+    .then(sizeOfCache => {
+      if (sizeOfCache > 0) {
+        logger.log('debug', '... The cache is not empty')
+        return false
+      } else {
+        logger.log('debug', '... The cache is empty')
+        return true
+      }
+    })
+    .catch(error => {
+      throw new Error(util.format('... Failed to determine if the cache empty or not. Details:%s', error.message))
+    })
+}
+
 module.exports = {
   addEntryToObjectCache: addEntryToObjectCache,
   updateEntryToObjectCache: updateEntryToObjectCache,
@@ -350,5 +387,6 @@ module.exports = {
   flushSecondaryEventCache: flushSecondaryEventCache,
   hasSecondaryEntry: hasSecondaryEntry,
   doesCacheNeedFlush: doesCacheNeedFlush,
-  flushCache: flushCache
+  flushCache: flushCache,
+  isCacheEmpty: isCacheEmpty
 }

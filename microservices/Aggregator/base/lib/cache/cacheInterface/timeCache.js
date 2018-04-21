@@ -193,7 +193,7 @@ let flushTimeCache = (logger, cacheInst, mainEvent) => {
     .then(() => deleteModule.removeEntryArray(mainEvent, cacheInst.cache))
     .then(rawArrayCache => {
       let promiseArray = []
-      for (const [key, value] of Object.entries(rawArrayCache)) {
+      for (const value of rawArrayCache) {
         promiseArray.push(new Promise(
           resolve => {
             resolve(bufferManagement.getJSONFromBuffer(value))
@@ -214,7 +214,7 @@ let flushTimeCache = (logger, cacheInst, mainEvent) => {
       let finalCache = {}
       finalCache[mainEvent] = eventCacheArray
       logger.log('debug', '... Successfully flushed the %s cache.', mainEvent)
-      return finalCache 
+      return finalCache
     })
     .catch(error => {
       throw new Error(util.format('... Failed to flush the %s cache. Details:%s', mainEvent, error.message))
@@ -310,6 +310,44 @@ let hasPrimaryEntry = (logger, cache, primaryEvent) => {
     })
 }
 
+/*
+* Description:
+*   This method searches for an entry in the cache that is the primary event. This can be used for
+*     time and secondary storage policy.
+* Args:
+*   cacheInstSizeOfCache (Object): This is the metadata of the cache size.
+*   logger (Object): The Winston logger that logs the actions of this interface method.
+* Returns:
+*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
+* Throws:
+*   N/A
+* Notes:
+*   N/A
+* TODO:
+*   [#1]:
+*/
+
+let isCacheEmpty = (logger, cacheInstSizeOfCache) => {
+  return Promise.resolve()
+    .then(() => {
+      logger.log('debug', 'Starting to determine if the cache for is empty ...')
+      return undefined
+    })
+    .then(() => cacheManagement.getCacheSize(cacheInstSizeOfCache))
+    .then(sizeOfCache => {
+      if (sizeOfCache > 0) {
+        logger.log('debug', '... The cache is not empty')
+        return false
+      } else {
+        logger.log('debug', '... The cache is empty')
+        return true
+      }
+    })
+    .catch(error => {
+      throw new Error(util.format('... Failed to determine if the cache empty or not. Details:%s', error.message))
+    })
+}
+
 module.exports = {
   addEntryToTimeCache: addEntryToTimeCache,
   updateEntryToTimeCache: updateEntryToTimeCache,
@@ -317,5 +355,6 @@ module.exports = {
   flushTimeCache: flushTimeCache,
   doesCacheNeedFlush: doesCacheNeedFlush,
   flushCache: flushCache,
-  hasPrimaryEntry: hasPrimaryEntry
+  hasPrimaryEntry: hasPrimaryEntry,
+  isCacheEmpty: isCacheEmpty
 }

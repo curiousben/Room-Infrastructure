@@ -114,4 +114,10 @@ describe('Testing the Time Cache Interface module', function () {
         Promise.resolve(that.cache).should.eventually.not.have.property('testPrimaryKey1')
       }).should.notify(done)
   })
+
+  it('Check empty cache detection is valid', function (done) {
+    timeCacheInterfaceModule.isCacheEmpty(logger, that.properties.sizeOfCache).should.become(true).should.be.fulfilled
+      .then(() => timeCacheInterfaceModule.addEntryToTimeCache(logger, that, 'testPrimaryKey', JSON.stringify({'testKey2': 'testValue2'}))).should.be.fulfilled
+      .then(() => timeCacheInterfaceModule.isCacheEmpty(logger, that.properties.sizeOfCache)).should.become(false).should.be.fulfilled.should.notify(done)
+  })
 })
