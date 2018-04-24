@@ -13,8 +13,9 @@ chai.should()
 
 describe('Testing the secondary Cache Interface module', function () {
   let cacheObj = null
+  let configJSON = null
   beforeEach(function () {
-    let configJSON = {
+    configJSON = {
       'setup': 'internal',
       'storage': {
         'strategy': 'singleEvent',
@@ -30,13 +31,11 @@ describe('Testing the secondary Cache Interface module', function () {
       },
       'flushStrategy': 'single'
     }
-    Promise.resolve()
-      .then(() => cacheModule.initCache(logger, configJSON)
-      .catch(error => {
-        throw error
-      })
+    cacheObj = new cacheModule()
   })
 
-  it('', function (done) {
+  it('Testing the initialization of the Cache Interface', function (done) {
+    cacheObj.initCache(logger, configJSON).should.be.fulfilled
+      .then( => cacheModule.
   })
 })
