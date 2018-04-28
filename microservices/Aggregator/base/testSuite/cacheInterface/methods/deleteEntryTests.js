@@ -1,4 +1,4 @@
-const deleteEntryModule = require('../../../../lib/cache/cacheInterface/methods/deleteEntry.js')
+const deleteEntryModule = require('../../../lib/cacheInterface/methods/deleteEntry.js')
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)

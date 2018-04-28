@@ -1,4 +1,4 @@
-const cacheModule = require('../../lib/cache/init.js')
+const cacheModule = require('../lib/cache/init.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',

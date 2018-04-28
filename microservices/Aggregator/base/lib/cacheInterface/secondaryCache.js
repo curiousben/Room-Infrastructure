@@ -31,31 +31,31 @@ const cacheManagement = require('./utilities/cacheManagement.js')
 *   [#1]:
 */
 
-let addEntryToTimeCache = (logger, cacheInst, primaryEventData, record) => {
+let addEntryToObjectCache = (logger, cacheInst, primaryEventData, secondaryEventData, record) => {
   return (Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to add data to the %s event cache', primaryEventData)
+      logger.log('debug', 'Starting to add the data for the %s to the %s cache ...', secondaryEventData, primaryEventData)
       return undefined
     })
     .then(() => readModule.readPrimaryEntry(primaryEventData, cacheInst.cache))
     .then(value => {
       if (value === undefined) {
-        return createModule.createCacheEntry(cacheInst.cache, primaryEventData, [])
+        return createModule.createCacheEntry(cacheInst.cache, primaryEventData, {})
       } else {
         return undefined
       }
     })
     .then(() => bufferManagement.createBufferFromString(record))
-    .then(buffer => updateModule.addValueToArray(cacheInst.cache, primaryEventData, buffer))
-    .then(buffer => bufferManagement.getSizeOfBufferFromString(record))
+    .then(buffer => createModule.createCacheEntry(cacheInst.cache[primaryEventData], secondaryEventData, buffer))
+    .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData))
     .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData))
     .then(() => {
-      logger.log('debug', '... Successfully added data to the %s event cache', primaryEventData)
+      logger.log('debug', '... Successfully added the %s data to the %s cache', secondaryEventData, primaryEventData)
       return undefined
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to add data to the %s event cache. Details:%s', primaryEventData, error.message))
+      throw new Error(util.format('... Failed to add %s data ot the %s cache. Details:%s', secondaryEventData, primaryEventData, error.message))
     }))
 }
 
@@ -69,28 +69,49 @@ let addEntryToTimeCache = (logger, cacheInst, primaryEventData, record) => {
 * Throws:
 *
 * Notes:
-*  There does exist a case where the addition of data exceeds the caceh watermark, but will later cause the cache to be flushed.
+*   N/A
+*
 * TODO:
 *   [#1]:
+*
+* Design:
+*   1.  Retrieve Record at secondary key
+*   2.  Decrease event count by 1
+*   3.  Decrease cache size by retrieved record size
+*   4.  Create buffer from retrieved Record
+*   5.  Insert record at secondary cache location
+*   6.  Increase event count by 1
+*   7.  Increase cache size by new record size
+*   8.  Return retrieve record
+*
 */
 
-let updateEntryToTimeCache = (logger, cacheInst, primaryEvent, record) => {
+let updateEntryToObjectCache = (logger, cacheInst, primaryEventData, secondaryEventData, record) => {
+  let oldRecord = null
   return (Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to update the %s cache with the new record ...', primaryEvent)
+      logger.log('debug', 'Starting to update the %s data for the %s cache ...', secondaryEventData, primaryEventData)
       return undefined
     })
+    .then(() => readModule.readSecondaryEntry(primaryEventData, secondaryEventData, cacheInst.cache))
+    .then(oldCacheEntry => {
+      oldRecord = oldCacheEntry
+      return oldCacheEntry
+    })
+    .then(oldCacheEntry => bufferManagement.getSizeOfBufferFromBuffer(oldCacheEntry))
+    .then(bufferSize => cacheManagement.decreaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
+    .then(() => cacheManagement.decreaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .then(() => bufferManagement.createBufferFromString(record))
-    .then(buffer => updateModule.addValueToArray(cacheInst.cache, primaryEvent, buffer))
+    .then(buffer => updateModule.addValueToObj(cacheInst.cache[primaryEventData], secondaryEventData, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
-    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEvent))
-    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEvent))
+    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData, secondaryEventData))
+    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData, secondaryEventData))
     .then(() => {
-      logger.log('debug', '... Successfully updateed the %s cache with the new record.', primaryEvent)
-      return undefined
+      logger.log('debug', '... Successfully updated the %s data to the %s cache', secondaryEventData, primaryEventData)
+      return oldRecord
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to update the %s cache with the new record. Details:%s', primaryEvent, error.message))
+      throw new Error(util.format('... Failed to update the %s data to the %s cache. Details:%s', secondaryEventData, primaryEventData, error.message))
     }))
 }
 
@@ -109,24 +130,24 @@ let updateEntryToTimeCache = (logger, cacheInst, primaryEvent, record) => {
 *   [#1]:
 */
 
-let doesCacheTimeNeedFlush = (logger, cacheInst, mainEvent) => {
+let doesCacheSecondaryNeedFlush = (logger, cacheInst, mainEvent, secondaryEvent) => {
   return Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to determine if the data for the %s cache needs to be flushed ...', mainEvent)
+      logger.log('debug', 'Starting to determine if data for %s for the %s cache needs to be flushed ...', secondaryEvent, mainEvent)
       return undefined
     })
-    .then(() => cacheManagement.getEventSize(cacheInst.properties.numberOfEvents, mainEvent))
+    .then(() => cacheManagement.getEventSize(cacheInst.properties.numberOfEvents, mainEvent, secondaryEvent))
     .then(eventSize => {
       if (eventSize >= cacheInst.config['storage']['policy']['eventLimit']) {
-        logger.log('debug', '... The data for the %s cache needs to be flushed', mainEvent)
+        logger.log('debug', '... The data for %s for the %s cache needs to be flushed.')
         return true
       } else {
-        logger.log('debug', '... The data for the %s cache does not need to be flushed', mainEvent)
+        logger.log('debug', '... The data for %s for the %s cache does not need to be flushed.')
         return false
       }
     })
     .catch(error => {
-      throw new Error(util.format('.. Failed to determine if the data for the %s cache needs to be flushed. Details:%s', mainEvent, error.message))
+      throw new Error(util.format('... Failed to determine if data for %s for the %s cache needs to be flushed. Details:%s', secondaryEvent, mainEvent, error.message))
     })
 }
 
@@ -154,10 +175,10 @@ let doesCacheNeedFlush = (logger, cacheInst) => {
     .then(() => cacheManagement.getCacheSize(cacheInst.properties.sizeOfCache))
     .then(cacheSize => {
       if (cacheSize >= cacheInst.config['storage']['byteSizeWatermark']) {
-        logger.log('debug', '... The cache needs to be flushed.')
+        logger.log('debug', '... The cache needs to be flushed ...')
         return true
       } else {
-        logger.log('debug', '... The cache does not need to be flushed')
+        logger.log('debug', '... The cache does not need to be flushed ...')
         return false
       }
     })
@@ -181,8 +202,8 @@ let doesCacheNeedFlush = (logger, cacheInst) => {
 *   [#1]:
 */
 
-let flushTimeCache = (logger, cacheInst, mainEvent) => {
-  let eventCacheArray = []
+let flushSecondaryEventCache = (logger, cacheInst, mainEvent) => {
+  let eventCacheObj = {}
   return (Promise.resolve()
     .then(() => {
       logger.log('debug', 'Starting to flush the %s cache ...', mainEvent)
@@ -190,16 +211,16 @@ let flushTimeCache = (logger, cacheInst, mainEvent) => {
     })
     .then(() => cacheManagement.resetEventSize(cacheInst.properties.numberOfEvents, mainEvent))
     .then(() => cacheManagement.resetBufferSize(cacheInst.properties.sizeOfCache, mainEvent))
-    .then(() => deleteModule.removeEntryArray(mainEvent, cacheInst.cache))
-    .then(rawArrayCache => {
+    .then(() => deleteModule.removeEntryObj(mainEvent, cacheInst.cache))
+    .then(rawCacheObj => {
       let promiseArray = []
-      for (const value of rawArrayCache) {
+      for (const [key, value] of Object.entries(rawCacheObj)) {
         promiseArray.push(new Promise(
           resolve => {
             resolve(bufferManagement.getJSONFromBuffer(value))
           })
           .then(JSON => {
-            eventCacheArray.push(JSON)
+            eventCacheObj[key] = JSON
             return undefined
           })
           .catch(error => {
@@ -212,8 +233,8 @@ let flushTimeCache = (logger, cacheInst, mainEvent) => {
     .then(promiseArray => Promise.all(promiseArray))
     .then(() => {
       let finalCache = {}
-      finalCache[mainEvent] = eventCacheArray
-      logger.log('debug', '... Successfully flushed the %s cache.', mainEvent)
+      finalCache[mainEvent] = eventCacheObj
+      logger.log('debug', '... Successfully flushed the %s cache', mainEvent)
       return finalCache
     })
     .catch(error => {
@@ -248,7 +269,7 @@ let flushCache = (logger, cacheInst) => {
       for (const key of Object.keys(cacheInst.cache)) {
         promiseArray.push(new Promise(
           resolve => {
-            resolve(flushTimeCache(logger, cacheInst, key))
+            resolve(flushSecondaryEventCache(logger, cacheInst, key))
           })
           .then(JSON => {
             cacheObj = Object.assign(cacheObj, JSON)
@@ -268,6 +289,57 @@ let flushCache = (logger, cacheInst) => {
     })
     .catch(error => {
       throw new Error(util.format('... Failed to flush the whole cache. Details:%s', error.message))
+    })
+}
+
+/*
+* Description:
+*   This method searches for an entry in the cache that is the secondary event. This only makes sense
+*     if used for secondary strorage policy.
+* Args:
+*   key (String): This String is the key that represents the primary event.
+*   subkey (String): This String is the key that represents the secondary event.
+*   cache (Object): This Object is the internal cache that is being searched
+* Returns:
+*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
+* Throws:
+*   N/A
+* Notes:
+*   To work around a for loop that searchs the whole Object we suppose the value exists and change the boolean
+*     statement if it is false.
+* TODO:
+*   [#1]:
+*/
+
+let hasSecondaryEntry = (logger, cache, mainEvent, secondaryEvent) => {
+  return Promise.resolve()
+    .then(() => {
+      logger.log('debug', 'Starting to check to see if there is data for %s for the cache %s', secondaryEvent, mainEvent)
+      return undefined
+    })
+    .then(() => readModule.readPrimaryEntry(mainEvent, cache))
+    .then(value => {
+      if (value !== undefined) {
+        return readModule.readSecondaryEntry(mainEvent, secondaryEvent, cache)
+          .then(subValue => {
+            if (subValue === undefined) {
+              logger.log('debug', '... There is no data for %s for the %s cache', secondaryEvent, mainEvent)
+              return false
+            } else {
+              logger.log('debug', '... There is data for %s for the %s cache', secondaryEvent, mainEvent)
+              return true
+            }
+          })
+          .catch(error => {
+            throw error
+          })
+      } else {
+        logger.log('debug', '... There was no cache object for %s', mainEvent)
+        return false
+      }
+    })
+    .catch(error => {
+      throw new Error(util.format('... Failed to check to see if there was data for %s for the cache %s. Details:%s', secondaryEvent, mainEvent, error.message))
     })
 }
 
@@ -312,8 +384,7 @@ let hasPrimaryEntry = (logger, cache, primaryEvent) => {
 
 /*
 * Description:
-*   This method searches for an entry in the cache that is the primary event. This can be used for
-*     time and secondary storage policy.
+*   This method checks to see if the cache is empty
 * Args:
 *   cacheInstSizeOfCache (Object): This is the metadata of the cache size.
 *   logger (Object): The Winston logger that logs the actions of this interface method.
@@ -349,12 +420,13 @@ let isCacheEmpty = (logger, cacheInstSizeOfCache) => {
 }
 
 module.exports = {
-  addEntryToTimeCache: addEntryToTimeCache,
-  updateEntryToTimeCache: updateEntryToTimeCache,
-  doesCacheTimeNeedFlush: doesCacheTimeNeedFlush,
-  flushTimeCache: flushTimeCache,
+  addEntryToObjectCache: addEntryToObjectCache,
+  updateEntryToObjectCache: updateEntryToObjectCache,
+  doesCacheSecondaryNeedFlush: doesCacheSecondaryNeedFlush,
+  flushSecondaryEventCache: flushSecondaryEventCache,
+  hasSecondaryEntry: hasSecondaryEntry,
+  hasPrimaryEntry: hasPrimaryEntry,
   doesCacheNeedFlush: doesCacheNeedFlush,
   flushCache: flushCache,
-  hasPrimaryEntry: hasPrimaryEntry,
   isCacheEmpty: isCacheEmpty
 }

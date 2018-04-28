@@ -1,4 +1,4 @@
-const cacheManagement = require('../../../../lib/cache/cacheInterface/utilities/cacheManagement.js')
+const cacheManagement = require('../../../lib/cacheInterface/utilities/cacheManagement.js')
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)

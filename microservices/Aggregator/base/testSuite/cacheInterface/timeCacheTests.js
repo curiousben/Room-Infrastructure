@@ -1,4 +1,4 @@
-const timeCacheInterfaceModule = require('../../../lib/cache/cacheInterface/timeCache.js')
+const timeCacheInterfaceModule = require('../../lib/cacheInterface/timeCache.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',

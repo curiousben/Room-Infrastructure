@@ -1,4 +1,4 @@
-const bufferManagementModule = require('../../../../lib/cache/cacheInterface/utilities/bufferManagement.js')
+const bufferManagementModule = require('../../../lib/cacheInterface/utilities/bufferManagement.js')
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)

@@ -1,4 +1,4 @@
-const updateEntryModule = require('../../../../lib/cache/cacheInterface/methods/updateEntry.js')
+const updateEntryModule = require('../../../lib/cacheInterface/methods/updateEntry.js')
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)

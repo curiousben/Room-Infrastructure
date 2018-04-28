@@ -1,4 +1,4 @@
-const secondaryCacheInterfaceModule = require('../../../lib/cache/cacheInterface/secondaryCache.js')
+const secondaryCacheInterfaceModule = require('../../lib/cacheInterface/secondaryCache.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',
