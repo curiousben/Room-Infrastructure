@@ -6,7 +6,7 @@
 /*
 * Module design:
 *   This module has the functions that returns promises that will be used to interface with the
-*     Object cache 
+*     array Cache.
 */
 
 const util = require('util')
@@ -19,137 +19,138 @@ const cacheManagement = require('./utilities/cacheManagement.js')
 
 /*
 * Description:
-*
+*   This method is used to add event data in the Array cache.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
 *   cacheInst (Object): This Object is the cache instance
-*   primaryEventData (String): This is the primary event that is being stored
-*   record (String): This is the data that is being stored in that primary event
+*   eventKey (String): This is the event where an Object cache will be stored under
+*   ArrCacheValue (String): This is the record that is being stored in the Array cache
 * Returns:
 *   N/A
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
 
-let addEntryToTimeCache = (logger, cacheInst, primaryEventData, record) => {
+let addEntryToArrayCache = (logger, cacheInst, eventKey, ArrCacheValue) => {
   return (Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to add data to the %s event cache', primaryEventData)
+      logger.log('debug', 'Starting to add data to the %s event cache', eventKey)
       return undefined
     })
-    .then(() => readModule.readPrimaryEntry(primaryEventData, cacheInst.cache))
+    .then(() => readModule.readEventEntry(eventKey, cacheInst.cache))
     .then(value => {
       if (value === undefined) {
-        return createModule.createCacheEntry(cacheInst.cache, primaryEventData, [])
+        return createModule.createCacheEntry(cacheInst.cache, eventKey, [])
       } else {
         return undefined
       }
     })
-    .then(() => bufferManagement.createBufferFromString(record))
-    .then(buffer => updateModule.addValueToArray(cacheInst.cache, primaryEventData, buffer))
-    .then(buffer => bufferManagement.getSizeOfBufferFromString(record))
-    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEventData))
-    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEventData))
+    .then(() => bufferManagement.createBufferFromString(ArrCacheValue))
+    .then(buffer => updateModule.addValueToArray(cacheInst.cache, eventKey, buffer))
+    .then(buffer => bufferManagement.getSizeOfBufferFromString(ArrCacheValue))
+    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, eventKey))
+    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, eventKey))
     .then(() => {
-      logger.log('debug', '... Successfully added data to the %s event cache', primaryEventData)
+      logger.log('debug', '... Successfully added data to the %s event cache', eventKey)
       return undefined
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to add data to the %s event cache. Details:%s', primaryEventData, error.message))
+      throw new Error(util.format('... Failed to add data to the %s event cache. Details:%s', eventKey, error.message))
     }))
 }
 
 /*
 * Description:
-*   This method is updates the Array based cache assumming the primary event exists
+*   This method is updates the Array based cache assumming the event already exists.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
 *   cacheInst (Object): This Object is the cache instance
-*   primaryEvent (String): This is the primary event that is being stored
-*   record (String): This is the record that is being stored for that primary event
+*   eventKey (String): This is the event where an Object cache will be stored under
+*   ArrCacheValue (String): This is the record that is being stored in the Array cache
 * Returns:
 *   N/A
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *  There does exist a case where the addition of data exceeds the caceh watermark, but will later cause the cache to be flushed.
 * TODO:
 *   [#1]:
 */
 
-let updateEntryToTimeCache = (logger, cacheInst, primaryEvent, record) => {
+let updateEntryToArrayCache = (logger, cacheInst, eventKey, ArrCacheValue) => {
   return (Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to update the %s cache with the new record ...', primaryEvent)
+      logger.log('debug', 'Starting to update the %s cache with the new ArrCacheValue ...', eventKey)
       return undefined
     })
-    .then(() => bufferManagement.createBufferFromString(record))
-    .then(buffer => updateModule.addValueToArray(cacheInst.cache, primaryEvent, buffer))
+    .then(() => bufferManagement.createBufferFromString(ArrCacheValue))
+    .then(buffer => updateModule.addValueToArray(cacheInst.cache, eventKey, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
-    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, primaryEvent))
-    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, primaryEvent))
+    .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, eventKey))
+    .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, eventKey))
     .then(() => {
-      logger.log('debug', '... Successfully updateed the %s cache with the new record.', primaryEvent)
+      logger.log('debug', '... Successfully updateed the %s cache with the new ArrCacheValue.', eventKey)
       return undefined
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to update the %s cache with the new record. Details:%s', primaryEvent, error.message))
+      throw new Error(util.format('... Failed to update the %s cache with the new ArrCacheValue. Details:%s', eventKey, error.message))
     }))
 }
 
 /*
 * Description:
-*
+*   This is methods determines whether or not the Array cache needs to be flushed.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
 *   cacheInst (Object): This Object is the cache instance
-*   mainEvent (String): This string is the primary event that is being placed in the cache
+*   eventKey (String): This is the event where an Object cache will be stored under
 * Returns:
-*   doesCacheTimeNeedFlush (Boolean): This Boolean is determined whether or not the cache
+*   doesArrayCacheNeedFlush (Boolean): This Boolean is determined whether or not the cache
 *     for a particular event needs to be flushed.
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
 
-let doesCacheTimeNeedFlush = (logger, cacheInst, mainEvent) => {
+let doesArrayCacheNeedFlush = (logger, cacheInst, eventKey) => {
   return Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to determine if the data for the %s cache needs to be flushed ...', mainEvent)
+      logger.log('debug', 'Starting to determine if the data for the %s cache needs to be flushed ...', eventKey)
       return undefined
     })
-    .then(() => cacheManagement.getEventSize(cacheInst.properties.numberOfEvents, mainEvent))
+    .then(() => cacheManagement.getEventSize(cacheInst.properties.numberOfEvents, eventKey))
     .then(eventSize => {
       if (eventSize >= cacheInst.config['storage']['policy']['eventLimit']) {
-        logger.log('debug', '... The data for the %s cache needs to be flushed', mainEvent)
+        logger.log('debug', '... The data for the %s cache needs to be flushed', eventKey)
         return true
       } else {
-        logger.log('debug', '... The data for the %s cache does not need to be flushed', mainEvent)
+        logger.log('debug', '... The data for the %s cache does not need to be flushed', eventKey)
         return false
       }
     })
     .catch(error => {
-      throw new Error(util.format('.. Failed to determine if the data for the %s cache needs to be flushed. Details:%s', mainEvent, error.message))
+      throw new Error(util.format('.. Failed to determine if the data for the %s cache needs to be flushed. Details:%s', eventKey, error.message))
     })
 }
 
 /*
 * Description:
-*   This method checks to see if the cache needs to be flushed
+*   This methods determines if the whole cache needs to be flush by comparing accumulated bytes in the cache
+*     with the bytewatermark. If the byte watermark is reached or the cache is greater the cache is flushed
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
 *   cacheInst (Object): This Object is the cache instance
 * Returns:
-*   doesCacheNeedFlush (boolean): This boolean value is determined whether or not the cache needs to be flushed
+*   doesCacheNeedFlush (Boolean): This Boolean is determined if the whole cache needs to be flushed.
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
@@ -179,33 +180,33 @@ let doesCacheNeedFlush = (logger, cacheInst) => {
 
 /*
 * Description:
-*
+*   This method determines if the event cache needs to be flush by comparing accumulated event in the cache
+*     with the event threshold. If the event threshold is reached or is greater than the threshold the Array
+*     cache is flushed.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
-*   cacheInst (Object): This Object is the working cache
 *   cacheInst (Object): This Object is the cache instance
-*   mainEvent (String): This String is the primary event
+*   eventKey (String): This is the event where an Array cache will be stored under
 * Returns:
-*   finalObj (Object): This Object is the cache for the primary event
+*   finalCache (Object): This Object is the cache for the event
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
-*   Error
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
 
-let flushTimeCache = (logger, cacheInst, mainEvent) => {
+let flushArrayCache = (logger, cacheInst, eventKey) => {
   let eventCacheArray = []
   return (Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to flush the %s cache ...', mainEvent)
+      logger.log('debug', 'Starting to flush the %s cache ...', eventKey)
       return undefined
     })
-    .then(() => cacheManagement.resetEventSize(cacheInst.properties.numberOfEvents, mainEvent))
-    .then(() => cacheManagement.resetBufferSize(cacheInst.properties.sizeOfCache, mainEvent))
-    .then(() => deleteModule.removeEntryArray(mainEvent, cacheInst.cache))
+    .then(() => cacheManagement.resetEventSize(cacheInst.properties.numberOfEvents, eventKey))
+    .then(() => cacheManagement.resetBufferSize(cacheInst.properties.sizeOfCache, eventKey))
+    .then(() => deleteModule.removeEntryArray(eventKey, cacheInst.cache))
     .then(rawArrayCache => {
       let promiseArray = []
       for (const value of rawArrayCache) {
@@ -227,26 +228,25 @@ let flushTimeCache = (logger, cacheInst, mainEvent) => {
     .then(promiseArray => Promise.all(promiseArray))
     .then(() => {
       let finalCache = {}
-      finalCache[mainEvent] = eventCacheArray
-      logger.log('debug', '... Successfully flushed the %s cache.', mainEvent)
+      finalCache[eventKey] = eventCacheArray
+      logger.log('debug', '... Successfully flushed the %s cache.', eventKey)
       return finalCache
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to flush the %s cache. Details:%s', mainEvent, error.message))
+      throw new Error(util.format('... Failed to flush the %s cache. Details:%s', eventKey, error.message))
     }))
 }
 
 /*
 * Description:
-*
+*   This method is flushes the whole cache that has been collected so far.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
-*   cacheInst (Object): This Object is the working cache
 *   cacheInst (Object): This Object is the cache instance
 * Returns:
-*   cacheObj (Object): This is the whole cache that is extracted from cache Object
+*   cacheObj (Object): This is the whole cache of Object caches.
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
@@ -265,7 +265,7 @@ let flushCache = (logger, cacheInst) => {
       for (const key of Object.keys(cacheInst.cache)) {
         promiseArray.push(new Promise(
           resolve => {
-            resolve(flushTimeCache(logger, cacheInst, key))
+            resolve(flushArrayCache(logger, cacheInst, key))
           })
           .then(JSON => {
             cacheObj = Object.assign(cacheObj, JSON)
@@ -290,53 +290,52 @@ let flushCache = (logger, cacheInst) => {
 
 /*
 * Description:
-*   This method searches for an entry in the cache that is the primary event.
+*   This method searches for an event in the cache.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
 *   cache (Object): This Object is the internal cache that is being searched
-*   primaryEvent (String): This String is the primary event that will looked for
+*   eventKey (String): This is the event where an Object cache will be stored under
 * Returns:
-*   result (Promise): This promise resolves to the boolean value of whether the value exists in the cache
+*   hasEventEntry (Boolean): This promise resolves to the boolean value of whether the event exists in the cache
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
 *   [#1]:
 */
 
-let hasPrimaryEntry = (logger, cache, primaryEvent) => {
+let hasEventEntry = (logger, cache, eventKey) => {
   return Promise.resolve()
     .then(() => {
-      logger.log('debug', 'Starting to determine if the cache for %s exists ...', primaryEvent)
+      logger.log('debug', 'Starting to determine if the cache for %s exists ...', eventKey)
       return undefined
     })
-    .then(() => readModule.readPrimaryEntry(primaryEvent, cache))
+    .then(() => readModule.readEventEntry(eventKey, cache))
     .then(value => {
       if (value === undefined) {
-        logger.log('debug', '... The cache for %s exists.', primaryEvent)
+        logger.log('debug', '... The cache for %s exists.', eventKey)
         return false
       } else {
-        logger.log('debug', '... The cache for %s does not exist.', primaryEvent)
+        logger.log('debug', '... The cache for %s does not exist.', eventKey)
         return true
       }
     })
     .catch(error => {
-      throw new Error(util.format('... Failed to determine if the cache for %s exists. Details:%s', primaryEvent, error.message))
+      throw new Error(util.format('... Failed to determine if the cache for %s exists. Details:%s', eventKey, error.message))
     })
 }
 
 /*
 * Description:
-*   This method checks to see if the cache is empty. This primary reason for having this is
-*     to check if the cache has been newly created
+*   This method checks to see if the cache is empty.
 * Args:
 *   logger (Object): The Winston logger that logs the actions of this interface method.
 *   cacheInstSizeOfCache (Object): This is the metadata of the cache size.
 * Returns:
-*   result (Promise): This promise resolves to the boolean value of whether the cache is empty
+*   isCacheEmpty (Boolean): This method determines whether the cache is empty or not.
 * Throws:
-*   Error (Error): Any run time error that is thrown will be thrown to be caught by the parent Promise.
+*   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
 * Notes:
 *   N/A
 * TODO:
@@ -365,12 +364,12 @@ let isCacheEmpty = (logger, cacheInstSizeOfCache) => {
 }
 
 module.exports = {
-  addEntryToTimeCache: addEntryToTimeCache,
-  updateEntryToTimeCache: updateEntryToTimeCache,
-  doesCacheTimeNeedFlush: doesCacheTimeNeedFlush,
-  flushTimeCache: flushTimeCache,
+  addEntryToArrayCache: addEntryToArrayCache,
+  updateEntryToArrayCache: updateEntryToArrayCache,
+  doesArrayCacheNeedFlush: doesArrayCacheNeedFlush,
+  flushArrayCache: flushArrayCache,
   doesCacheNeedFlush: doesCacheNeedFlush,
   flushCache: flushCache,
-  hasPrimaryEntry: hasPrimaryEntry,
+  hasEventEntry: hasEventEntry,
   isCacheEmpty: isCacheEmpty
 }

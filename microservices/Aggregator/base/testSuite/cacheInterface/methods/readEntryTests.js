@@ -13,9 +13,9 @@ describe('Testing the read module', function () {
     secondaryCache.testPrimaryKey.testSecondaryKey = 'testSecondaryValue'
   })
   it('Read primary entry in cache', function () {
-    return readEntryModule.readPrimaryEntry('testPrimaryKey', primaryCache).should.become('testPrimaryValue')
+    return readEntryModule.readEventEntry('testPrimaryKey', primaryCache).should.become('testPrimaryValue')
   })
   it('Read secondary entry in cache', function () {
-    return readEntryModule.readSecondaryEntry('testPrimaryKey', 'testSecondaryKey', secondaryCache).should.become('testSecondaryValue')
+    return readEntryModule.readObjectEntry('testPrimaryKey', 'testSecondaryKey', secondaryCache).should.become('testSecondaryValue')
   })
 })

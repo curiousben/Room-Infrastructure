@@ -1,4 +1,4 @@
-const secondaryCacheInterfaceModule = require('../../lib/cacheInterface/secondaryCache.js')
+const secondaryCacheInterfaceModule = require('../../lib/cacheInterface/objectCache.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',
@@ -11,7 +11,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-describe('Testing the secondary Cache Interface module', function () {
+describe('Testing the Object Cache Interface module', function () {
   let that = this
   beforeEach(function () {
     that.cache = {}
@@ -42,25 +42,25 @@ describe('Testing the secondary Cache Interface module', function () {
     }
   })
 
-  it('Checking if Secondary Entry exists', function (done) {
-    secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache).should.become(false).should.be.fulfilled
+  it('Checking if Object cache entry exists', function (done) {
+    secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey').should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache)).should.become(true).should.notify(done)
+      .then(() => secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey')).should.become(true).should.notify(done)
   })
 
-  it('Create a Secondary Entry in cache', function (done) {
-    secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache).should.become(false).should.be.fulfilled
+  it('Create an entry in the Object cache', function (done) {
+    secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey').should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(function () {
         Promise.resolve(that.cache['testPrimaryKey']['testSecondaryKey']).should.become(Buffer.from(JSON.stringify({'testKey': 'testValue'})))
-        Promise.resolve(secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache)).should.become(true)
+        Promise.resolve(secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey')).should.become(true)
       }).should.notify(done)
   })
 
-  it('Update secondary entry in cache', function (done) {
-    secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache).should.become(false).should.be.fulfilled
+  it('Update an entry in the Object cache', function (done) {
+    secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey').should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.hasSecondaryEntry(logger, 'testPrimaryKey', 'testSecondaryKey', that.cache)).should.become(true).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey')).should.become(true).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.updateEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKeyThatisLargerByThanThePrevious': 'testValueThatisLargerByThanThePrevious'}))).should.become(Buffer.from(JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(function () {
         Promise.resolve(that.cache['testPrimaryKey']['testSecondaryKey']).should.become(Buffer.from(JSON.stringify({'testKeyThatisLargerByThanThePrevious': 'testValueThatisLargerByThanThePrevious'})))
@@ -69,9 +69,9 @@ describe('Testing the secondary Cache Interface module', function () {
 
   it('Checking if event cache needs to be flushed', function (done) {
     secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(logger, that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(false).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.doesObjectCacheNeedFlush(logger, that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.doesCacheSecondaryNeedFlush(logger, that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(true).should.notify(done)
+      .then(() => secondaryCacheInterfaceModule.doesObjectCacheNeedFlush(logger, that, 'testPrimaryKey', 'testSecondaryKey1')).should.become(true).should.notify(done)
   })
 
   it('Checking if whole cache needs to be flushed', function (done) {
@@ -81,10 +81,10 @@ describe('Testing the secondary Cache Interface module', function () {
       .then(() => secondaryCacheInterfaceModule.doesCacheNeedFlush(logger, that)).should.become(true).should.notify(done)
   })
 
-  it('Flush secondary cache', function (done) {
+  it('Flush Object cache', function (done) {
     secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.flushSecondaryEventCache(logger, that, 'testPrimaryKey')).should.become({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}})
+      .then(() => secondaryCacheInterfaceModule.flushObjectCache(logger, that, 'testPrimaryKey')).should.become({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}})
       .then(function () {
         Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
         Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
@@ -110,7 +110,7 @@ describe('Testing the secondary Cache Interface module', function () {
       }).should.notify(done)
   })
 
-  it('Check empty cache detection is valid', function (done) {
+  it('Checking to see if cache is empty', function (done) {
     secondaryCacheInterfaceModule.isCacheEmpty(logger, that.properties.sizeOfCache).should.become(true).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.isCacheEmpty(logger, that.properties.sizeOfCache)).should.become(false).should.be.fulfilled.should.notify(done)

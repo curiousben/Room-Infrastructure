@@ -24,7 +24,7 @@ let InitializationError = require('../errors/initializationError.js')
     "storage": {
       "strategy": singleEvent or multiEvent,
       "policy": {
-        "archiveBy": secondaryEvent or time,
+        "archiveBy": Object or Array,
         "eventLimit": 10,
       },
       "eventTrigger": {
@@ -87,8 +87,8 @@ let initAggregator = (configJSON) => {
       if (typeof policyArchive !== 'string' && !(policyArchive instanceof String)) {
         throw new InitializationError('Aggregator configuration has encountered \'' + policyArchive + '\' for the strategy configuration in the Storage section. Only strings are accepted.')
       }
-      if (policyArchive !== 'secondaryEvent' && policyArchive !== 'time') {
-        throw new InitializationError('Aggregator configuration has encountered \'' + policyArchive + '\' for the strategy configuration in the Storage section. Only options \'secondaryEvent\' and \'time\' are excepted.')
+      if (policyArchive !== 'Object' && policyArchive !== 'Array') {
+        throw new InitializationError('Aggregator configuration has encountered \'' + policyArchive + '\' for the strategy configuration in the Storage section. Only options \'Object\' and \'Array\' are excepted.')
       }
 
       const policyEventLimit = policySubSection['eventLimit']

@@ -34,8 +34,8 @@
 
 const internalCache = require('./cacheStructure/internal/init.js')
 const externalCache = require('./cacheStructure/external/init.js')
-const timeCacheInterface = require('./cacheInterface/timeCache.js')
-const objectCacheInterface = require('./cacheInterface/secondaryCache.js')
+const arrayCacheInterface = require('./cacheInterface/arrayCache.js')
+const objectCacheInterface = require('./cacheInterface/objectCache.js')
 const AggregatorError = require('./errors/aggregatorError.js')
 const InitializationError = require('./errors/initializationError.js')
 const cacheUtilities = require('./utilities/initialize.js')
@@ -66,10 +66,10 @@ function cacheInterface () {
 
   let singleTimeCache = (logger, cacheInst, primaryEventData, record) => {
     return Promise.resolve()
-      .then(() => timeCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache))
+      .then(() => arrayCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache))
       .then(isCacheEmpty => {
         if (isCacheEmpty) {
-          return timeCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+          return arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheCreate', 'OK', null)
             })
@@ -77,10 +77,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return timeCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData)
+          return arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData)
             .then(hasPrimaryEntry => {
               if (hasPrimaryEntry) {
-                return timeCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+                return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryEventData, record)
                   .then(() => {
                     this.emit('INSERT', 'ArrayCacheUpdate', 'OK', null)
                   })
@@ -88,11 +88,11 @@ function cacheInterface () {
                     throw error
                   })
               } else {
-                return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
+                return arrayCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
-                  .then(() => timeCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record))
+                  .then(() => arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record))
                   .then(() => {
                     this.emit('INSERT', 'ArrayCacheCreate', 'OK', null)
                   })
@@ -100,10 +100,10 @@ function cacheInterface () {
             })
         }
       })
-      .then(() => timeCacheInterface.doesCacheNeedFlush(logger, cacheInst))
+      .then(() => arrayCacheInterface.doesCacheNeedFlush(logger, cacheInst))
       .then(doesCacheNeedFlush => {
         if (doesCacheNeedFlush) {
-          return timeCacheInterface.flushCache(logger, cacheInst)
+          return arrayCacheInterface.flushCache(logger, cacheInst)
             .then(cacheObj => {
               this.emit('FLUSH', 'CacheFlush', 'OK', cacheObj)
             })
@@ -111,10 +111,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return timeCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryEventData)
+          return arrayCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryEventData)
             .then(doesCacheTimeNeedFlush => {
               if (doesCacheTimeNeedFlush) {
-                return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
+                return arrayCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -150,10 +150,10 @@ function cacheInterface () {
 
   let multiTimeCache = (logger, cacheInst, primaryEventData, record) => {
     return Promise.resolve()
-      .then(() => timeCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData))
+      .then(() => arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData))
       .then(hasPrimaryEntry => {
         if (hasPrimaryEntry) {
-          return timeCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+          return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryEventData, record)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheUpdate', 'OK', null)
             })
@@ -161,7 +161,7 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return timeCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+          return arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheCreate', 'OK', null)
             })
@@ -170,10 +170,10 @@ function cacheInterface () {
             })
         }
       })
-      .then(() => timeCacheInterface.doesCacheNeedFlush(logger, cacheInst))
+      .then(() => arrayCacheInterface.doesCacheNeedFlush(logger, cacheInst))
       .then(doesCacheNeedFlush => {
         if (doesCacheNeedFlush) {
-          return timeCacheInterface.flushCache(logger, cacheInst)
+          return arrayCacheInterface.flushCache(logger, cacheInst)
             .then(cacheObj => {
               this.emit('FLUSH', 'CacheFlush', 'OK', cacheObj)
             })
@@ -181,10 +181,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return timeCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryEventData)
+          return arrayCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryEventData)
             .then(doesCacheTimeNeedFlush => {
               if (doesCacheTimeNeedFlush) {
-                return timeCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
+                return arrayCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -218,13 +218,13 @@ function cacheInterface () {
   *   [#1]:
   */
 
-  let singleSecondaryCache = (logger, cacheInst, primaryEventData, secondaryEventData, record) => {
+  let singleSecondaryCache = (logger, cacheInst, primaryEventData, objectEventData, record) => {
     return Promise.resolve()
       .then(() => objectCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache))
       .then(isCacheEmpty => {
         if (isCacheEmpty) {
           // Cache is empty so add the new record
-          return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+          return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
             .then(() => {
               this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
             })
@@ -232,11 +232,11 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, primaryEventData, secondaryEventData)
+          return objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, primaryEventData, objectEventData)
             .then(hasSecondaryEntry => {
               if (hasSecondaryEntry) {
-                // Cache is not empty so add and has secondary object so update data
-                return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+                // Cache is not empty so add and has data for the object cache
+                return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
                   .then(oldRecord => {
                     this.emit('INSERT', 'ObjectCacheUpdate', 'OK', oldRecord)
                   })
@@ -247,8 +247,8 @@ function cacheInterface () {
                 return objectCacheInterface.hasPrimaryEntry(logger, cacheInst, primaryEventData)
                   .then(hasPrimaryEntry => {
                     if (hasPrimaryEntry) {
-                      // Doesn't have secondary Event but has the primary event so implies another secondary event just add
-                      return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+                      // Doesn't have object cache primary Event but has the primary event so implies another secondary event just add
+                      return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
                         .then(() => {
                           this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
                         })
@@ -262,7 +262,7 @@ function cacheInterface () {
                         .then(finalCache => {
                           this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                         })
-                        .then(() => objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record))
+                        .then(() => objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record))
                         .then(() => {
                           this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
                         })
@@ -287,7 +287,7 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, secondaryEventData)
+          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, objectEventData)
             .then(doesCacheSecondaryNeedFlush => {
               if (doesCacheSecondaryNeedFlush) {
                 return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
@@ -324,12 +324,12 @@ function cacheInterface () {
   *   [#1]:
   */
 
-  let multiSecondaryCache = (logger, cacheInst, primaryEventData, secondaryEventData, record) => {
+  let multiSecondaryCache = (logger, cacheInst, primaryEventData, objectEventData, record) => {
     return Promise.resolve()
-      .then(() => objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, primaryEventData, secondaryEventData))
+      .then(() => objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, primaryEventData, objectEventData))
       .then(hasSecondaryEntry => {
         if (hasSecondaryEntry) {
-          return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+          return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
             .then(oldRecord => {
               this.emit('INSERT', 'ObjectCacheUpdate', 'OK', oldRecord)
             })
@@ -337,7 +337,7 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, secondaryEventData, record)
+          return objectCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, objectEventData, record)
             .then(() => {
               this.emit('INSERT', 'ObjectCacheCreate', 'OK', null)
             })
@@ -358,7 +358,7 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, secondaryEventData)
+          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, objectEventData)
             .then(doesCacheSecondaryNeedFlush => {
               if (doesCacheSecondaryNeedFlush) {
                 return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
@@ -455,9 +455,9 @@ function cacheInterface () {
   *   [#1]:
   */
 
-  this.processRecord = (logger, record, primaryEventData, secondaryEventData) => {
+  this.processRecord = (logger, record, primaryEventData, objectEventData) => {
     if (storageStrategy === 'singleEvent') {
-      if (storagePolicyArchiveBy === 'time') {
+      if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
           .then(() => singleTimeCache(logger, cache, primaryEventData, record))
           .catch(error => {
@@ -465,13 +465,13 @@ function cacheInterface () {
           })
       } else {
         return Promise.resolve()
-          .then(() => singleSecondaryCache(logger, cache, primaryEventData, secondaryEventData, record))
+          .then(() => singleSecondaryCache(logger, cache, primaryEventData, objectEventData, record))
           .catch(error => {
             throw error
           })
       }
     } else if (storageStrategy === 'multiEvent') {
-      if (storagePolicyArchiveBy === 'time') {
+      if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
           .then(() => multiTimeCache(logger, cache, primaryEventData, record))
           .catch(error => {
@@ -479,7 +479,7 @@ function cacheInterface () {
           })
       } else {
         return Promise.resolve()
-          .then(() => multiSecondaryCache(logger, cache, primaryEventData, secondaryEventData, record))
+          .then(() => multiSecondaryCache(logger, cache, primaryEventData, objectEventData, record))
           .catch(error => {
             throw error
           })
@@ -506,9 +506,9 @@ function cacheInterface () {
 
   this.flushCache = (logger, typeOfFlush, primaryEventData) => {
     if (typeOfFlush === 'event') {
-      if (storagePolicyArchiveBy === 'time') {
+      if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
-          .then(() => timeCacheInterface.flushTimeCache(logger, cache, primaryEventData))
+          .then(() => arrayCacheInterface.flushTimeCache(logger, cache, primaryEventData))
           .catch(error => {
             throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', primaryEventData, error.message))
           })
@@ -520,17 +520,17 @@ function cacheInterface () {
           })
       }
     } else if (typeOfFlush === 'cache') {
-      if (storagePolicyArchiveBy === 'time') {
+      if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
-          .then(() => timeCacheInterface.flushCache(logger, cache))
+          .then(() => arrayCacheInterface.flushCache(logger, cache))
           .catch(error => {
-            throw new AggregatorError(util.format('FAiled to flush the time based cache. Details: %s', error.message))
+            throw new AggregatorError(util.format('Failed to flush the array based cache. Details: %s', error.message))
           })
       } else {
         return Promise.resolve()
           .then(() => objectCacheInterface.flushCache(logger, cache))
           .catch(error => {
-            throw new AggregatorError(util.format('Failed to flush the secondary Cache Interface. Details: %s', error.message))
+            throw new AggregatorError(util.format('Failed to flush the object Cache Interface. Details: %s', error.message))
           })
       }
     } else {

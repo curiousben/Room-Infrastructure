@@ -25,7 +25,7 @@
 *   [#1]:
 */
 
-let readPrimaryEntry = (key, cache) => {
+let readEventEntry = (key, cache) => {
   return new Promise(
     resolve => {
       resolve(cache[key])
@@ -35,10 +35,10 @@ let readPrimaryEntry = (key, cache) => {
 
 /*
 * Description:
-*   This method searches for an entry in the cache that is the secondary event.
+*   This method searches for an entry in the cache that is an object
 * Args:
-*   key (String): This String is the key that represents the primary event.
-*   subkey (String): This String is the key that represents the secondary event.
+*   key (String): This String is the key that represents the event in the cache
+*   subkey (String): This String is the key that represents the key in an object cache.
 *   cache (Object): This Object is the internal cache that is being searched
 * Returns:
 *   result (Promise): This promise resolves to the value located at the Primary
@@ -51,7 +51,7 @@ let readPrimaryEntry = (key, cache) => {
 *   [#1]:
 */
 
-let readSecondaryEntry = (key, subKey, cache) => {
+let readObjectEntry = (key, subKey, cache) => {
   return new Promise(
     resolve => {
       resolve(cache[key][subKey])
@@ -61,6 +61,6 @@ let readSecondaryEntry = (key, subKey, cache) => {
 
 // Module for raw read methods for caching
 module.exports = {
-  readSecondaryEntry: readSecondaryEntry,
-  readPrimaryEntry: readPrimaryEntry
+  readObjectEntry: readObjectEntry,
+  readEventEntry: readEventEntry
 }
