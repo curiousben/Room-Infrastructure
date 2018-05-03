@@ -51,25 +51,29 @@ function cacheInterface () {
 
   /*
   * Description:
-  *
+  *   This promise places the record in an Array cache that can accept only one event
+  *     and emits the results of this action.
   * Args:
-  *
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   cacheInst (Object): This Object is the cache instance
+  *   eventKey (String): This is the event where an Object cache will be stored under
+  *   ArrCacheValue (String): This is the record that is being stored in the Array cache
   * Returns:
-  *
+  *   N/A
   * Throws:
-  *
+  *   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
   * Notes:
   *   N/A
   * TODO:
   *   [#1]:
   */
 
-  let singleTimeCache = (logger, cacheInst, primaryEventData, record) => {
+  let singleArrayCache = (logger, cacheInst, eventKey, ArrCacheValue) => {
     return Promise.resolve()
       .then(() => arrayCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache))
       .then(isCacheEmpty => {
         if (isCacheEmpty) {
-          return arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+          return arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheCreate', 'OK', null)
             })
@@ -77,10 +81,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData)
+          return arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, eventKey)
             .then(hasPrimaryEntry => {
               if (hasPrimaryEntry) {
-                return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+                return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue)
                   .then(() => {
                     this.emit('INSERT', 'ArrayCacheUpdate', 'OK', null)
                   })
@@ -88,11 +92,11 @@ function cacheInterface () {
                     throw error
                   })
               } else {
-                return arrayCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
+                return arrayCacheInterface.flushTimeCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
-                  .then(() => arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record))
+                  .then(() => arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue))
                   .then(() => {
                     this.emit('INSERT', 'ArrayCacheCreate', 'OK', null)
                   })
@@ -111,10 +115,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return arrayCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryEventData)
+          return arrayCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, eventKey)
             .then(doesCacheTimeNeedFlush => {
               if (doesCacheTimeNeedFlush) {
-                return arrayCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
+                return arrayCacheInterface.flushTimeCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -129,31 +133,35 @@ function cacheInterface () {
         }
       })
       .catch(error => {
-        this.emit('ERROR', 'SingleEventArrayCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', primaryEventData, error.message), record)
+        this.emit('ERROR', 'SingleEventArrayCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), ArrCacheValue)
       })
   }
 
   /*
   * Description:
-  *
+  *   This promise places the record in an Array cache that can accept multiple events
+  *     and emits the results of this action.
   * Args:
-  *
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   cacheInst (Object): This Object is the cache instance
+  *   eventKey (String): This is the event where an Object cache will be stored under
+  *   ArrCacheValue (String): This is the record that is being stored in the Array cache
   * Returns:
-  *
+  *   N/A
   * Throws:
-  *
+  *   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
   * Notes:
   *   N/A
   * TODO:
   *   [#1]:
   */
 
-  let multiTimeCache = (logger, cacheInst, primaryEventData, record) => {
+  let multiArrayCache = (logger, cacheInst, eventKey, ArrCacheValue) => {
     return Promise.resolve()
-      .then(() => arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, primaryEventData))
+      .then(() => arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, eventKey))
       .then(hasPrimaryEntry => {
         if (hasPrimaryEntry) {
-          return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+          return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheUpdate', 'OK', null)
             })
@@ -161,7 +169,7 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, record)
+          return arrayCacheInterface.addEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheCreate', 'OK', null)
             })
@@ -181,10 +189,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return arrayCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, primaryEventData)
+          return arrayCacheInterface.doesCacheTimeNeedFlush(logger, cacheInst, eventKey)
             .then(doesCacheTimeNeedFlush => {
               if (doesCacheTimeNeedFlush) {
-                return arrayCacheInterface.flushTimeCache(logger, cacheInst, primaryEventData)
+                return arrayCacheInterface.flushTimeCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -199,32 +207,37 @@ function cacheInterface () {
         }
       })
       .catch(error => {
-        this.emit('ERROR', 'MultiEventArrayCacheError', util.format('Failed to process the data event for the cache %s. Details: %s', primaryEventData, error.message), record)
+        this.emit('ERROR', 'MultiEventArrayCacheError', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), ArrCacheValue)
       })
   }
 
   /*
   * Description:
-  *
+  *   This promise places the record in an Object cache that can accept only one event
+  *     and emits the results of this action.
   * Args:
-  *
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   cacheInst (Object): This Object is the cache instance.
+  *   eventKey (String): This is the event where an Object cache will be stored under.
+  *   objCacheKey (String): This is the key where the data will be stored in the Object cache.
+  *   objCacheValue (String): This is the actual data that is being stored in the Object cache.
   * Returns:
-  *
+  *   N/A
   * Throws:
-  *
+  *   Error (Error): Any run-time error that is thrown will be thrown to be caught by the parent Promise.
   * Notes:
   *   N/A
   * TODO:
   *   [#1]:
   */
 
-  let singleSecondaryCache = (logger, cacheInst, primaryEventData, objectEventData, record) => {
+  let singleObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheValue) => {
     return Promise.resolve()
       .then(() => objectCacheInterface.isCacheEmpty(logger, cacheInst.properties.sizeOfCache))
       .then(isCacheEmpty => {
         if (isCacheEmpty) {
-          // Cache is empty so add the new record
-          return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
+          // Cache is empty so add the new objCacheValue
+          return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(() => {
               this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
             })
@@ -232,11 +245,11 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, primaryEventData, objectEventData)
+          return objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, eventKey, objCacheKey)
             .then(hasSecondaryEntry => {
               if (hasSecondaryEntry) {
                 // Cache is not empty so add and has data for the object cache
-                return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
+                return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
                   .then(oldRecord => {
                     this.emit('INSERT', 'ObjectCacheUpdate', 'OK', oldRecord)
                   })
@@ -244,11 +257,11 @@ function cacheInterface () {
                     throw error
                   })
               } else {
-                return objectCacheInterface.hasPrimaryEntry(logger, cacheInst, primaryEventData)
+                return objectCacheInterface.hasPrimaryEntry(logger, cacheInst, eventKey)
                   .then(hasPrimaryEntry => {
                     if (hasPrimaryEntry) {
                       // Doesn't have object cache primary Event but has the primary event so implies another secondary event just add
-                      return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
+                      return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
                         .then(() => {
                           this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
                         })
@@ -258,11 +271,11 @@ function cacheInterface () {
                     } else {
                       // Doesn't have secondary Event and doesn't have the primary event so this implies another primary
                       // event has been encountered flush cache
-                      return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
+                      return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, eventKey)
                         .then(finalCache => {
                           this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                         })
-                        .then(() => objectCacheInterface.addEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record))
+                        .then(() => objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue))
                         .then(() => {
                           this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
                         })
@@ -287,10 +300,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, objectEventData)
+          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, eventKey, objCacheKey)
             .then(doesCacheSecondaryNeedFlush => {
               if (doesCacheSecondaryNeedFlush) {
-                return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
+                return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -305,31 +318,36 @@ function cacheInterface () {
         }
       })
       .catch(error => {
-        this.emit('ERROR', 'SingleEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', primaryEventData, error.message), record)
+        this.emit('ERROR', 'SingleEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), objCacheValue)
       })
   }
 
   /*
   * Description:
-  *
+  *   This promise places the record in an Object cache that can accept multiple events
+  *     and emits the results of this action.
   * Args:
-  *
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   cacheInst (Object): This Object is the cache instance
+  *   eventKey (String): This is the event where an Object cache will be stored under
+  *   objCacheKey (String): This is the key where the data will be stored in the Object cache
+  *   objCacheValue (String): This is the actual data that is being stored in the Object cache
   * Returns:
-  *
+  *   N/A
   * Throws:
-  *
+  *   Error (Error): Any run-time generic error will be thrown if the process fails to emit the error
   * Notes:
   *   N/A
   * TODO:
   *   [#1]:
   */
 
-  let multiSecondaryCache = (logger, cacheInst, primaryEventData, objectEventData, record) => {
+  let multiObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheValue) => {
     return Promise.resolve()
-      .then(() => objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, primaryEventData, objectEventData))
+      .then(() => objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, eventKey, objCacheKey))
       .then(hasSecondaryEntry => {
         if (hasSecondaryEntry) {
-          return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, primaryEventData, objectEventData, record)
+          return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(oldRecord => {
               this.emit('INSERT', 'ObjectCacheUpdate', 'OK', oldRecord)
             })
@@ -337,7 +355,7 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.addEntryToTimeCache(logger, cacheInst, primaryEventData, objectEventData, record)
+          return objectCacheInterface.addEntryToTimeCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(() => {
               this.emit('INSERT', 'ObjectCacheCreate', 'OK', null)
             })
@@ -358,10 +376,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, primaryEventData, objectEventData)
+          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, eventKey, objCacheKey)
             .then(doesCacheSecondaryNeedFlush => {
               if (doesCacheSecondaryNeedFlush) {
-                return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, primaryEventData)
+                return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -376,28 +394,22 @@ function cacheInterface () {
         }
       })
       .catch(error => {
-        this.emit('ERROR', 'MultiEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', primaryEventData, error.message), record)
+        this.emit('ERROR', 'MultiEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), objCacheValue)
       })
   }
 
   /*
   * Description:
-  *   This function resolves with an object that has the cache and its respective functions that the microservice
-  *     can interact with.
+  *   This function is responsible for initializing the cache object.
   * Args:
-  *   configJSON (Object): This argument is a validated JSON Object that has relevant configuration
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   rawConfigJSON (Object): This Object is an the configuration is the raw configuration that is loaded from the file
   * Returns:
-  *   cache (Promise): This Promise resolves to an cache Object that has the cache and applicable functions to
-  *     modify the cache.
+  *   N/A
   * Throws:
-  *
+  *   InitializationError (Error): This error is thrown if the initialization fails.
   * Notes:
-  *   Example of output:
-  *     {
-  *       "addEntryToCache": "[Promise]",
-  *       "updateEntryToCache": "[Promise]",
-  *       "flushCache": "[Promise]"
-  *     }
+  *   N/A
   * TODO:
   *   [#1]:
   */
@@ -444,79 +456,84 @@ function cacheInterface () {
   * Description:
   *
   * Args:
-  *
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   cacheValue (String): This is the value that is being inserted into the cache.
+  *   eventKey (String): This is the event where the cache is stored.
+  *   objCacheKey (String): This is the key where the data will be stored in the Object cache
   * Returns:
-  *
+  *   N/A: While the promise doesn't resolve to any real value an event will be emitted.
   * Throws:
-  *
+  *   AggregatorError (Error): Any uncaught errors will be wrapped in this error class.
   * Notes:
   *   N/A
   * TODO:
   *   [#1]:
   */
 
-  this.processRecord = (logger, record, primaryEventData, objectEventData) => {
+  this.processRecord = (logger, cacheValue, eventKey, objCacheKey) => {
     if (storageStrategy === 'singleEvent') {
       if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
-          .then(() => singleTimeCache(logger, cache, primaryEventData, record))
+          .then(() => singleArrayCache(logger, cache, eventKey, cacheValue))
           .catch(error => {
-            throw error
+            throw new AggregatorError(util.format('Failed to process a record for the single event cache %s. Details: %s', eventKey, error.message))
           })
       } else {
         return Promise.resolve()
-          .then(() => singleSecondaryCache(logger, cache, primaryEventData, objectEventData, record))
+          .then(() => singleObjectCache(logger, cache, eventKey, objCacheKey, cacheValue))
           .catch(error => {
-            throw error
+            throw new AggregatorError(util.format('Failed to process a record for the single event cache %s. Details: %s', eventKey, error.message))
           })
       }
     } else if (storageStrategy === 'multiEvent') {
       if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
-          .then(() => multiTimeCache(logger, cache, primaryEventData, record))
+          .then(() => multiArrayCache(logger, cache, eventKey, cacheValue))
           .catch(error => {
-            throw error
+            throw new AggregatorError(util.format('Failed to process a record for the multiple event cache %s. Details: %s', eventKey, error.message))
           })
       } else {
         return Promise.resolve()
-          .then(() => multiSecondaryCache(logger, cache, primaryEventData, objectEventData, record))
+          .then(() => multiObjectCache(logger, cache, eventKey, objCacheKey, cacheValue))
           .catch(error => {
-            throw error
+            throw new AggregatorError(util.format('Failed to process a record for the multiple event cache %s. Details: %s', eventKey, error.message))
           })
       }
     } else {
-      throw new InitializationError('Failed to process record please intialize the client first.')
+      throw new InitializationError('Failed to process cacheValue please intialize the client first.')
     }
   }
 
   /*
   * Description:
-  *
+  *   This method is responsible for flushing the cache based on the type of flush
   * Args:
-  *
+  *   logger (Object): The Winston logger that logs the actions of this interface method.
+  *   typeOfFlush (String): This determines how much of the cache is flushed.
+  *   eventKey (String): This is the event where the cache is stored.
   * Returns:
-  *
+  *   N/A: While the promise doesn't resolve to any real value an event will be emitted.
   * Throws:
-  *
+  *   AggregatorError (Error): Any uncaught errors will be wrapped in this error class.
   * Notes:
   *   N/A
   * TODO:
   *   [#1]:
   */
 
-  this.flushCache = (logger, typeOfFlush, primaryEventData) => {
+  this.flushCache = (logger, typeOfFlush, eventKey) => {
     if (typeOfFlush === 'event') {
       if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
-          .then(() => arrayCacheInterface.flushTimeCache(logger, cache, primaryEventData))
+          .then(() => arrayCacheInterface.flushTimeCache(logger, cache, eventKey))
           .catch(error => {
-            throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', primaryEventData, error.message))
+            throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', eventKey, error.message))
           })
       } else {
         return Promise.resolve()
-          .then(() => objectCacheInterface.flushSecondaryEventCache(logger, cache, primaryEventData))
+          .then(() => objectCacheInterface.flushSecondaryEventCache(logger, cache, eventKey))
           .catch(error => {
-            throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', primaryEventData, error.message))
+            throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', eventKey, error.message))
           })
       }
     } else if (typeOfFlush === 'cache') {

@@ -385,10 +385,10 @@ let hasEventEntry = (logger, cache, eventKey) => {
     .then(() => readModule.readEventEntry(eventKey, cache))
     .then(value => {
       if (value === undefined) {
-        logger.log('debug', '... The cache for %s exists.', eventKey)
+        logger.log('debug', '... The cache for %s does not exist.', eventKey)
         return false
       } else {
-        logger.log('debug', '... The cache for %s does not exist.', eventKey)
+        logger.log('debug', '... The cache for %s exists.', eventKey)
         return true
       }
     })

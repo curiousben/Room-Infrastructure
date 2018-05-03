@@ -42,6 +42,12 @@ describe('Testing the Object Cache Interface module', function () {
     }
   })
 
+  it('Checking if event for Object cache exists', function (done) {
+    secondaryCacheInterfaceModule.hasEventEntry(logger, that.cache, 'testPrimaryKey').should.become(false).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.hasEventEntry(logger, that.cache, 'testPrimaryKey')).should.become(true).should.notify(done)
+  })
+
   it('Checking if Object cache entry exists', function (done) {
     secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey').should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
