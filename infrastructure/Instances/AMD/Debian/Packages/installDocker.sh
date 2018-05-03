@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ## these will be external to this script
-INFRAUSER=infra
-UBUNTUDIST=xenial
+INFRAUSER=instance-user
+DEBIANDIST=buster
 CPUARCH=AMD64
 
-DOCKERREPO=https://download.docker.com/linux/ubuntu/dists/$UBUNTUDIST/pool/stable/${CPUARCH,,}/
+DOCKERREPO=https://download.docker.com/linux/debian/dists/$DEBIANDIST/pool/stable/${CPUARCH,,}/
 
 echo "----INFO: Checking to see if ran as root"
 if [ $USER != "root" ]
