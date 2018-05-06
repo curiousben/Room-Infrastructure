@@ -27,26 +27,28 @@ LABEL version="1.0" \
       redisMQ.version="1.0" \
       maintainer="benjamindsmith3@gmail.com"
 
+#----INFO: Setting the environment to production
+ENV NODE_ENV=production
+
 #----INFO: Copying the local tarball into the tmp directory
 COPY ./aggregator.tar.gz /tmp/
 
-#----INFO: Updating package manager and installing packages
-RUN apt-get update && apt-get install -y \
-  vim \
-
-#----INFO: Downloading configs for Node.js app
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Aggregator/base/config/logger.config -P /etc/opt/aggregator/ \
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Aggregator/base/config/redisMQ.config -P /etc/opt/aggregator/ \
-  && wget https://raw.githubusercontent.com/insatiableben/Room-Infrastructure/master/microservices/Aggregator/base/config/aggregator.config -P /etc/opt/aggregator/ \
-
-#----INFO: Installing the Aggregator App
+#----INFO: Updating package manager and installing packages and installs the Aggregator App
+RUN apt-get update && apt-get install -y vim dumb-init \
   && tar -xzvf /tmp/aggregator.tar.gz -C /opt/ \
   && npm install --prefix /opt/aggregator/ --production \
+  && ln -s /opt/aggregator/bin/Aggregator.js /usr/local/bin/Aggregator \
   && rm /tmp/aggregator.tar.gz \
   && rm -rf /var/lib/apt/lists/*
 
+#----INFO: Where users enter into the container will be located within the file system
 WORKDIR /opt/aggregator/
-CMD ["node", "/opt/aggregator/bin/Aggregator.js"]
+
+#----INFO: Process supervisor to handle the terminate signals that Linux sends to PID 1
+ENTRYPOINT ["dumb-init","--"]
+
+#----INFO: Actual Command that intializes the microservice
+CMD ["Aggregator"]
 
 #----INFO: Example docker run command
 #---- $ docker run -d --name aggregator -v <path/to/config/directory>:/etc/opt/aggregator/ curiousben/aggregator

@@ -2,9 +2,9 @@
   "name": "Aggregator",
   "version": "1.0.0",
   "description": "This Microservice collects messages and then acts when a certain condition is met",
+  "main": "./index.js",
   "scripts": {
-    "main": "/bin/Aggregator.js",
-    "test": "./build.sh"
+    "build": "./build.sh"
   },
   "author": "Benjamin Smith",
   "license": "MIT",
