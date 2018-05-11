@@ -9,12 +9,14 @@ set -eo pipefail
 ##
 
 checkArgs () {
-  if [[ $# -ne "2" ]]
+  if [[ $# -ne 2 ]]
   then
     echo "Missing Microservice name or version, expected syntax:" \
       && echo "<microservice Name> <version-number>"
       exit 1
   fi
+
+  readonly LOCALPATH="$PWD"
   readonly MICROSERVICE="$1"
   readonly MICROSERVICEVERSION="$2"
 }

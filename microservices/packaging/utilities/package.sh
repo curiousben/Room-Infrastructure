@@ -55,26 +55,49 @@ echo "---INFO: Packaging "$MICROSERVICE" testSuite tarball" \
   && rm -r "${MICROSERVICE,,}"
 }
 
-## Cleanup for Failed Tarball
+##  Desc:
+##    This method is for the handling of errors that are encountered when packaging
+##      the testing suite
+##  Notes:
+##    N/A
+##
+
 package_testing_tarball_error_handling () {
   echo "----ERROR: Failed to create "$MICROSERVICE" testSuite tarball" \
     && rm -r "${MICROSERVICE,,}" \
     && rm "${MICROSERVICE,,}".testSuite.tar.gz
 }
 
-## Moving tarball to docker directory
+##  Desc:
+##    This method moves the testing suite source code tarball to the docker directory
+##  Notes:
+##    N/A
+##
+
 move_testing_tarball () {
   echo "----INFO: Moving "$MICROSERVICE" tarball to the dist and docker folder" \
     && mv "${MICROSERVICE,,}".testSuite.tar.gz docker/"$MICROSERVICEVERSION"/"${MICROSERVICE,,}".testSuite.tar.gz
 }
 
-## Moving tarball of microservice src to docker directory
+##  Desc:
+##    This method is for the handling of errors that are encountered when moving
+##      the testsuite tarball
+##  Notes:
+##    N/A
+##
+
 move_testing_tarball_error_handling () {
   echo "----ERROR: Failed to move "$MICROSERVICE" tarball to dist folder" \
     && rm "${MICROSERVICE,,}".testSuite.tar.gz
 }
 
-## Moving tarball of microservice src to docker directory
+##  Desc:
+##    This method checks if enough arguments have been passed in to the script.
+##      Then sets the Microservice and name and version number as variables
+##  Notes:
+##    The variables that are set are read only and can't be reset
+##
+
 package_src_tarball () {
   echo "---INFO: Packaging "$MICROSERVICE" tarball" \
     && mkdir "${MICROSERVICE,,}" \
@@ -86,20 +109,38 @@ package_src_tarball () {
     && rm -r "${MICROSERVICE,,}"
 }
 
-## Cleanup on failure to create tarball of microservice
+##  Desc:
+##    This method checks if enough arguments have been passed in to the script.
+##      Then sets the Microservice and name and version number as variables
+##  Notes:
+##    The variables that are set are read only and can't be reset
+##
+
 package_src_tarball_error_handling () {
   echo "----ERROR: Failed to create "$MICROSERVICE" tarball" \
     && rm -r "${MICROSERVICE,,}" \
     && rm "${MICROSERVICE,,}".tar.gz
 }
 
-## Moving the tarball to the docker folder
+##  Desc:
+##    This method checks if enough arguments have been passed in to the script.
+##      Then sets the Microservice and name and version number as variables
+##  Notes:
+##    The variables that are set are read only and can't be reset
+##
+
 move_src_tarball () {
   echo "----INFO: Moving "$MICROSERVICE" tarball to the dist and docker folder" \
     && mv "${MICROSERVICE,,}".tar.gz docker/"$MICROSERVICEVERSION"/"${MICROSERVICE,,}".tar.gz
 }
 
-## Cleanup after the docker folder
+##  Desc:
+##    This method checks if enough arguments have been passed in to the script.
+##      Then sets the Microservice and name and version number as variables
+##  Notes:
+##    The variables that are set are read only and can't be reset
+##
+
 move_src_tarball_error_handling () {
   echo "----ERROR: Failed to move "$MICROSERVICE" tarball to dist folder" \
     && rm "${MICROSERVICE,,}".tar.gz
