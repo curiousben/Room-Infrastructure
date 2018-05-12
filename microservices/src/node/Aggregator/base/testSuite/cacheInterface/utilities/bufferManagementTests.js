@@ -19,8 +19,8 @@ describe('Testing the buffer management module', function () {
     jsonObjString = JSON.stringify(jsonObj)
     jsonObjBuffer = Buffer.from(jsonObjString)
   })
-  it('Retreive JSON from buffer', function () {
-    return bufferManagementModule.getJSONFromBuffer(jsonObjBuffer).should.become(jsonObj)
+  it('Retreive string from buffer', function () {
+    return bufferManagementModule.getStringFromBuffer(jsonObjBuffer).should.become(jsonObjString)
   })
 
   it('Retreive buffer size from String', function () {

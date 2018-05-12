@@ -26,10 +26,10 @@
 *   [#1]:
 */
 
-let getJSONFromBuffer = (buffer) => {
+let getStringFromBuffer = (buffer) => {
   return new Promise(
     resolve => {
-      resolve(JSON.parse(buffer.toString()))
+      resolve(buffer.toString())
     }
   )
 }
@@ -107,7 +107,7 @@ let createBufferFromString = (data) => {
 
 // Exports the promise when you create this module
 module.exports = {
-  getJSONFromBuffer: getJSONFromBuffer,
+  getStringFromBuffer: getStringFromBuffer,
   getSizeOfBufferFromString: getSizeOfBufferFromString,
   getSizeOfBufferFromBuffer: getSizeOfBufferFromBuffer,
   createBufferFromString: createBufferFromString

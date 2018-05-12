@@ -81,9 +81,9 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, eventKey)
-            .then(hasPrimaryEntry => {
-              if (hasPrimaryEntry) {
+          return arrayCacheInterface.hasEventEntry(logger, cacheInst.cache, eventKey)
+            .then(hasEventEntry => {
+              if (hasEventEntry) {
                 return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue)
                   .then(() => {
                     this.emit('INSERT', 'ArrayCacheUpdate', 'OK', null)
@@ -158,9 +158,9 @@ function cacheInterface () {
 
   let multiArrayCache = (logger, cacheInst, eventKey, ArrCacheValue) => {
     return Promise.resolve()
-      .then(() => arrayCacheInterface.hasPrimaryEntry(logger, cacheInst.cache, eventKey))
-      .then(hasPrimaryEntry => {
-        if (hasPrimaryEntry) {
+      .then(() => arrayCacheInterface.hasEventEntry(logger, cacheInst.cache, eventKey))
+      .then(hasEventEntry => {
+        if (hasEventEntry) {
           return arrayCacheInterface.updateEntryToTimeCache(logger, cacheInst, eventKey, ArrCacheValue)
             .then(() => {
               this.emit('INSERT', 'ArrayCacheUpdate', 'OK', null)
@@ -245,9 +245,9 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, eventKey, objCacheKey)
-            .then(hasSecondaryEntry => {
-              if (hasSecondaryEntry) {
+          return objectCacheInterface.hasObjectEntry(logger, cacheInst.cache, eventKey, objCacheKey)
+            .then(hasObjectEntry => {
+              if (hasObjectEntry) {
                 // Cache is not empty so add and has data for the object cache
                 return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
                   .then(oldRecord => {
@@ -257,9 +257,9 @@ function cacheInterface () {
                     throw error
                   })
               } else {
-                return objectCacheInterface.hasPrimaryEntry(logger, cacheInst, eventKey)
-                  .then(hasPrimaryEntry => {
-                    if (hasPrimaryEntry) {
+                return objectCacheInterface.hasEventEntry(logger, cacheInst, eventKey)
+                  .then(hasEventEntry => {
+                    if (hasEventEntry) {
                       // Doesn't have object cache primary Event but has the primary event so implies another secondary event just add
                       return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
                         .then(() => {
@@ -284,7 +284,13 @@ function cacheInterface () {
                         })
                     }
                   })
+                  .catch(error => {
+                    throw error
+                  })
               }
+            })
+            .catch(error => {
+              throw error
             })
         }
       })
@@ -344,9 +350,9 @@ function cacheInterface () {
 
   let multiObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheValue) => {
     return Promise.resolve()
-      .then(() => objectCacheInterface.hasSecondaryEntry(logger, cacheInst.cache, eventKey, objCacheKey))
-      .then(hasSecondaryEntry => {
-        if (hasSecondaryEntry) {
+      .then(() => objectCacheInterface.hasObjectEntry(logger, cacheInst.cache, eventKey, objCacheKey))
+      .then(hasObjectEntry => {
+        if (hasObjectEntry) {
           return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(oldRecord => {
               this.emit('INSERT', 'ObjectCacheUpdate', 'OK', oldRecord)

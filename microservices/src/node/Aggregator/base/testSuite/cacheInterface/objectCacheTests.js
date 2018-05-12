@@ -67,7 +67,7 @@ describe('Testing the Object Cache Interface module', function () {
     secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey').should.become(false).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.hasObjectEntry(logger, that.cache, 'testPrimaryKey', 'testSecondaryKey')).should.become(true).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.updateEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKeyThatisLargerByThanThePrevious': 'testValueThatisLargerByThanThePrevious'}))).should.become(Buffer.from(JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.updateEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey', JSON.stringify({'testKeyThatisLargerByThanThePrevious': 'testValueThatisLargerByThanThePrevious'}))).should.become(JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
       .then(function () {
         Promise.resolve(that.cache['testPrimaryKey']['testSecondaryKey']).should.become(Buffer.from(JSON.stringify({'testKeyThatisLargerByThanThePrevious': 'testValueThatisLargerByThanThePrevious'})))
       }).should.notify(done)
@@ -88,9 +88,9 @@ describe('Testing the Object Cache Interface module', function () {
   })
 
   it('Flush Object cache', function (done) {
-    secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.flushObjectCache(logger, that, 'testPrimaryKey')).should.become({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}})
+    secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', 'testSecondaryValue').should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', 'testSecondaryValue')).should.be.fulfilled
+      .then(() => secondaryCacheInterfaceModule.flushObjectCache(logger, that, 'testPrimaryKey')).should.become({'testPrimaryKey': {'testSecondaryKey1': 'testSecondaryValue', 'testSecondaryKey2': 'testSecondaryValue'}})
       .then(function () {
         Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
         Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')
@@ -105,7 +105,7 @@ describe('Testing the Object Cache Interface module', function () {
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey1', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
       .then(() => secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey1', 'testSecondaryKey2', JSON.stringify({'testKey': 'testValue'}))).should.be.fulfilled
-      .then(() => secondaryCacheInterfaceModule.flushCache(logger, that)).should.become({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}, 'testPrimaryKey1': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}})
+      .then(() => secondaryCacheInterfaceModule.flushCache(logger, that)).should.become({'testPrimaryKey': {'testSecondaryKey1': JSON.stringify({'testKey': 'testValue'}), 'testSecondaryKey2': JSON.stringify({'testKey': 'testValue'})}, 'testPrimaryKey1': {'testSecondaryKey1': JSON.stringify({'testKey': 'testValue'}), 'testSecondaryKey2': JSON.stringify({'testKey': 'testValue'})}})
       .then(function () {
         Promise.resolve(that.properties.numberOfEvents['all']).should.become(0)
         Promise.resolve(that.properties.numberOfEvents['eventCaches']).should.eventually.not.have.property('testPrimaryKey')

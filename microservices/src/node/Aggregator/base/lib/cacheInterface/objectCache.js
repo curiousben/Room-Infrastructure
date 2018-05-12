@@ -49,7 +49,7 @@ let addEntryToObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheV
         return undefined
       }
     })
-    .then(() => bufferManagement.createBufferFromString(JSON.stringify(objCacheValue)))
+    .then(() => bufferManagement.createBufferFromString(objCacheValue))
     .then(buffer => createModule.createCacheEntry(cacheInst.cache[eventKey], objCacheKey, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, eventKey))
@@ -92,7 +92,7 @@ let addEntryToObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheV
 */
 
 let updateEntryToObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheValue) => {
-  let oldRecord = null
+  let oldRecordBuffer = null
   return (Promise.resolve()
     .then(() => {
       logger.log('debug', 'Starting to update the %s data for the %s cache ...', objCacheKey, eventKey)
@@ -100,7 +100,7 @@ let updateEntryToObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCac
     })
     .then(() => readModule.readObjectEntry(eventKey, objCacheKey, cacheInst.cache))
     .then(oldCacheEntry => {
-      oldRecord = oldCacheEntry
+      oldRecordBuffer = oldCacheEntry
       return oldCacheEntry
     })
     .then(oldCacheEntry => bufferManagement.getSizeOfBufferFromBuffer(oldCacheEntry))
@@ -111,7 +111,8 @@ let updateEntryToObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCac
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, eventKey, objCacheKey))
     .then(() => cacheManagement.increaseEventSize(cacheInst.properties.numberOfEvents, eventKey, objCacheKey))
-    .then(() => {
+    .then(() => bufferManagement.getStringFromBuffer(oldRecordBuffer))
+    .then(oldRecord => {
       logger.log('debug', '... Successfully updated the %s data to the %s cache', objCacheKey, eventKey)
       return oldRecord
     })
@@ -231,10 +232,10 @@ let flushObjectCache = (logger, cacheInst, eventKey) => {
       for (const [key, value] of Object.entries(rawCacheObj)) {
         promiseArray.push(new Promise(
           resolve => {
-            resolve(bufferManagement.getJSONFromBuffer(value))
+            resolve(bufferManagement.getStringFromBuffer(value))
           })
-          .then(JSON => {
-            eventCacheObj[key] = JSON
+          .then(stringValue => {
+            eventCacheObj[key] = stringValue
             return undefined
           })
           .catch(error => {

@@ -212,10 +212,10 @@ let flushArrayCache = (logger, cacheInst, eventKey) => {
       for (const value of rawArrayCache) {
         promiseArray.push(new Promise(
           resolve => {
-            resolve(bufferManagement.getJSONFromBuffer(value))
+            resolve(bufferManagement.getStringFromBuffer(value))
           })
-          .then(JSON => {
-            eventCacheArray.push(JSON)
+          .then(JSONString => {
+            eventCacheArray.push(JSONString)
             return undefined
           })
           .catch(error => {
