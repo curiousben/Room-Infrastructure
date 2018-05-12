@@ -49,7 +49,7 @@ let addEntryToObjectCache = (logger, cacheInst, eventKey, objCacheKey, objCacheV
         return undefined
       }
     })
-    .then(() => bufferManagement.createBufferFromString(objCacheValue))
+    .then(() => bufferManagement.createBufferFromString(JSON.stringify(objCacheValue)))
     .then(buffer => createModule.createCacheEntry(cacheInst.cache[eventKey], objCacheKey, buffer))
     .then(buffer => bufferManagement.getSizeOfBufferFromBuffer(buffer))
     .then(bufferSize => cacheManagement.increaseBufferSize(cacheInst.properties.sizeOfCache, bufferSize, eventKey))

@@ -47,7 +47,7 @@ function cacheInterface () {
 
   let storageStrategy = null
   let storagePolicyArchiveBy = null
-  let cache = Object.create()
+  let cache = {}
 
   /*
   * Description:
@@ -448,7 +448,7 @@ function cacheInterface () {
         return undefined
       })
       .catch(error => {
-        throw new InitializationError(util.format('... Failed to initialize the Aggregator\'s cache. Details: %s', error.message))
+        throw new InitializationError(util.format('... Failed to initialize the Aggregator cache. Details: %s', error.stack))
       })
   }
 

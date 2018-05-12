@@ -44,10 +44,9 @@ let InitializationError = require('../errors/initializationError.js')
 *   [#1]:
 */
 
-let initAggregator = (configJSON) => {
+let initAggregator = (aggregatorConfig) => {
   return new Promise(
     resolve => {
-      let aggregatorConfig = configJSON['cache']
 
       // Checking to see if all base keys exist and has the right types
       if (!('setup' in aggregatorConfig) || !('storage' in aggregatorConfig) || !('flushStrategy' in aggregatorConfig)) {
