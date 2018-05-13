@@ -19,21 +19,14 @@ let InitializationError = require('../errors/initializationError.js')
 *     accessed asynchronously that aggregators messages based on those configurations.
 *   Example:
 {
-  "cache": {
-    "setup": external or internal,
-    "storage": {
-      "strategy": singleEvent or multiEvent,
-      "policy": {
-        "archiveBy": Object or Array,
-        "eventLimit": 10,
-      },
-      "eventTrigger": {
-        "primaryEvent": [Path,to,data,in,JSONObj],
-        "secondaryEvent": [Path,to,data,in,JSONObj] (Only needed if archiveBy is set to secondaryEvent)
-      }
-      "byteSizeWatermark": 1000000
+  "setup": external or internal,
+  "storage": {
+    "strategy": singleEvent or multiEvent,
+    "policy": {
+      "archiveBy": Object or Array,
+      "eventLimit": 10,
     },
-    "flushStrategy": single or multi
+    "byteSizeWatermark": 1000000
   }
 }
 * Throws:
@@ -49,7 +42,7 @@ let initAggregator = (aggregatorConfig) => {
     resolve => {
 
       // Checking to see if all base keys exist and has the right types
-      if (!('setup' in aggregatorConfig) || !('storage' in aggregatorConfig) || !('flushStrategy' in aggregatorConfig)) {
+      if (!('setup' in aggregatorConfig) || !('storage' in aggregatorConfig)) {
         throw new InitializationError('Aggregator configuration is missing either \'setup\', \'data\', \'storage\', or \'flushStrategy\' for the Aggregator configuration.')
       }
       // Setup configuration
@@ -63,8 +56,8 @@ let initAggregator = (aggregatorConfig) => {
 
       // Storage configuration
       const storageSection = aggregatorConfig['storage']
-      if (!('strategy' in storageSection) || !('policy' in storageSection) || !('eventTrigger' in storageSection) || !('byteSizeWatermark' in storageSection)) {
-        throw new InitializationError('Aggregator configuration is missing either \'strategy\', \'policy\', \'eventTrigger\', or \'byteSizeWatermark\' for the Storage section in the configuration')
+      if (!('strategy' in storageSection) || !('policy' in storageSection) || !('byteSizeWatermark' in storageSection)) {
+        throw new InitializationError('Aggregator configuration is missing either \'strategy\', \'policy\', or \'byteSizeWatermark\' for the Storage section in the configuration')
       }
 
       // Strategy Storage subsection
@@ -95,29 +88,6 @@ let initAggregator = (aggregatorConfig) => {
         throw new InitializationError('Aggregator configuration has encountered \'' + policyEventLimit + '\' for the policyEventLimit configuration in the Policy subsection of the Storage section. Only Number values are accepted.')
       }
 
-      // Event Trigger Storage subsection
-      const EventTriggerSubSection = storageSection['eventTrigger']
-      if (!('primaryEvent' in EventTriggerSubSection) || !('secondaryEvent' in EventTriggerSubSection)) {
-        throw new InitializationError('Aggregator configuration is missing either \'primaryEvent\' or \'secondaryEvent\' in the EventTrigger subsection of the Storage section in the Aggregator configuration')
-      }
-
-      const primaryEvent = EventTriggerSubSection['primaryEvent']
-      if (!(Array.isArray(primaryEvent))) {
-        throw new InitializationError('Aggregator configuration has encountered \'' + primaryEvent + '\' for the primaryEvent configuration in the Event Trigger subsection of the Storage section. Only Number values are accepted.')
-      }
-      const secondaryEvent = EventTriggerSubSection['secondaryEvent']
-      if (!(Array.isArray(secondaryEvent))) {
-        throw new InitializationError('Aggregator configuration has encountered \'' + secondaryEvent + '\' for the secondaryEvent configuration in the Event Trigger subsection of the Storage section. Only Number values are accepted.')
-      }
-
-      // Flush Strategy Configuration
-      const flushStrategySection = aggregatorConfig['flushStrategy']
-      if (typeof flushStrategySection !== 'string' && !(flushStrategySection instanceof String)) {
-        throw new InitializationError('Aggregator configuration has encountered \'' + flushStrategySection + '\' for the flushStrategy configuration in the FlushStrategy section. Only strings are accepted.')
-      }
-      if (flushStrategySection !== 'single' && flushStrategySection !== 'multi') {
-        throw new InitializationError('Aggregator configuration has encountered \'' + flushStrategySection + '\' for the flushStrategy configuration in the FlushStrategy sonfiguration. Only options \'single\' and \'multi\' are excepted.')
-      }
       resolve(aggregatorConfig)
     }
   )

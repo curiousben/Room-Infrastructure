@@ -359,7 +359,7 @@ function cacheInterface () {
     return Promise.resolve()
       .then(() => objectCacheInterface.hasObjectEntry(logger, cacheInst.cache, eventKey, objCacheKey))
       .then(hasObjectEntry => {
-        if (hasObjectEntry) {
+        if (hasObjectEntry) { // New Event has been encountered add the event and the data to the cache
           return objectCacheInterface.updateEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(oldRecord => {
               this.emit('INSERT', 'ObjectCacheUpdate', 'OK', oldRecord)
@@ -367,7 +367,7 @@ function cacheInterface () {
             .catch(error => {
               throw error
             })
-        } else {
+        } else { // This event entry has already been encountered and the new data will be added
           return objectCacheInterface.addEntryToTimeCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(() => {
               this.emit('INSERT', 'ObjectCacheCreate', 'OK', null)
@@ -382,7 +382,7 @@ function cacheInterface () {
         if (doesCacheNeedFlush) {
           return objectCacheInterface.flushCache(logger, cacheInst)
             .then(cacheObj => {
-              this.emit('FLUSH', 'CacheFlush', 'OK', cacheObj)
+              this.emit('FLUSH', 'ObjectCacheFlush', 'OK', cacheObj)
             })
             .catch(error => {
               // Could result in endless loop with new messages possibliy triggering new error events never empting the cache
@@ -392,9 +392,9 @@ function cacheInterface () {
           return objectCacheInterface.doesObjectCacheNeedFlush(logger, cacheInst, eventKey, objCacheKey)
             .then(doesObjectCacheNeedFlush => {
               if (doesObjectCacheNeedFlush) {
-                return objectCacheInterface.doesObjectCacheNeedFlush(logger, cacheInst, eventKey)
+                return objectCacheInterface.flushObjectCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
-                    this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
+                    this.emit('FLUSH', 'ObjectEventFlush', 'OK', finalCache)
                   })
                   .catch(error => {
                     throw error
@@ -406,7 +406,7 @@ function cacheInterface () {
             })
         }
       })
-      .catch(error => {
+.catch(error => {
         this.emit('ERROR', 'MultiEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), objCacheValue)
       })
   }
@@ -539,12 +539,18 @@ function cacheInterface () {
       if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
           .then(() => arrayCacheInterface.flushTimeCache(logger, cache, eventKey))
+          .then(finalCache => {
+            this.emit('FLUSH', 'ArrayEventFlush', 'OK', finalCache)
+          })
           .catch(error => {
             throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', eventKey, error.message))
           })
       } else {
         return Promise.resolve()
-          .then(() => objectCacheInterface.doesObjectCacheNeedFlush(logger, cache, eventKey))
+          .then(() => objectCacheInterface.flushObjectCache(logger, cache, eventKey))
+          .then(finalCache => {
+            this.emit('FLUSH', 'ObjectEventFlush', 'OK', finalCache)
+          })
           .catch(error => {
             throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', eventKey, error.message))
           })
@@ -553,12 +559,18 @@ function cacheInterface () {
       if (storagePolicyArchiveBy === 'Array') {
         return Promise.resolve()
           .then(() => arrayCacheInterface.flushCache(logger, cache))
+          .then(finalCache => {
+            this.emit('FLUSH', 'ArrayCacheFlush', 'OK', finalCache)
+          })
           .catch(error => {
             throw new AggregatorError(util.format('Failed to flush the array based cache. Details: %s', error.message))
           })
       } else {
         return Promise.resolve()
           .then(() => objectCacheInterface.flushCache(logger, cache))
+          .then(finalCache => {
+            this.emit('FLUSH', 'ObjectCacheFlush', 'OK', finalCache)
+          })
           .catch(error => {
             throw new AggregatorError(util.format('Failed to flush the object Cache Interface. Details: %s', error.message))
           })
