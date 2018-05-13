@@ -253,6 +253,7 @@ let flushObjectCache = (logger, cacheInst, eventKey) => {
       return finalCache
     })
     .catch(error => {
+      //console.log(error)
       throw new Error(util.format('... Failed to flush the %s cache. Details:%s', eventKey, error.message))
     }))
 }
@@ -385,6 +386,7 @@ let hasEventEntry = (logger, cache, eventKey) => {
     })
     .then(() => readModule.readEventEntry(eventKey, cache))
     .then(value => {
+      //console.log(JSON.stringify(cache))
       if (value === undefined) {
         logger.log('debug', '... The cache for %s does not exist.', eventKey)
         return false

@@ -1,7 +1,7 @@
 const cacheModule = require('../lib/init.js')
 const winston = require('winston')
 var logger = new winston.Logger({
-  level: 'debug',
+  level: 'error',
   transports: [
     new (winston.transports.Console)()
   ]
@@ -11,22 +11,7 @@ const sinon = require('sinon')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
-const configSingleObjectJSON = {
-  'setup': 'internal',
-  'storage': {
-    'strategy': 'singleEvent',
-    'policy': {
-      'archiveBy': 'Object',
-      'eventLimit': 2
-    },
-    'eventTrigger': {
-      'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
-      'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
-    },
-    'byteSizeWatermark': 6000000
-  },
-  'flushStrategy': 'single'
-}
+
 
 const configMultiObjectJSON = {
   'setup': 'internal',
@@ -82,6 +67,22 @@ const configMultiArrayJSON = {
 describe('Testing Single Event Object cache', function () {
   let cacheObj = null
   let configJSON = null
+  const configSingleObjectJSON = {
+    'setup': 'internal',
+    'storage': {
+      'strategy': 'singleEvent',
+      'policy': {
+        'archiveBy': 'Object',
+        'eventLimit': 4
+      },
+      'eventTrigger': {
+        'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
+        'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
+      },
+      'byteSizeWatermark': 6000000
+    },
+    'flushStrategy': 'single'
+  }  
   beforeEach(function () {
     cacheObj = new cacheModule()
   })
@@ -112,23 +113,45 @@ describe('Testing Single Event Object cache', function () {
         .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey')).should.be.fulfilled
       })
   })
-/*
+
   it('Testing the insertion of one event Cache Interface', function (done) {
+    let flushResult = false
+    let insertResult = false
+    let finalFlushedCache = {
+      'eventKey': {
+        'objectCacheKey1': 'testData1',
+        'objectCacheKey2': 'testData2',
+        'objectCacheKey3': 'testData3'
+      }
+    }
     cacheObj.initCache(logger, configSingleObjectJSON).should.be.fulfilled
       .then(function () {
         cacheObj.on('INSERT', function (cacheEvent, eventResult, eventData) {
-          Promise.all([cacheEvent, eventResult, eventData])
-            .then(values => {
-              if (values === ['ObjectCacheInsert', 'OK', null]) {
-                return
-              }
-            }).should.notify(done)
+          if (cacheEvent === 'FlushedObjectCacheInsert' && eventData === null) {
+            insertResult = true
+          }
+          if (insertResult && flushResult) {
+            done()
+          }
         })
 
-        Promise.resolve(cacheObj.processRecord(logger, {'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}, 'PrimaryKey', 'ObjectKey')).should.be.fulfilled
+        cacheObj.on('FLUSH', function (cacheEvent, eventResult, eventData) {
+          //console.log('FLUSH in test cacheEvent: ' + cacheEvent + " eventResult: " + eventResult + " eventData: " + JSON.stringify(eventData))
+          if (cacheEvent === 'EventFlush' && JSON.stringify(eventData) === JSON.stringify(finalFlushedCache)) {
+            flushResult = true
+          }
+          if (insertResult && insertResult) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey', 'objectCacheKey1')).should.be.fulfilled
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey', 'objectCacheKey2')).should.be.fulfilled
+          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey', 'objectCacheKey3')).should.be.fulfilled
+          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2', 'objectCacheKey')).should.be.fulfilled
       })
   })
-
+/*
 
   it('Flush Object cache', function (done) {
     secondaryCacheInterfaceModule.addEntryToObjectCache(logger, that, 'testPrimaryKey', 'testSecondaryKey1', JSON.stringify({'testKey': 'testValue'})).should.be.fulfilled

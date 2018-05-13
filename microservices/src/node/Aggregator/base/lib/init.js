@@ -257,7 +257,7 @@ function cacheInterface () {
                     throw error
                   })
               } else {
-                return objectCacheInterface.hasEventEntry(logger, cacheInst, eventKey)
+                return objectCacheInterface.hasEventEntry(logger, cacheInst.cache, eventKey)
                   .then(hasEventEntry => {
                     if (hasEventEntry) {
                       // Doesn't have object cache primary Event but has the primary event so implies another secondary event just add
@@ -271,13 +271,15 @@ function cacheInterface () {
                     } else {
                       // Doesn't have secondary Event and doesn't have the primary event so this implies another primary
                       // event has been encountered flush cache
-                      return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, eventKey)
+                      //console.log("Flush Cache via new Event")
+                      return objectCacheInterface.flushCache(logger, cacheInst)
                         .then(finalCache => {
+                          //console.log('Needs flushing form Data')
                           this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                         })
                         .then(() => objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue))
                         .then(() => {
-                          this.emit('INSERT', 'ObjectCacheInsert', 'OK', null)
+                          this.emit('INSERT', 'FlushedObjectCacheInsert', 'OK', null)
                         })
                         .catch(error => {
                           throw error
@@ -296,7 +298,9 @@ function cacheInterface () {
       })
       .then(() => objectCacheInterface.doesCacheNeedFlush(logger, cacheInst))
       .then(doesCacheNeedFlush => {
+        //console.log(JSON.stringify("DoesCacheNeedFlush: " + doesCacheNeedFlush))
         if (doesCacheNeedFlush) {
+          //console.log("Flush Cache via Water makr threshold")
           return objectCacheInterface.flushCache(logger, cacheInst)
             .then(cacheObj => {
               this.emit('FLUSH', 'CacheFlush', 'OK', cacheObj)
@@ -306,12 +310,14 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, eventKey, objCacheKey)
-            .then(doesCacheSecondaryNeedFlush => {
-              if (doesCacheSecondaryNeedFlush) {
-                return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, eventKey)
+          return objectCacheInterface.doesObjectCacheNeedFlush(logger, cacheInst, eventKey, objCacheKey)
+            .then(doesObjectCacheNeedFlush => {
+            //console.log('doesObjectCacheNeedFlush: ' + doesObjectCacheNeedFlush + " cache at this time " + JSON.stringify(cacheInst))
+              if (doesObjectCacheNeedFlush) {
+                //console.log("Flush Object via event limit threshold")
+                return objectCacheInterface.flushObjectCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
-                    this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
+                    this.emit('FLUSH', 'ObjectCacheFlush', 'OK', finalCache)
                   })
                   .catch(error => {
                     throw error
@@ -324,6 +330,7 @@ function cacheInterface () {
         }
       })
       .catch(error => {
+        //console.log(error.stack)
         this.emit('ERROR', 'SingleEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), objCacheValue)
       })
   }
@@ -382,10 +389,10 @@ function cacheInterface () {
               throw error
             })
         } else {
-          return objectCacheInterface.doesCacheSecondaryNeedFlush(logger, cacheInst, eventKey, objCacheKey)
-            .then(doesCacheSecondaryNeedFlush => {
-              if (doesCacheSecondaryNeedFlush) {
-                return objectCacheInterface.flushSecondaryEventCache(logger, cacheInst, eventKey)
+          return objectCacheInterface.doesObjectCacheNeedFlush(logger, cacheInst, eventKey, objCacheKey)
+            .then(doesObjectCacheNeedFlush => {
+              if (doesObjectCacheNeedFlush) {
+                return objectCacheInterface.doesObjectCacheNeedFlush(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                   })
@@ -537,7 +544,7 @@ function cacheInterface () {
           })
       } else {
         return Promise.resolve()
-          .then(() => objectCacheInterface.flushSecondaryEventCache(logger, cache, eventKey))
+          .then(() => objectCacheInterface.doesObjectCacheNeedFlush(logger, cache, eventKey))
           .catch(error => {
             throw new AggregatorError(util.format('Failed to flush event cache for %s. Details: %s', eventKey, error.message))
           })
