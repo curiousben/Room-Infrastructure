@@ -271,14 +271,13 @@ function cacheInterface () {
                     } else {
                       // Doesn't have secondary Event and doesn't have the primary event so this implies another primary
                       // event has been encountered flush cache
-                      //console.log("Flush Cache via new Event")
                       return objectCacheInterface.flushCache(logger, cacheInst)
                         .then(finalCache => {
-                          //console.log('Needs flushing form Data')
                           this.emit('FLUSH', 'EventFlush', 'OK', finalCache)
                         })
                         .then(() => objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue))
                         .then(() => {
+                          // This is in the event that a new event has been encountered but the data for the new must be inserted
                           this.emit('INSERT', 'FlushedObjectCacheInsert', 'OK', null)
                         })
                         .catch(error => {
@@ -298,9 +297,7 @@ function cacheInterface () {
       })
       .then(() => objectCacheInterface.doesCacheNeedFlush(logger, cacheInst))
       .then(doesCacheNeedFlush => {
-        //console.log(JSON.stringify("DoesCacheNeedFlush: " + doesCacheNeedFlush))
         if (doesCacheNeedFlush) {
-          //console.log("Flush Cache via Water makr threshold")
           return objectCacheInterface.flushCache(logger, cacheInst)
             .then(cacheObj => {
               this.emit('FLUSH', 'CacheFlush', 'OK', cacheObj)
@@ -312,9 +309,7 @@ function cacheInterface () {
         } else {
           return objectCacheInterface.doesObjectCacheNeedFlush(logger, cacheInst, eventKey, objCacheKey)
             .then(doesObjectCacheNeedFlush => {
-            //console.log('doesObjectCacheNeedFlush: ' + doesObjectCacheNeedFlush + " cache at this time " + JSON.stringify(cacheInst))
               if (doesObjectCacheNeedFlush) {
-                //console.log("Flush Object via event limit threshold")
                 return objectCacheInterface.flushObjectCache(logger, cacheInst, eventKey)
                   .then(finalCache => {
                     this.emit('FLUSH', 'ObjectCacheFlush', 'OK', finalCache)
@@ -330,7 +325,6 @@ function cacheInterface () {
         }
       })
       .catch(error => {
-        //console.log(error.stack)
         this.emit('ERROR', 'SingleEventObjectCacheError', 'ERROR', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), objCacheValue)
       })
   }
@@ -368,7 +362,7 @@ function cacheInterface () {
               throw error
             })
         } else { // This event entry has already been encountered and the new data will be added
-          return objectCacheInterface.addEntryToTimeCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
+          return objectCacheInterface.addEntryToObjectCache(logger, cacheInst, eventKey, objCacheKey, objCacheValue)
             .then(() => {
               this.emit('INSERT', 'ObjectCacheCreate', 'OK', null)
             })

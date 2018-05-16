@@ -2,27 +2,27 @@ let initializationModule = require('../../lib/utilities/initialize.js')
 let InitializationError = require('../../lib/errors/initializationError.js')
 
 const validConfig = {
-    'setup': 'external',
-    'storage': {
-      'strategy': 'singleEvent',
-      'policy': {
-        'archiveBy': 'Object',
-        'eventLimit': 10
-      },
-      'byteSizeWatermark': 1000000
-    }
+  'setup': 'external',
+  'storage': {
+    'strategy': 'singleEvent',
+    'policy': {
+      'archiveBy': 'Object',
+      'eventLimit': 10
+    },
+    'byteSizeWatermark': 1000000
+  }
 }
 
 const invalidConfig = {
-    'setup': 'external',
-    'storage': {
-      'strategy': 42,
-      'policy': {
-        'archiveBy': 'Array',
-        'eventLimit': 10
-      },
-      'byteSizeWatermark': 1000000
-    }
+  'setup': 'external',
+  'storage': {
+    'strategy': 42,
+    'policy': {
+      'archiveBy': 'Array',
+      'eventLimit': 10
+    },
+    'byteSizeWatermark': 1000000
+  }
 }
 
 let chai = require('chai')
