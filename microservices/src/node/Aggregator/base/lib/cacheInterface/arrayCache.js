@@ -214,8 +214,8 @@ let flushArrayCache = (logger, cacheInst, eventKey) => {
           resolve => {
             resolve(bufferManagement.getStringFromBuffer(value))
           })
-          .then(JSONString => {
-            eventCacheArray.push(JSONString)
+          .then(dataString => {
+            eventCacheArray.push(dataString)
             return undefined
           })
           .catch(error => {

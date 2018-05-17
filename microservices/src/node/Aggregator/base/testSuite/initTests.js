@@ -1,4 +1,4 @@
-const cacheModule = require('../lib/init.js')
+const CacheModule = require('../lib/init.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',
@@ -10,40 +10,6 @@ const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
-
-const configSingleArrayJSON = {
-  'setup': 'internal',
-  'storage': {
-    'strategy': 'singleEvent',
-    'policy': {
-      'archiveBy': 'Array',
-      'eventLimit': 2
-    },
-    'eventTrigger': {
-      'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
-      'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
-    },
-    'byteSizeWatermark': 6000000
-  },
-  'flushStrategy': 'single'
-}
-
-const configMultiArrayJSON = {
-  'setup': 'internal',
-  'storage': {
-    'strategy': 'multiEvent',
-    'policy': {
-      'archiveBy': 'Array',
-      'eventLimit': 2
-    },
-    'eventTrigger': {
-      'primaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj'],
-      'secondaryEvent': ['Path', 'to', 'data', 'in', 'JSONObj']
-    },
-    'byteSizeWatermark': 6000000
-  },
-  'flushStrategy': 'single'
-}
 
 describe('Testing Single Event Object cache', function () {
   let cacheObj = null
@@ -59,7 +25,7 @@ describe('Testing Single Event Object cache', function () {
     }
   }
   beforeEach(function () {
-    cacheObj = new cacheModule()
+    cacheObj = new CacheModule()
   })
 
   it('Testing the insertion of one event Cache Interface', function (done) {
@@ -85,7 +51,7 @@ describe('Testing Single Event Object cache', function () {
         })
 
         Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
-          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey')).should.be.fulfilled
+          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
       })
   })
 
@@ -111,7 +77,7 @@ describe('Testing Single Event Object cache', function () {
         })
 
         cacheObj.on('FLUSH', function (cacheEvent, eventResult, eventData) {
-          if (cacheEvent === 'EventFlush' && JSON.stringify(eventData) === JSON.stringify(finalFlushedCache)) {
+          if (cacheEvent === 'ObjectEventFlush' && JSON.stringify(eventData) === JSON.stringify(finalFlushedCache)) {
             flushResult = true
           }
           if (insertResult && insertResult) {
@@ -119,10 +85,10 @@ describe('Testing Single Event Object cache', function () {
           }
         })
 
-        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey', 'objectCacheKey1')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey', 'objectCacheKey2')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey', 'objectCacheKey3')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2', 'objectCacheKey')).should.be.fulfilled
+        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey', 'objectCacheKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey', 'objectCacheKey2'))
+          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey', 'objectCacheKey3'))
+          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2', 'objectCacheKey'))
       })
   })
 
@@ -145,7 +111,7 @@ describe('Testing Single Event Object cache', function () {
         Promise.resolve(cacheObj.processRecord(logger, 'ObjestValue1', 'PrimaryKey', 'ObjectKey1'))
           .then(() => cacheObj.processRecord(logger, 'ObjectValue2', 'PrimaryKey', 'ObjectKey2'))
           .then(() => cacheObj.processRecord(logger, 'ObjectValue3', 'PrimaryKey', 'ObjectKey3'))
-          .then(() => cacheObj.flushCache(logger, 'cache', null)).should.be.fulfilled
+          .then(() => cacheObj.flushCache(logger, 'cache', null))
       })
   })
 })
@@ -164,7 +130,7 @@ describe('Testing Multi Event Object cache', function () {
     }
   }
   beforeEach(function () {
-    cacheObj = new cacheModule()
+    cacheObj = new CacheModule()
   })
 
   it('Testing the insertion of one event Cache Interface', function (done) {
@@ -176,7 +142,7 @@ describe('Testing Multi Event Object cache', function () {
           }
         })
 
-        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey')).should.be.fulfilled
+        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
       })
   })
 
@@ -189,8 +155,8 @@ describe('Testing Multi Event Object cache', function () {
           }
         })
 
-        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey')).should.be.fulfilled
+        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
       })
   })
 
@@ -212,14 +178,14 @@ describe('Testing Multi Event Object cache', function () {
           }
         })
 
-        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey1', 'objectCacheKey1')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey1', 'objectCacheKey2')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2', 'objectCacheKey1')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey1', 'objectCacheKey3')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey2', 'objectCacheKey2')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData4', 'eventKey1', 'objectCacheKey4')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData5', 'eventKey1', 'objectCacheKey5')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey3', 'objectCacheKey1')).should.be.fulfilled
+        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey1', 'objectCacheKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey1', 'objectCacheKey2'))
+          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2', 'objectCacheKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey1', 'objectCacheKey3'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey2', 'objectCacheKey2'))
+          .then(() => cacheObj.processRecord(logger, 'testData4', 'eventKey1', 'objectCacheKey4'))
+          .then(() => cacheObj.processRecord(logger, 'testData5', 'eventKey1', 'objectCacheKey5'))
+          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey3', 'objectCacheKey1'))
       })
   })
 
@@ -239,10 +205,164 @@ describe('Testing Multi Event Object cache', function () {
           }
         })
 
-        Promise.resolve(cacheObj.processRecord(logger, 'ObjestValue1', 'PrimaryKey', 'ObjectKey1')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'ObjectValue2', 'PrimaryKey', 'ObjectKey2')).should.be.fulfilled
-          .then(() => cacheObj.processRecord(logger, 'ObjectValue3', 'PrimaryKey', 'ObjectKey3')).should.be.fulfilled
-          .then(() => cacheObj.flushCache(logger, 'cache', null)).should.be.fulfilled
+        Promise.resolve(cacheObj.processRecord(logger, 'ObjestValue1', 'PrimaryKey', 'ObjectKey1'))
+          .then(() => cacheObj.processRecord(logger, 'ObjectValue2', 'PrimaryKey', 'ObjectKey2'))
+          .then(() => cacheObj.processRecord(logger, 'ObjectValue3', 'PrimaryKey', 'ObjectKey3'))
+          .then(() => cacheObj.flushCache(logger, 'cache', null))
+      })
+  })
+})
+
+describe('Testing Single Event Array cache', function () {
+  let cacheObj = null
+
+  const configSingleArrayJSON = {
+    'setup': 'internal',
+    'storage': {
+      'strategy': 'singleEvent',
+      'policy': {
+        'archiveBy': 'Array',
+        'eventLimit': 7
+      },
+      'byteSizeWatermark': 6000000
+    }
+  }
+
+  beforeEach(function () {
+    cacheObj = new CacheModule()
+  })
+
+  it('Testing the insertion of one event Cache Interface', function (done) {
+    cacheObj.initCache(logger, configSingleArrayJSON).should.be.fulfilled
+      .then(function () {
+        cacheObj.on('INSERT', function (cacheEvent, eventResult, eventData) {
+          if (cacheEvent === 'ArrayCacheCreate' && eventResult === 'OK' && eventData === null) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+      })
+  })
+
+  it('Testing updating a value in the events cache', function (done) {
+    let eventCount = 0
+    cacheObj.initCache(logger, configSingleArrayJSON).should.be.fulfilled
+      .then(function () {
+        cacheObj.on('INSERT', function (cacheEvent, eventResult, eventData) {
+          eventCount++
+          if (cacheEvent === 'ArrayCacheUpdate' && eventResult === 'OK' && eventData === null && eventCount === 2) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+      })
+  })
+
+  it('Testing the Object flush when a new event has been encountered', function (done) {
+    let finalFlushedCache = {
+      'eventKey1': [
+        'testData1',
+        'testData2',
+        'testData3',
+        'testData4',
+        'testData5'
+      ]
+    }
+    cacheObj.initCache(logger, configSingleArrayJSON).should.be.fulfilled
+      .then(function () {
+        cacheObj.on('FLUSH', function (cacheEvent, eventResult, eventData) {
+          if (cacheEvent === 'ArrayEventFlush' && JSON.stringify(eventData) === JSON.stringify(finalFlushedCache)) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData4', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData5', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey2'))
+      })
+  })
+})
+
+describe('Testing Multi Event Array cache', function () {
+  let cacheObj = null
+
+  const configMultiArrayJSON = {
+    'setup': 'internal',
+    'storage': {
+      'strategy': 'multiEvent',
+      'policy': {
+        'archiveBy': 'Array',
+        'eventLimit': 5
+      },
+      'byteSizeWatermark': 6000000
+    }
+  }
+
+  beforeEach(function () {
+    cacheObj = new CacheModule()
+  })
+
+  it('Testing the insertion of one event Cache Interface', function (done) {
+    cacheObj.initCache(logger, configMultiArrayJSON).should.be.fulfilled
+      .then(function () {
+        cacheObj.on('INSERT', function (cacheEvent, eventResult, eventData) {
+          if (cacheEvent === 'ArrayCacheCreate' && eventResult === 'OK' && eventData === null) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+      })
+  })
+
+  it('Testing updating a value in the events cache', function (done) {
+    let eventCount = 0
+    cacheObj.initCache(logger, configMultiArrayJSON).should.be.fulfilled
+      .then(function () {
+        cacheObj.on('INSERT', function (cacheEvent, eventResult, eventData) {
+          eventCount++
+          if (cacheEvent === 'ArrayCacheUpdate' && eventResult === 'OK' && eventData === null && eventCount === 2) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey', 'ObjectKey'))
+      })
+  })
+
+  it('Testing the Array Event flush when the event limit has been reached', function (done) {
+    let finalFlushedCache = {
+      'eventKey1': [
+        'testData1',
+        'testData2',
+        'testData3',
+        'testData4',
+        'testData5'
+      ]
+    }
+    cacheObj.initCache(logger, configMultiArrayJSON).should.be.fulfilled
+      .then(function () {
+        cacheObj.on('FLUSH', function (cacheEvent, eventResult, eventData) {
+          if (cacheEvent === 'ArrayEventFlush' && JSON.stringify(eventData) === JSON.stringify(finalFlushedCache)) {
+            done()
+          }
+        })
+
+        Promise.resolve(cacheObj.processRecord(logger, 'testData1', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData4', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData5', 'eventKey1'))
+          .then(() => cacheObj.processRecord(logger, 'testData1', 'eventKey2'))
+          .then(() => cacheObj.processRecord(logger, 'testData2', 'eventKey2'))
       })
   })
 })
