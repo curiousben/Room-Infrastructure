@@ -16,6 +16,8 @@ const util = require('util')
 */
 
 let aggCache = new Aggregator()
+let aggPublisher = null
+let aggSubscriber = null
 
 // Starting the subscriber
 redisMQ.utils.loadJSON(aggregatorConfig)
@@ -25,19 +27,13 @@ redisMQ.utils.loadJSON(aggregatorConfig)
     return
   })
   .then(() => redisMQ.createPublisher(loggerConfig, redisMQConfig, 'WemoService'))
-  .then(publisher => {
-    this.BLETrigger = publisher
+  .then(newPublisher => {
+    aggPublisher = newPublisher
     return
   })
   .then(() => redisMQ.createSubscriber(loggerConfig, redisMQConfig, 'BLEFilter'))
-  .then(subscriber => {
-    subscriber.startConsuming()
-      .catch(error => {
-        throw error
-      })
-    subscriber.on('Error', err => {
-      subscriber.logger.error(utils.format('Failed to consume message, details: %s', err))
-    })
+  .then(newSubscriber => {
+    aggSubscriber = newSubscriber
 
     aggCache.on('INSERT', function (cacheEventType, cacheEventStatus, cacheData) {
       if ('ObjectCacheUpdate' === cacheEventType && 'OK' === cacheEventStatus) {
@@ -56,42 +52,55 @@ redisMQ.utils.loadJSON(aggregatorConfig)
       subscriber.logger.error(utils.format('Aggreator cache encountered an %s error , details %s', errorDesc))
     })
 
+    // Need a way to Nack this message so the flush might need to the send the message through
     aggCache.on('FLUSH', function (cacheEventType, cacheEventStatus, cacheData) {
       if ('ObjectEventFlush' === cacheEventType && 'OK' === cacheEventStatus) {
         Promise.resolve()
           .then(() => {
-
+            Object.keys(cacheData).forEach(bleUUID => {
+              aggPublisher.sendDirect(null, bleUUID)
+                .then(results => {
+                  for (const [key, value] of Object.entries(cacheData[bleUUID])) {
+                    aggSubscriber.ack(value['metaTag'])
+                  }
+                })
+                .catch(error => {
+                  throw error
+                })
+            })
+          })
+          .catch(error => {
+            throw error
           })
       }
     })
 
-    subscriber.on('MessageReady', (metaTag, payload) => {
+    // Need a way to Nack this message so the flush might need to the send the message through
+    aggSubscriber.on('Error', err => {
+      subscriber.logger.error(utils.format('Failed to consume message, details: %s', err))
+    })
+
+    aggSubscriber.on('MessageReady', (metaTag, payload) => {
       Promise.resolve()
-        .then(() => FilterLibrary.filterData(payload, this.filterConfig, subscriber.logger))
+        .then(() => aggCache.processRecord(aggSubscriber.logger, payload, payload['UUID'], payload['node'])
         .catch(error => {
-          subscriber.errorHandler(error, metaTag, payload)
+          aggSubscriber.errorHandler(error, metaTag, payload)
           throw error
         })
-        .then(msgIsFiltered => {
-          if (msgIsFiltered) {
-            return this.BLEFilter.sendDirect(null, Object.assign({}, payload))
-              .then(results => this.BLEFilter.logger.debug('Result from sending filter message: ' + results))
-              .then(() => this.BLEEvents.sendDirect(metaTag, payload))
-              .then(results => this.BLEEvents.logger.debug('Results from sending event message: ' + results))
-          } else {
-            return this.BLEEvents.sendDirect(metaTag, payload)
-              .then(results => this.BLEEvents.logger.debug('Results from sending event message: ' + results))
-          }
-        })
         .catch(error => {
-          subscriber.logger.error('Failed to send BLE event message. Details:\n ' + error.name + ': ' + error.message)
+          subscriber.logger.error(util.format('Failed to process event for Aggregation. Details: %s: %s', error.name, error.message))
         })
       })
+
+    aggSubscriber.startConsuming()
+      .catch(error => {
+        throw error
+      })
   }).catch(err => {
-    if (this.subscriber.logger === undefined) {
-      console.error('----Error: Module error has occured ' + err.name + ': ' + err.message)
+    if (aggSubscriber.logger === undefined) {
+      console.error(util.format('----Error: Module error has occured %s: %s', err.name, err.message))
     } else {
-      this.subscriber.logger.error('Module error has occured ' + err.name + ': ' + err.message)
+      aggSubscriber.logger.error(util.format('Module error has occured %s: %s', err.name, err.message))
     }
   })
 
