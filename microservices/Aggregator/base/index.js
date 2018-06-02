@@ -406,7 +406,7 @@ function cacheInterface () {
             })
         }
       })
-.catch(error => {
+      .catch(error => {
         this.emit('ERROR', 'MultiEventObjectCache', util.format('Failed to process the data event for the cache %s. Details: %s', eventKey, error.message), objCacheValue)
       })
   }

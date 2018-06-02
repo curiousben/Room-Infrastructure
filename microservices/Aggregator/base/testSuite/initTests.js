@@ -27,7 +27,7 @@ describe('Testing single event object cache methods', function () {
   beforeEach(function () {
     cacheObj = new CacheModule()
     cacheObj.on('ERROR', function (errorType, errorDesc, ArrCacheValue) {
-      console.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
+      logger.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
     })
   })
 
@@ -95,7 +95,7 @@ describe('Testing single event object cache methods', function () {
       })
   })
 
-  it("Triggering the cache to flush from the event limit being reached", function (done) {
+  it('Triggering the cache to flush from the event limit being reached', function (done) {
     let finalFlushedCache = {
       'eventKey': {
         'objectCacheKey1': 'testData1',
@@ -118,7 +118,6 @@ describe('Testing single event object cache methods', function () {
           .then(() => cacheObj.processRecord(logger, 'testData3', 'eventKey', 'objectCacheKey3'))
           .then(() => cacheObj.processRecord(logger, 'testData4', 'eventKey', 'objectCacheKey4'))
       })
-
   })
 
   it('Manually flushing the cache after receiving data', function (done) {
@@ -184,7 +183,7 @@ describe('Testing multi event object cache methods', function () {
   beforeEach(function () {
     cacheObj = new CacheModule()
     cacheObj.on('ERROR', function (errorType, errorDesc, ArrCacheValue) {
-      console.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
+      logger.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
     })
   })
 
@@ -215,9 +214,9 @@ describe('Testing multi event object cache methods', function () {
       })
   })
 
-  it("Inserting one new event after a previous event has been encountered", function (done) {
-   let count = 0
-   cacheObj.initCache(logger, configMultiObjectJSON).should.be.fulfilled
+  it('Inserting one new event after a previous event has been encountered', function (done) {
+    let count = 0
+    cacheObj.initCache(logger, configMultiObjectJSON).should.be.fulfilled
       .then(function () {
         cacheObj.on('INSERT', function (cacheEvent, eventResult, eventData) {
           if (cacheEvent === 'ObjectCacheCreate' && eventData === null) {
@@ -315,7 +314,6 @@ describe('Testing multi event object cache methods', function () {
           .then(() => cacheObj.flushCache(logger, 'event', 'PrimaryKey1'))
       })
   })
-
 })
 
 describe('Testing single event array cache methods', function () {
@@ -336,7 +334,7 @@ describe('Testing single event array cache methods', function () {
   beforeEach(function () {
     cacheObj = new CacheModule()
     cacheObj.on('ERROR', function (errorType, errorDesc, ArrCacheValue) {
-      console.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
+      logger.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
     })
   })
 
@@ -397,8 +395,8 @@ describe('Testing single event array cache methods', function () {
       })
   })
 
-  it("Triggering the cache to flush from the event limit being reached", function (done) {
-     let finalFlushedCache = {
+  it('Triggering the cache to flush from the event limit being reached', function (done) {
+    let finalFlushedCache = {
       'eventKey1': [
         'testData1',
         'testData2',
@@ -425,11 +423,10 @@ describe('Testing single event array cache methods', function () {
           .then(() => cacheObj.processRecord(logger, 'testData6', 'eventKey1'))
           .then(() => cacheObj.processRecord(logger, 'testData7', 'eventKey1'))
       })
-   
   })
 
-  it("Manually flushing the cache after receiving data", function (done) {
-     let finalFlushedCache = {
+  it('Manually flushing the cache after receiving data', function (done) {
+    let finalFlushedCache = {
       'eventKey1': [
         'testData1',
         'testData2',
@@ -453,11 +450,10 @@ describe('Testing single event array cache methods', function () {
           .then(() => cacheObj.processRecord(logger, 'testData5', 'eventKey1'))
           .then(() => cacheObj.flushCache(logger, 'cache', null))
       })
-
   })
 
   it('Manually flushing the an event cache after receiving data', function (done) {
-     let finalFlushedCache = {
+    let finalFlushedCache = {
       'eventKey1': [
         'testData1',
         'testData2',
@@ -481,7 +477,6 @@ describe('Testing single event array cache methods', function () {
           .then(() => cacheObj.processRecord(logger, 'testData5', 'eventKey1'))
           .then(() => cacheObj.flushCache(logger, 'event', 'eventKey1'))
       })
-
   })
 })
 
@@ -503,7 +498,7 @@ describe('Testing multi event array cache methods', function () {
   beforeEach(function () {
     cacheObj = new CacheModule()
     cacheObj.on('ERROR', function (errorType, errorDesc, ArrCacheValue) {
-      console.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
+      logger.error('Error encounterd: ' + errorDesc + ' value that caused the error: ' + ArrCacheValue)
     })
   })
 
@@ -535,11 +530,11 @@ describe('Testing multi event array cache methods', function () {
 
         Promise.resolve(cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey1': {'testKey': 'testValue'}, 'testSecondaryKey2': {'testKey': 'testValue'}}}), 'PrimaryKey'))
           .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey2': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey'))
-          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey3': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey'))
+          .then(() => cacheObj.processRecord(logger, JSON.stringify({'testPrimaryKey': {'testSecondaryKey4': {'testKey': 'testValue'}, 'testSecondaryKey3': {'testKey': 'testValue'}}}), 'PrimaryKey'))
       })
   })
 
-  it("Inserting one new event after a previous event has been encountered", function (done) {
+  it('Inserting one new event after a previous event has been encountered', function (done) {
     let eventCount = 0
     cacheObj.initCache(logger, configMultiArrayJSON).should.be.fulfilled
       .then(function () {
@@ -587,7 +582,7 @@ describe('Testing multi event array cache methods', function () {
       })
   })
 
-  it("Manually flushing the cache after receiving data", function(done){
+  it('Manually flushing the cache after receiving data', function (done) {
     let finalFlushedCache = {
       'eventKey1': [
         'testData1',

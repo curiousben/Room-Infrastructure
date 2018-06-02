@@ -23,6 +23,8 @@ docker_build () {
 
 docker_build_error_handling () {
   echo "----ERROR: Failed to create the "$MICROSERVICE" docker image" \
+    && rm docker/"$MICROSERVICEVERSION"/"${MICROSERVICE,,}".testSuite.tar.gz \
+    && echo "----INFO: Removed "$MICROSERVICE" testSuite tarball from docker directory" \
     && rm docker/"$MICROSERVICEVERSION"/"${MICROSERVICE,,}".tar.gz \
     && echo "----INFO: Removed "$MICROSERVICE" tarball from docker directory"
 }

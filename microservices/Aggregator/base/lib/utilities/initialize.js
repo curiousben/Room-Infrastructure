@@ -40,7 +40,6 @@ let InitializationError = require('../errors/initializationError.js')
 let initAggregator = (aggregatorConfig) => {
   return new Promise(
     resolve => {
-
       // Checking to see if all base keys exist and has the right types
       if (!('setup' in aggregatorConfig) || !('storage' in aggregatorConfig)) {
         throw new InitializationError('Aggregator configuration is missing either \'setup\', \'data\', \'storage\', or \'flushStrategy\' for the Aggregator configuration.')

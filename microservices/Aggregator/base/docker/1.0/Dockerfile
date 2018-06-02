@@ -8,7 +8,7 @@ FROM curiousben/redismq-nodejs-amd:latest
 
 COPY ./aggregator.testSuite.tar.gz /tmp/
 
-RUN apt-update \
+RUN apt-get update \
 
 #----INFO: Installing the Aggregator testing Suite App
   && tar -xzvf /tmp/aggregator.testSuite.tar.gz -C /opt/ \
@@ -17,8 +17,8 @@ RUN apt-update \
   && rm -rf /var/lib/apt/lists/* \
 
 #----INFO: Installing the Aggregator testing Suite App
-  && /opt/aggregator/node_modules/.bin/eslint /opt/aggregator/
-  && /opt/aggregator/node_modules/.bin/mocha --recursive /opt/aggregator/
+  && /opt/aggregator/node_modules/.bin/eslint /opt/aggregator/ \
+  && /opt/aggregator/node_modules/.bin/mocha --recursive /opt/aggregator/testSuite
 
 FROM curiousben/redismq-nodejs-amd:latest
 

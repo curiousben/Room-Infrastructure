@@ -18,9 +18,9 @@ main_error_handler () {
 ##
 
 init () {
-  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/init.sh
-  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/package.sh
-  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/docker-build.sh
+  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/utilities/init.sh
+  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/utilities/package.sh
+  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/utilities/docker-build.sh
 }
 
 ##  Desc:
