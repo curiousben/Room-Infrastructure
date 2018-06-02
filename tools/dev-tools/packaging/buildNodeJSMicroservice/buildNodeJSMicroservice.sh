@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -eo pipefail
 
 ##  Desc:
 ##    This method emits the job that failed if everything else fails
@@ -19,9 +18,9 @@ main_error_handler () {
 ##
 
 init () {
-  . $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/utilities/init.sh
-  . $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/utilities/package.sh
-  . $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/utilities/docker-build.sh
+  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/init.sh
+  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/package.sh
+  source $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")/docker-build.sh
 }
 
 ##  Desc:
