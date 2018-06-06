@@ -8,12 +8,12 @@ FROM curiousben/redismq-nodejs-amd:latest
 
 COPY ./aggregator.testSuite.tar.gz /tmp/
 
-RUN apt-get update \
+RUN apk update \
 
 #----INFO: Installing the Aggregator testing Suite App
   && tar -xzvf /tmp/aggregator.testSuite.tar.gz -C /opt/ \
   && npm install --only=dev --prefix /opt/aggregator/ \
-  && rm /tmp/aggregator.testingSuite.tar.gz \
+  && rm /tmp/aggregator.testSuite.tar.gz \
   && rm -rf /var/lib/apt/lists/* \
 
 #----INFO: Installing the Aggregator testing Suite App
@@ -34,7 +34,7 @@ ENV NODE_ENV=production
 COPY ./aggregator.tar.gz /tmp/
 
 #----INFO: Updating package manager and installing packages and installs the Aggregator App
-RUN apt-get update && apt-get install -y vim dumb-init \
+RUN apk update \
   && tar -xzvf /tmp/aggregator.tar.gz -C /opt/ \
   && npm install --prefix /opt/aggregator/ --production \
   && ln -s /opt/aggregator/bin/Aggregator.js /usr/local/bin/Aggregator \

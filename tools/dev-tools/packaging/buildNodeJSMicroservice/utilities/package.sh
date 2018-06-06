@@ -48,6 +48,8 @@ package_testing_tarball () {
 echo "---INFO: Packaging "$MICROSERVICE" testSuite tarball" \
   && mkdir "${MICROSERVICE,,}" \
   && cp package.json "${MICROSERVICE,,}"/ \
+  && cp .eslintignore "${MICROSERVICE,,}"/ \
+  && cp .eslintrc.json "${MICROSERVICE,,}"/ \
   && cp -R lib/ "${MICROSERVICE,,}"/ \
   && cp -R bin/ "${MICROSERVICE,,}"/ \
   && cp -R testSuite/ "${MICROSERVICE,,}"/ \
