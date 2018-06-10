@@ -12,7 +12,11 @@ docker_build () {
   echo "----INFO: Starting to build the "${MICROSERVICE,,}":v"$MICROSERVICEVERSION" ..." \
     && docker build -t curiousben/"${MICROSERVICE,,}" --no-cache docker/"$MICROSERVICEVERSION" \
     && docker tag curiousben/"${MICROSERVICE,,}" curiousben/"${MICROSERVICE,,}":v"$MICROSERVICEVERSION" \
-    && echo "----INFO: ... Built the docker image "${MICROSERVICE,,}":v"$MICROSERVICEVERSION""
+    && echo "----INFO: ... Built the docker image "${MICROSERVICE,,}":v"$MICROSERVICEVERSION"" \
+    && rm docker/"$MICROSERVICEVERSION"/"${MICROSERVICE,,}".testSuite.tar.gz \
+    && echo "----INFO: Removed "$MICROSERVICE" testSuite tarball from docker directory" \
+    && rm docker/"$MICROSERVICEVERSION"/"${MICROSERVICE,,}".tar.gz \
+    && echo "----INFO: Removed "$MICROSERVICE" tarball from docker directory"
 }
 
 ##  Desc:

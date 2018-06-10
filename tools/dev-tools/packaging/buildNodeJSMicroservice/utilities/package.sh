@@ -47,6 +47,7 @@ set -eo pipefail
 package_testing_tarball () {
 echo "---INFO: Packaging "$MICROSERVICE" testSuite tarball" \
   && mkdir "${MICROSERVICE,,}" \
+  && cp index.js "${MICROSERVICE,,}"/ \
   && cp package.json "${MICROSERVICE,,}"/ \
   && cp .eslintignore "${MICROSERVICE,,}"/ \
   && cp .eslintrc.json "${MICROSERVICE,,}"/ \
@@ -103,6 +104,8 @@ move_testing_tarball_error_handling () {
 package_src_tarball () {
   echo "---INFO: Packaging "$MICROSERVICE" tarball" \
     && mkdir "${MICROSERVICE,,}" \
+    && cp index.js "${MICROSERVICE,,}"/ \
+    && cp startMicroservice.sh "${MICROSERVICE,,}"/ \
     && cp package.json "${MICROSERVICE,,}"/ \
     && cp -R lib/ "${MICROSERVICE,,}"/ \
     && cp -R bin/ "${MICROSERVICE,,}"/ \
