@@ -8,17 +8,13 @@ FROM curiousben/redismq-nodejs-amd:latest
 
 COPY ./aggregator.testSuite.tar.gz /tmp/
 
+#----INFO: Installing the Aggregator testing Suite App and testing the microservice
 RUN apk update --no-cache \
-
-#----INFO: Installing the Aggregator testing Suite App
   && tar -xzvf /tmp/aggregator.testSuite.tar.gz -C /opt/ \
   && cd /opt/aggregator \
   && npm install --only=dev \
   && rm /tmp/aggregator.testSuite.tar.gz \
-
-#----INFO: Installing the Aggregator testing Suite App
-  && /opt/aggregator/node_modules/.bin/eslint /opt/aggregator/ \
-  && /opt/aggregator/node_modules/.bin/mocha --recursive /opt/aggregator/testSuite
+  && npm test
 
 FROM curiousben/redismq-nodejs-amd:latest
 
@@ -39,7 +35,6 @@ RUN apk update --no-cache \
   && tar -xzvf /tmp/aggregator.tar.gz -C /opt/ \
   && cd /opt/aggregator \
   && npm install \
-  && ln -s /opt/aggregator/startMicroservice.sh /usr/local/bin/aggregator \
   && rm /tmp/aggregator.tar.gz \
   && npm cache verify
 
@@ -50,7 +45,7 @@ WORKDIR /opt/aggregator/
 ENTRYPOINT ["dumb-init","--"]
 
 #----INFO: Actual Command that intializes the microservice
-CMD ["aggregator"]
+CMD ["npm","start"]
 
 #----INFO: Example docker run command
 #---- $ docker run -d --name aggregator -v <path/to/config/directory>:/etc/opt/aggregator/ curiousben/aggregator

@@ -1,11 +1,11 @@
 {
   "name": "Aggregator",
   "version": "1.0.0",
+  "repository": "github:curiousben/home-infrastructure/microservices/Aggregator/base/",
   "description": "This Microservice collects messages and then acts when a certain condition is met",
-  "main": "./index.js",
   "scripts": {
-    "build": "./build.sh",
-    "start": "node ./bin/aggregator.sh"
+    "start": "./scripts/startMicroservice.sh",
+    "test": "./scripts/testMicroservice.sh"
   },
   "author": "Benjamin Smith",
   "license": "MIT",
