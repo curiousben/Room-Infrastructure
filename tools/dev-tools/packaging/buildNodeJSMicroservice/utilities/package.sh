@@ -48,6 +48,7 @@ package_testing_tarball () {
 echo "---INFO: Packaging "$MICROSERVICE" testSuite tarball" \
   && mkdir "${MICROSERVICE,,}" \
   && cp index.js "${MICROSERVICE,,}"/ \
+  && cp scripts/testMicroservice.sh --parent "${MICROSERVICE,,}"/ \
   && cp package.json "${MICROSERVICE,,}"/ \
   && cp .eslintignore "${MICROSERVICE,,}"/ \
   && cp .eslintrc.json "${MICROSERVICE,,}"/ \
@@ -105,7 +106,7 @@ package_src_tarball () {
   echo "---INFO: Packaging "$MICROSERVICE" tarball" \
     && mkdir "${MICROSERVICE,,}" \
     && cp index.js "${MICROSERVICE,,}"/ \
-    && cp startMicroservice.sh "${MICROSERVICE,,}"/ \
+    && cp scripts/startMicroservice.sh --parent "${MICROSERVICE,,}"/ \
     && cp package.json "${MICROSERVICE,,}"/ \
     && cp -R lib/ "${MICROSERVICE,,}"/ \
     && cp -R bin/ "${MICROSERVICE,,}"/ \
