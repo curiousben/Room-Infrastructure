@@ -4,9 +4,9 @@
 
 const redisMQ = require('redisMQ')
 const Aggregator = require('../index.js')
-const redisMQConfig = '/etc/opt/Aggregator/redisMQ.config'
-const loggerConfig = '/etc/opt/Aggregator/logger.config'
-const aggregatorConfig = '/etc/opt/Aggregator/Aggregator.config'
+const redisMQConfig = '/opt/aggregator/config/redisMQ.config'
+const loggerConfig = '/opt/aggregator/config/logger.config'
+const aggregatorConfig = '/opt/aggregator/config/aggregator.config'
 const util = require('util')
 
 // Example payload
@@ -98,7 +98,7 @@ redisMQ.utils.loadJSON(aggregatorConfig)
         throw error
       })
   }).catch(err => {
-    if (aggSubscriber.logger === undefined) {
+    if (aggSubscriber === null || aggSubscriber.logger === undefined) {
       console.error(util.format('----Error: Module error has occured %s: %s', err.name, err.message))
     } else {
       aggSubscriber.logger.error(util.format('Module error has occured %s: %s', err.name, err.message))
