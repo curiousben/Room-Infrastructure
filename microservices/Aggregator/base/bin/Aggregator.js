@@ -22,19 +22,17 @@ let aggPublisher = null
 let aggSubscriber = null
 
 // Starting the subscriber
-redisMQ.utils.loadJSON(aggregatorConfig)
-  .then(configJSON => aggCache.initCache(configJSON))
-  .then(config => {
-    this.filterConfig = config
-  })
-  .then(() => redisMQ.createPublisher(loggerConfig, redisMQConfig, 'WemoService'))
+redisMQ.createPublisher(loggerConfig, redisMQConfig, 'WemoService')
   .then(newPublisher => {
     aggPublisher = newPublisher
   })
   .then(() => redisMQ.createSubscriber(loggerConfig, redisMQConfig, 'BLEFilter'))
   .then(newSubscriber => {
     aggSubscriber = newSubscriber
-
+  })
+  .then(() => redisMQ.utils.loadJSON(aggregatorConfig))
+  .then(configJSON => aggCache.initCache(aggSubscriber.logger, configJSON))
+  .then(() => {
     aggCache.on('INSERT', function (cacheEventType, cacheEventStatus, cacheData) {
       if (cacheEventType === 'ObjectCacheUpdate' && cacheEventStatus === 'OK') {
         let metaTag = JSON.parse(cacheData)['metaTag']
@@ -54,7 +52,7 @@ redisMQ.utils.loadJSON(aggregatorConfig)
 
     // Need a way to Nack this message so the flush might need to the send the message through
     aggCache.on('FLUSH', function (cacheEventType, cacheEventStatus, cacheData) {
-      if (cacheEventType === 'ObjectEventFlush' && cacheEventStatus === 'OK') {
+      if (cacheEventType === 'ObjectCacheFlush' && cacheEventStatus === 'OK') {
         Promise.resolve()
           .then(() => {
             Object.keys(cacheData).forEach(bleUUID => {
@@ -62,7 +60,7 @@ redisMQ.utils.loadJSON(aggregatorConfig)
                 .then(results => {
                   for (const [key, value] of Object.entries(cacheData[bleUUID])) {
                     aggSubscriber.logger.debug(util.format("Acknowledging the BLE sensor data from the node '%s'", key))
-                    aggSubscriber.ack(value['metaTag'])
+                    aggSubscriber.acknowledge(JSON.parse(value)['metaTag'])
                   }
                 })
                 .catch(error => {
@@ -83,7 +81,7 @@ redisMQ.utils.loadJSON(aggregatorConfig)
 
     aggSubscriber.on('MessageReady', (metaTag, payload) => {
       Promise.resolve()
-        .then(() => aggCache.processRecord(aggSubscriber.logger, payload, payload['UUID'], payload['node']))
+        .then(() => aggCache.processRecord(aggSubscriber.logger, JSON.stringify({'payload': payload, 'metaTag': metaTag}), payload['UUID'], payload['node']))
         .catch(error => {
           aggSubscriber.errorHandler(error, metaTag, payload)
           throw error
@@ -100,7 +98,11 @@ redisMQ.utils.loadJSON(aggregatorConfig)
   }).catch(err => {
     if (aggSubscriber === null || aggSubscriber.logger === undefined) {
       console.error(util.format('----Error: Module error has occured %s: %s', err.name, err.message))
+      // Possible that logs could get squashed when using process.exit(1) please look into this
+      process.exit(1)
     } else {
       aggSubscriber.logger.error(util.format('Module error has occured %s: %s', err.name, err.message))
+      // Possible that logs could get squashed when using process.exit(1) please look into this
+      process.exit(1)
     }
   })

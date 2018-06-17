@@ -42,7 +42,7 @@ let initAggregator = (aggregatorConfig) => {
     resolve => {
       // Checking to see if all base keys exist and has the right types
       if (!('setup' in aggregatorConfig) || !('storage' in aggregatorConfig)) {
-        throw new InitializationError('Aggregator configuration is missing either \'setup\', \'data\', \'storage\', or \'flushStrategy\' for the Aggregator configuration.')
+        throw new InitializationError('Aggregator configuration is missing either \'setup\' or \'storage\' for the Aggregator configuration.')
       }
       // Setup configuration
       const setupSection = aggregatorConfig['setup']
