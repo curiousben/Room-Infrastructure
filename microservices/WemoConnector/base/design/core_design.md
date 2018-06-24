@@ -2,11 +2,13 @@
 
 The purpose of this microservice is make a pluggable interface with WeMo devices. This microservice will allow redisMQ infrastructure to interact with WeMo devices so that they can be triggered by a host of events.
 
-## Core Design:
+## Core Design Requeriments:
 
 1. The Connector will have handlers for each type of WemoDevice with corresponding configuration files. These handlers will be pluggable so each will have its own module.
-2. External Microservices can trigger a "sleep mode" where the connector will not accept any activation events, until it receives a "wake up" message.
-3. The Connector will automatically turn off all devices after a configured set of time has passed.
+2. The Connector will automatically turn off all devices and not accept anymore activation requests when the "sleep mode" has been activated. Wemo devices will resume normal operations when a "wake up" signal is received.
+3. When the connector initializes the connector will gather and keep the current state of the configured device in memory.
+4. If the connector loses connnection all devices states will be uneffected.
+5. The Connector is event driven meaning if no activation events are received then the connector will turn off all lights.
 
 ## Core Design Steps:
 
