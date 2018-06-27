@@ -12,17 +12,52 @@ The purpose of this microservice is make a pluggable interface with WeMo devices
 
 ## Core Design Steps:
 
-1. Initialize each handler until it has detected all of its known Wemo devices.**This step will not be completed until all devices are discovered**
-2. 
+### Initialization:
 
-### Initialization
-1.
+1. Check passed in Wemo configuration
+2. Load Wemo Library configuration
+3. Read configuration and determine which handler is being loaded or error out if either not handlers are specified or the handler that is specified does not exist
+4. Initialize each handler until each handler has been successfully loaded for all configured devices
+  1. Check passed in handler configuration
+  2. Load handler configuration
+  3. Discover device that the handler is configured to
+5. Listen for activation events
+
+### Running State:
+
+1. IF event received activate AND a "wake up" signal has last been received:
+  1. IF lights are not turned on:
+    1. Turn on lights
+    2. Remember switch state
+2. IF "sleep mode" signal is received:
+  1. IF lights are turned on:
+    1. Turn off lights
+    2. Don't accept BLE activation events
+3. IF "wake up" signal is received:
+  1. Accept activation events
 
 ## Design Constraints
-1. 
+1. Wemo Connector will turn off lights after a set amount of time.
+2. Wemo Connector library is community made not official.
+3. "Wake up" and "sleep mode" modes override BLE activation events.
 
 ## Decision about design Constrains
-1. 
+1. If a kill signal is requireed from external sources then we would need another statefull microservice external to this connector which would increase the complexcity beyond the Aggregator. While it would lead to a more decoupled process the Microservice that would be needed for this would be less generic and would be mor error prone.
+2. Lack of official support drives this decision. If or when an official library is created, I will use that library.
+3. BLE events are always being received and thus the connector will always turn on lights even at 2am. Since humans like their sleep the Wemo Conenctor needs to respect a mammal's need to get some shuteye
 
 ## Library Layout
 
+lib
+├── handlers
+│   ├── lightSwtich
+│   │   ├── lightSwtich.js
+│   └── link
+│       ├── link.js
+│       └── linkHandlers
+│           └── lightBulb.js
+├── errors
+│   ├── WemoConnectorError.js
+│   └── initializationError.js
+└── utilities
+    └── initialize.js
