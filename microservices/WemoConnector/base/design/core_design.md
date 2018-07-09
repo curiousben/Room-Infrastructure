@@ -14,18 +14,24 @@ The purpose of this microservice is make a pluggable interface with WeMo devices
 
 ### Initialization:
 
-1. Check passed in Wemo configuration
-2. Load Wemo Library configuration
-3. Read configuration and determine which handler is being loaded or error out if either not handlers are specified or the handler that is specified does not exist
-4. Initialize each handler until each handler has been successfully loaded for all configured devices
-  1. Check passed in handler configuration
-  2. Load handler configuration
-  3. Discover device that the handler is configured to
-5. Listen for activation events
+1. Initialize WemoConnector Library pass in configurations
+2. Initialize WemoConnector configuration
+3. Validate passed in Wemo configuration
+4. Load handlers
+5. Until there the same number of loaded devices in the active devices map as there are in the config then do:
+  1. Pass in handler wemo client, config, and deviceInfo
+  2. load config data
+  3. get client from deviceInfo
+  4. get binary state of switch
+  5. if off turn it on
+  6. set last time of change to current time
+6. Get discoveryInterval from config object and initialize the device discovery timer
+7. Get refreshInterval from config object and initialize the device refresh timer
+8. Listen for activation events
 
 ### Running State:
 
-1. IF event received activate AND a "wake up" signal has last been received:
+1. IF activate event received AND a "wake up" signal has last been received:
   1. IF lights are not turned on:
     1. Turn on lights
     2. Remember switch state
@@ -40,24 +46,35 @@ The purpose of this microservice is make a pluggable interface with WeMo devices
 1. Wemo Connector will turn off lights after a set amount of time.
 2. Wemo Connector library is community made not official.
 3. "Wake up" and "sleep mode" modes override BLE activation events.
+4. When activating the Wemo Connector to turn on ALL devices are turned on
 
 ## Decision about design Constrains
 1. If a kill signal is requireed from external sources then we would need another statefull microservice external to this connector which would increase the complexcity beyond the Aggregator. While it would lead to a more decoupled process the Microservice that would be needed for this would be less generic and would be mor error prone.
 2. Lack of official support drives this decision. If or when an official library is created, I will use that library.
-3. BLE events are always being received and thus the connector will always turn on lights even at 2am. Since humans like their sleep the Wemo Conenctor needs to respect a mammal's need to get some shuteye
+3. BLE events are always being received and thus the connector will always turn on lights even at 2am. Since humans like their sleep the Wemo Conenctor needs to respect a mammal's need to get some shuteye.
+4. For now this keeps the design simple and while use cases might arise in the future, for now when someone has authorized activation rights everything should turn on.
 
 ## Library Layout
 
-lib
-├── handlers
-│   ├── lightSwtich
-│   │   ├── lightSwtich.js
-│   └── link
-│       ├── link.js
-│       └── linkHandlers
-│           └── lightBulb.js
+lib/
 ├── errors
-│   ├── WemoConnectorError.js
-│   └── initializationError.js
+│   ├── initializationError.js
+│   └── wemoConnectorError.js
+├── handlers
+│   └── wemoSwitch.js
+├── processTimers
+│   ├── deviceDiscovery.js
+│   └── deviceStateRefresher.js
 └── utilities
-    └── initialize.js
+    └── wemoConfig.js
+
+4 directories, 6 files
+
+# References
+## Supplemental documentation
+
+1. Private members of javascript "classes" and general structure of the classes
+  1. Blog that initially guided the developement of the classes in this library. [Link](https://medium.com/front-end-hacking/private-methods-in-es6-and-writing-your-own-db-b2e30866521f)
+  2. Offical documentation of Javascript Classes. [Link](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
+  3. Offical documentation of Symbol primative types in Javascript. [Link](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)
+
