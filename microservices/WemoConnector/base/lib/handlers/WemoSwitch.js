@@ -2,11 +2,10 @@
 
 /*
 *
-*
-*
-*
-*
-*
+* This Javascript "class" is a handler for a generic Wemo switch. 
+*   The class allows the library to handle N-number of Wemo
+*   in a well defined way. Some exposed methods that is class
+*   exposes are changeDeviceState and timeLastChanged
 *
 */
 
@@ -26,7 +25,8 @@ const _timeLastChange = Symbol('timeLastChange')
 const _getDeviceClient = Symbol('getDeviceClient')
 const _loadSwitchConfig = Symbol('loadSwitchConfig')
 const _setTimeLastChanged = Symbol('setTimeLastChanged')
-const _getbinaryState = Symbol('getbinaryState')
+const _getBinaryState = Symbol('getBinaryState')
+const _setBinaryState = Symbol('setBinaryState')
 
 class WemoSwitch extends EventEmitter {
 
@@ -40,6 +40,19 @@ class WemoSwitch extends EventEmitter {
     // Gets the Device Client
     this[_deviceClient] = this[_getDeviceClient](wemoConnection, deviceInfo)
   }
+
+  /*
+  * |======== PRIVATE ========|
+  * Description: This private method gets a promisified client
+  *   from the main wemoConnection and the returned deviceInfo
+  * Args: wemoConnection - This is the main WemoConnection made
+  *         outside of this class
+  *       deviceInfo - This is the deviceinfo that has been
+  *         discovered by the  main Wemo connection
+  * Returns: client - This is a promisified Wemo Client that is
+  *           used to interact with the Wemo Device
+  * Throws: N/A
+  */
 
   [_getDeviceClient](wemoConnection, deviceInfo) {
     // Create a wemo client from deviceInfo
@@ -61,8 +74,9 @@ class WemoSwitch extends EventEmitter {
   }
 
   /*
+  * |======== PRIVATE ========|
   * Description: This private method sets the Wemo Handler's configuration
-  * Args: N/A
+  * Args: configObj - This Object is the configuration for the specific handler
   * Returns: N/A
   * Throws: N/A
   */
@@ -76,8 +90,10 @@ class WemoSwitch extends EventEmitter {
   }
 
   /*
-  * Description: This private setter method sets the passed in Date to the last date changed
-  * Args: N/A
+  * |======== PRIVATE ========|
+  * Description: This private setter method sets the passed in Date to the
+  *   last date changed for the handler
+  * Args: date - This is a Javascript Date object
   * Returns: N/A
   * Throws: N/A
   */
@@ -88,68 +104,132 @@ class WemoSwitch extends EventEmitter {
   }
 
   /*
+  * |======== PRIVATE ========|
+  * Description: This private method sets the binary state of the connected device
+  * Args: desiredState - This is the integer that the represents the desired state
+  *   of the Wemo Deivice. 1 is on and 0 is off.
+  * Returns: response - This is the Response from the soap call to the Wemo Device
+  * Throws: WemoConnectorError - A custom exception that wraps ANY exception that
+  *   is throw while trying to CHANGE the state of the device. This exception is
+  *   only thrown when the number of configured retris has been reached.
+  */
+
+  [_setBinaryState](desiredState) {
+    return new Promise(
+      (resolve) => {
+        let hasNotSetBinaryState = true
+        let result = null
+        while(hasNotSetBinaryState) { // Keeps trying to change the state of the device
+          Promise.resolve()
+            .then(() => this[_deviceClient].setBinaryState(desiredState))
+            .then(callResponse => { // A successful change of state has been performed update time last changed and 
+              hasNotSetBinaryState = false
+              this[_retryCount] = 0 // Reset retry count since the device is reachable
+              this[_setTimeLastChanged](new Date())
+              result = callResponse
+            })
+            .throw(err => {
+              let errorDesc = `The client encountered an error while trying to change the state to ${desiredState}, details ${err.message}`
+              this[_logger].error(errorDesc)
+              if (this[_retryLimit] === this[_retryCount]) { // The maximum number of configured retries has been reached
+                this[_retryCount] = 0
+                throw new WemoConnectorError(errorDesc)
+              } else { // The maximum number of configured retries has NOT been reached
+                this[_retryCount]++
+              }
+            })
+        }
+        resolve(result)
+      })
+      .catch(err => { // Propagates exception outside of the promise
+        throw err
+      })
+  }
+
+  /*
+  * |======== PRIVATE ========|
   * Description: This private method gets the binary state of the connected device
   * Args: N/A
   * Returns: binaryState - This Integer is the current binary state of the device
-  * Throws: N/A
+  * Throws: WemoConnectorError - A custom exception that wraps ANY exception that
+  *   is throw while trying to GET the state of the device. This exception is only
+  *   thrown when the number of configured retris has been reached.
   */
 
   [_getBinaryState]() {
     // Returns the binary state of the switch
-    return this[_deviceClient].getBinaryState()
+    return new Promise(
+      (resolve) => {
+        let hasNotReceivedState = true
+        let result = null
+        while(hasNotReceivedState) { // Keeps trying to change the state of the device
+          Promise.resolve()
+            .then(() => this[_deviceClient].getBinaryState())
+            .then(callResponse => { // A successful change of state has been performed update time last changed and
+              hasReceivedState = false
+              this[_retryCount] = 0 // Reset retry count since the device is reachable
+              result = callResponse
+            })
+            .catch(err => {
+              let errorDesc = `An error has been encountered while trying to get the state of the switch, details ${err.message}`
+              this[_logger].error(errorDesc)
+              if (this[_retryLimit] === this[_retryCount]) { // The maximum number of configured retries has been reached
+                this[_retryCount] = 0
+                throw new WemoConnectorError(errorDesc)
+              } else { // The maximum number of configured retries has NOT been reached
+                this[_retryCount]++
+              }
+            })
+        }
+        resolve(result)
+    })
+    .catch(err => { // Propagates exception outside of the promise
+      throw err
+    })
   }
 
   /*
+  * |======== PUBLIC ========|
   * Description: This method changes the binary state of the switch after
   *   checking to see if the switch needs to be changed.
   * Args: desiredState - This Integer is desired state of the switch
-  * Returns: 
+  * Returns: result - The Wemo response to a successful state change
   * Throws: N/A
   */
 
-  await set binaryState(desiredState) {
-    let currentState = this[_getBinaryState]()
-    let needsToChanged = false
-    if (desiredState === 1 ) { // Turn on
-      if (currentState !== 1) { // Switch is currently off needs to change
-        needsToChanged = true 
-      }
-    } else { // Turn off
-      if (currentState !== 0) { // Switch is currenly on needs to change
-        needsToChanged = true
-      }
-    }
+  async changeDeviceState(desiredState) {
+    let result = null
+    try {
+      let currentState =  await this[_getBinaryState]()
+      let needsToChanged = false
 
-    if (needsToChanged) {
-      hasNotChanged = true
-      while(hasNotChanged) {
-        this[_deviceClient].setBinaryState(desiredState)
-          .then(response => {
-            hasNotChanged = false
-            this[_retryCount] = 0
-          })
-          .throw(err => {
-            let errorDesc = `The client encountered an error while trying to change the state to ${desiredState}, details ${err}`
-            if (this[_retryLimit] === this[_retryCount]) {
-              const wemoError = new WemoConnectorError(errorDesc)
-              this.emit('WemoError', wemoError)
-              this[_retryCount] = 0
-              return
-            } else {
-              this[_retryCount]++
-            }
-            this[_logger].error(errorDesc)
-          })
-        this[_setTimeLastChanged](new Date())
+      // Determines if the switches states needs to be changed
+      if (desiredState === 1 ) { // Turn on
+        if (currentState !== 1) { // Switch is currently off needs to change
+          needsToChanged = true 
+        }
+      } else { // Turn off
+        if (currentState !== 0) { // Switch is currenly on needs to change
+          needsToChanged = true
+        }
       }
+
+      // Switch needs to be changed sets the new Binary state
+      if (needsToChanged) {
+        result = await this[_setBinaryState](desiredState)
+      }
+    } catch (err){
+      this.emit('WemoConnectorError', err)
     }
-    return
+    return result
   }
 
   /*
+  * |======== PRIVATE ========|
   * Description: This is a public getter of the last time the binary state changed
   * Args: N/A
-  * Returns: N/A
+  * Returns: date - This is the last time object (Date) that was passed in on a
+  *   successful state change for the WemoConnector
   * Throws: N/A
   */
 

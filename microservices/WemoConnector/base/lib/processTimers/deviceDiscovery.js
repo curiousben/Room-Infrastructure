@@ -41,6 +41,6 @@ class DeviceDiscovery extends EventEmitter {
   }
 
   startDeviceDiscovery() {
-    this[_intervalPromise]
+    this[_intervalPromise]()
   }
 }
