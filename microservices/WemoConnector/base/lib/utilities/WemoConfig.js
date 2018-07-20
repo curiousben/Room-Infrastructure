@@ -53,7 +53,7 @@ class WemoConfig {
     return this[_deviceHandlers].length
   }
 
-  get handlerConfig(fname) {
+  get findHandlerConfig(fname) {
     return this[_deviceHandlers].find(function(handler){
       return handler['friendlyName'] === fname
     })

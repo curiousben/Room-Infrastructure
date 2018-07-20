@@ -56,7 +56,7 @@ class WemoSwitch extends EventEmitter {
 
   [_getDeviceClient](wemoConnection, deviceInfo) {
     // Create a wemo client from deviceInfo
-    let client = util.promisify(wemoConnection.client(deviceInfo))
+    let client = wemoConnection.client(deviceInfo)
 
     // Set error event handler
     client.on('error', fucntion(err) {
@@ -114,36 +114,25 @@ class WemoSwitch extends EventEmitter {
   *   only thrown when the number of configured retris has been reached.
   */
 
-  [_setBinaryState](desiredState) {
-    return new Promise(
-      (resolve) => {
-        let hasNotSetBinaryState = true
-        let result = null
-        while(hasNotSetBinaryState) { // Keeps trying to change the state of the device
-          Promise.resolve()
-            .then(() => this[_deviceClient].setBinaryState(desiredState))
-            .then(callResponse => { // A successful change of state has been performed update time last changed and 
-              hasNotSetBinaryState = false
-              this[_retryCount] = 0 // Reset retry count since the device is reachable
-              this[_setTimeLastChanged](new Date())
-              result = callResponse
-            })
-            .throw(err => {
-              let errorDesc = `The client encountered an error while trying to change the state to ${desiredState}, details ${err.message}`
-              this[_logger].error(errorDesc)
-              if (this[_retryLimit] === this[_retryCount]) { // The maximum number of configured retries has been reached
-                this[_retryCount] = 0
-                throw new WemoConnectorError(errorDesc)
-              } else { // The maximum number of configured retries has NOT been reached
-                this[_retryCount]++
-              }
-            })
+  async [_setBinaryState](desiredState) {
+    let hasNotSetBinaryState = true
+    while(hasNotSetBinaryState) { // Keeps trying to change the state of the device
+      try {
+        let wemoResponse = await this[_deviceClient].setBinaryState(desiredState)) // A successful change of state has been performed update time last changed and 
+        hasNotSetBinaryState = false
+        this[_retryCount] = 0 // Reset retry count since the device is reachable
+        this[_setTimeLastChanged](new Date())
+        return wemoResponse
+      } catch (error) {
+        let errorDesc = `The client encountered an error while trying to change the state to ${desiredState}, details ${error.message}`
+        this[_logger].error(errorDesc)
+        if (this[_retryLimit] === this[_retryCount]) { // The maximum number of configured retries has been reached
+          this[_retryCount] = 0
+          throw new WemoConnectorError(errorDesc)
+        } else { // The maximum number of configured retries has NOT been reached
+          this[_retryCount]++
         }
-        resolve(result)
-      })
-      .catch(err => { // Propagates exception outside of the promise
-        throw err
-      })
+      }
   }
 
   /*
@@ -156,36 +145,26 @@ class WemoSwitch extends EventEmitter {
   *   thrown when the number of configured retris has been reached.
   */
 
-  [_getBinaryState]() {
+  async [_getBinaryState]() {
     // Returns the binary state of the switch
-    return new Promise(
-      (resolve) => {
-        let hasNotReceivedState = true
-        let result = null
-        while(hasNotReceivedState) { // Keeps trying to change the state of the device
-          Promise.resolve()
-            .then(() => this[_deviceClient].getBinaryState())
-            .then(callResponse => { // A successful change of state has been performed update time last changed and
-              hasReceivedState = false
-              this[_retryCount] = 0 // Reset retry count since the device is reachable
-              result = callResponse
-            })
-            .catch(err => {
-              let errorDesc = `An error has been encountered while trying to get the state of the switch, details ${err.message}`
-              this[_logger].error(errorDesc)
-              if (this[_retryLimit] === this[_retryCount]) { // The maximum number of configured retries has been reached
-                this[_retryCount] = 0
-                throw new WemoConnectorError(errorDesc)
-              } else { // The maximum number of configured retries has NOT been reached
-                this[_retryCount]++
-              }
-            })
+    let hasNotReceivedState = true
+    while(hasNotReceivedState) { // Keeps trying to change the state of the device
+      try {
+        let wemoResponse = await this[_deviceClient].getBinaryState()) // A successful change of state has been performed update time last changed and
+        hasReceivedState = false
+        this[_retryCount] = 0 // Reset retry count since the device is reachable
+        return wemoResponse 
+      } catch(error) {
+        let errorDesc = `An error has been encountered while trying to get the state of the switch, details ${err.message}`
+        this[_logger].error(errorDesc)
+        if (this[_retryLimit] === this[_retryCount]) { // The maximum number of configured retries has been reached
+          this[_retryCount] = 0
+          throw new WemoConnectorError(errorDesc)
+        } else { // The maximum number of configured retries has NOT been reached
+          this[_retryCount]++
         }
-        resolve(result)
-    })
-    .catch(err => { // Propagates exception outside of the promise
-      throw err
-    })
+      }
+    }
   }
 
   /*

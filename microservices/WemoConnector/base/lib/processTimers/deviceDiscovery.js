@@ -32,7 +32,7 @@ class DeviceDiscovery extends EventEmitter {
     await setIntervalPromise(this[_pollingInterval])
       .then(() => {
         let currentTime = new Date()
-        this.emit("Device search", currentTime)
+        this.emit("DeviceDiscover", currentTime)
       })
       .catch(err => {
         let errorDesc = `Device discovery process failed, details ${err.message}`
