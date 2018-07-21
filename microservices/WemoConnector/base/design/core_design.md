@@ -31,16 +31,24 @@ The purpose of this microservice is make a pluggable interface with WeMo devices
 
 ### Running State:
 
-1. IF activate event received AND a "wake up" signal has last been received:
+#### Activation event and WemoConnector mode logic
+
+1. IF activate event received AND in "awake" mode:
   1. IF lights are not turned on:
     1. Turn on lights
     2. Remember switch state
-2. IF "sleep mode" signal is received:
-  1. IF lights are turned on:
-    1. Turn off lights
-    2. Don't accept BLE activation events
-3. IF "wake up" signal is received:
-  1. Accept activation events
+2. IF activate event received AND in "sleep" mode:
+  1. Ignore activation mode
+
+#### WemoConnector mode logic
+
+1. IF mode received:
+  1. set mode
+
+#### StateRefresher Logic
+
+1. IF a 'SwitchOff' event is recieved:
+  1. Turn off all devices
 
 ## Design Constraints
 1. Wemo Connector will turn off lights after a set amount of time.

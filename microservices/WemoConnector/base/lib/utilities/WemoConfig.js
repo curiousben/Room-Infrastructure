@@ -17,7 +17,7 @@ const _validateWemoConfig = Symbol('validateWemoConfig')
 
 // Private variables for the Wemo Configuration class
 const _deviceHandlers= Symbol('deviceHandlers') // Array
-const _discoveryInterval = Symbol('discoveryInterval') // Integer
+const _scannerInterval = Symbol('scannerInterval') // Integer
 const _refreshInterval = Symbol('refreshInterval') // Integer
 
 class WemoConfig {
@@ -29,8 +29,8 @@ class WemoConfig {
   [_validateWemoConfig](configObj) {
 
     // Checking the surface level keys in the configuration
-    if (!('deviceHandlers' in configObj) || !('discoveryInterval' in configObj) || !('refreshInterval' in configObj)){
-      let errorDesc = 'The keys \'deviceHandlers\', \'statePollingIntervalSec\', or \'discoveryIntervalSec\' have not been found in the configuration object'
+    if (!('deviceHandlers' in configObj) || !('scannerInterval' in configObj) || !('refreshInterval' in configObj)){
+      let errorDesc = 'The keys \'deviceHandlers\', \'statePollingIntervalSec\', or \'scannerIntervalSec\' have not been found in the configuration object'
       throw new InitializationError(errorDesc)
     }
 
@@ -45,7 +45,7 @@ class WemoConfig {
 
     // loading the configurations into the private variables
     this[_deviceHandlers] = handlers
-    this[_discoveryInterval] = configObj['discoveryInterval']
+    this[_scannerInterval] = configObj['scannerInterval']
     this[_refreshInterval] = configObj['refreshInterval']
   }
 
@@ -63,8 +63,8 @@ class WemoConfig {
     return this[_refreshInterval]
   }
 
-  get discoveryInterval() {
-    return this[_discoveryInterval]
+  get scannerInterval() {
+    return this[_scannerInterval]
   }
 }
 

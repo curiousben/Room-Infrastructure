@@ -62,7 +62,7 @@ class WemoSwitch extends EventEmitter {
     client.on('error', fucntion(err) {
       let errorDesc = `The client encountered an error, details ${err}`
       this[_logger].error(errorDesc)
-      this.emit('WemoError', wemoError)
+      this.emit('WemoHandlerException', wemoError)
     })
 
     // Set the change of binary state handler
@@ -171,7 +171,7 @@ class WemoSwitch extends EventEmitter {
   * |======== PUBLIC ========|
   * Description: This method changes the binary state of the switch after
   *   checking to see if the switch needs to be changed.
-  * Args: desiredState - This Integer is desired state of the switch
+  * Args: desiredState - This String is desired state of the switch
   * Returns: result - The Wemo response to a successful state change
   * Throws: N/A
   */
@@ -183,22 +183,22 @@ class WemoSwitch extends EventEmitter {
       let needsToChanged = false
 
       // Determines if the switches states needs to be changed
-      if (desiredState === 1 ) { // Turn on
-        if (currentState !== 1) { // Switch is currently off needs to change
+      if (desiredState === 'On') { // Turn on
+        if (currentState !== 'On') { // Switch is currently off needs to change
           needsToChanged = true 
         }
       } else { // Turn off
-        if (currentState !== 0) { // Switch is currenly on needs to change
+        if (currentState !== 'Off') { // Switch is currenly on needs to change
           needsToChanged = true
         }
       }
 
       // Switch needs to be changed sets the new Binary state
       if (needsToChanged) {
-        result = await this[_setBinaryState](desiredState)
+        result = await this[_setBinaryState]((desiredState === 'On') ? 1 : 0)
       }
     } catch (err){
-      this.emit('WemoConnectorError', err)
+      this.emit('WemoHandlerException', err)
     }
     return result
   }
