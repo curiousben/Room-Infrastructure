@@ -12,6 +12,11 @@ The purpose of this microservice is make a pluggable interface with WeMo devices
 
 ## Core Design Steps:
 
+### HandlerLoader
+
+1. Get all handler javascript classes, if fail, then fail process
+2. Construct a hashmap which returns new objects of the found javascript classes
+
 ### Initialization:
 
 1. Initialize WemoConnector Library pass in configurations

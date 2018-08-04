@@ -50,3 +50,5 @@ class StateRefresher extends EventEmitter {
     this.startStateRefresher(this[_pollingIntervalSec])
   }
 }
+
+module.exports = StateRefresher

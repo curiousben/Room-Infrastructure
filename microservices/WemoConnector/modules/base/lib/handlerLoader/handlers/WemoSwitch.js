@@ -203,17 +203,6 @@ class WemoSwitch extends EventEmitter {
     return result
   }
 
-  /*
-  * |======== PRIVATE ========|
-  * Description: This is a public getter of the last time the binary state changed
-  * Args: N/A
-  * Returns: date - This is the last time object (Date) that was passed in on a
-  *   successful state change for the WemoConnector
-  * Throws: N/A
-  */
-
-  get timeLastChange() {
-    return this[_setTimeLastChanged]
-  }
-
 }
+
+module.exports = WemoSwitch

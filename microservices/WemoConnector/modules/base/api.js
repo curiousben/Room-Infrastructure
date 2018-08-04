@@ -77,7 +77,7 @@ class WemoConnector {
           if (handler !== undefined) {
 
             // Intialize the handler  
-            const handlerObj = WemoHandler.intialize(handlerType, this[_wemoClient], handlerRetryTimes)
+            const handlerObj = WemoHandler.getHandler(handlerType, this[_wemoClient], handlerRetryTimes)
 
             // On an handler exception remove the handler so the WemoConnector can get a new handler
             handlerObj.on('WemoHandlerException', function(err){

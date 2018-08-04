@@ -55,3 +55,5 @@ class DeviceScanner extends EventEmitter {
     this[_logger].info(`The Device Scanner has started with the interval of ${this[_pollingIntervalSec]}`)
   }
 }
+
+module.exports = DeviceScanner
