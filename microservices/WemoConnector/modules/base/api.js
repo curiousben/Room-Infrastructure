@@ -17,7 +17,7 @@ const StateRefresh = require('./lib/processTimers/StateRefresher.js')
 const WemoConnectorError = require('./lib/errors/WemoConnectorError.js')
 
 // Import handlers
-const handlerObj = require('./lib/handler/index.js')
+const handlerObj = require('./lib/handler/')
 
 // Import utilities
 const WemoConfig = require('./lib/WemoConfig.js')
