@@ -14,7 +14,7 @@ const logger = new winston.Logger({
 })
 const should = require('chai').should()
 
-describe('StateRefresher testing ...', function() {
+describe('State Refresher testing ...', function() {
 
   let stateRefresherObj = null
   before(function() {

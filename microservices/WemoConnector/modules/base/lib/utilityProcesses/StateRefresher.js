@@ -57,7 +57,7 @@ class StateRefresher extends EventEmitter {
 
   stopStateRefresher() {
     clearTimeout(this[_timeOutObj])
-    this[_logger].info('State Refresher has been stopped') 
+    this[_logger].info('State Refresher timer has stopped ...') 
   }
 }
 

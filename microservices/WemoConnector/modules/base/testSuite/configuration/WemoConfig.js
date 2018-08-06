@@ -4,8 +4,7 @@
 *
 */
 
-const StateRefresher = require("")
-const config = require("")
+const WemoConfig = require("../../lib/configuration/WemoConfig.js")
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',

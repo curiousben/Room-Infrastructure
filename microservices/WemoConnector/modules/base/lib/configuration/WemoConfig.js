@@ -9,9 +9,6 @@
 *
 */
 
-// Import error object
-const InitializationError = require('../errors/InitializationError.js')
-
 // Private Method for the Wemo Configuration class
 const _validateHandlerConfig = Symbol('validateHandlerConfig')
 const _validateScannerIntervalConfig = Symbol('validateScannerIntervalConfig')
@@ -22,21 +19,31 @@ const _deviceHandlers= Symbol('deviceHandlers') // Array
 const _scannerInterval = Symbol('scannerInterval') // Integer
 const _refreshInterval = Symbol('refreshInterval') // Integer
 
+// Private Methods for the Wemo Configuration class
+const _loadConfiguration = Symbol('loadConfiguration') //Method
+
 class WemoConfig {
 
-  constructor(configObj){
-    try {
-      this[_deviceHandlers] = this[_validateHandlerConfig](configObj)
-      this[_scannerInterval] = this[_validateScannerIntervalConfig](configObj)
-      this[_refreshInterval] = this[_validateRefreshIntervalConfig](configObj)
-    } catch (err) {
-      console.log(here)
+  constructor(jsonObj){
+    Promise.all([
+      this[_validateHandlerConfig](jsonObj),
+      this[_validateScannerIntervalConfig](jsonObj),
+      this[_validateRefreshIntervalConfig](jsonObj)
+    ])
+    .then(configs => [_loadConfiguration](configs))
+    .catch(err => {
       throw err
-    }
+    })
   }
 
+  [_loadConfiguration]([deviceHandlers, scannerInterval, refreshInterval]) {
+    this[_deviceHandlers] = deviceHandlers
+    this[_scannerInterval] = scannerInterval
+    this[_refreshInterval] = refreshInterval
+  }
+  
   async [_validateHandlerConfig](configObj) {
-    return await new Promise(
+    new Promise(
       (resolve) => {
         const validatedHandlersConfig = {}
         // Checking the surface level keys in the configuration
@@ -58,7 +65,7 @@ class WemoConfig {
   }
 
   async [_validateScannerIntervalConfig](configObj) {
-    return await new Promise(
+    new Promise(
       (resolve,reject) => {
         const validatedScannerInterval = null
         // Checking the surface level keys in the configuration
@@ -74,7 +81,7 @@ class WemoConfig {
   }
 
   async [_validateRefreshIntervalConfig](configObj) {
-    return await new Promise(
+    new Promise(
       (resolve) => {
         const validatedRefreshInterval = null
         // Checking the surface level keys in the configuration

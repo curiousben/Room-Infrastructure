@@ -4,34 +4,45 @@
 *
 */
 
-const StateRefresher = require("")
-const config = require("")
+const DeviceScanner = require("../../lib/utilityProcesses/DeviceScanner.js")
 const winston = require('winston')
-var logger = new winston.Logger({
+const logger = new winston.Logger({
   level: 'error',
   transports: [
     new (winston.transports.Console)()
   ]
 })
-const should = require('chai').should()
 
-describe('hooks', function() {
+describe('Device Scanner testing ...', function() {
 
-  before(function() {
-    // runs before all tests in this block
-  });
-
-  after(function() {
-    // runs after all tests in this block
-  });
-
-  beforeEach(function() {
-    // runs before each test in this block
-  });
+  let deviceScannerObj = null
 
   afterEach(function() {
-    // runs after each test in this block
+    deviceScannerObj.stopDeviceScanner()
+    deviceScannerObj = null
   });
 
-  // test cases
-});
+  it('should emit \'Discover\' event in a configurable interval', function(done) {
+
+    // Test case configuration
+    let eventsEmitted = 0
+    const testEventLimit = 3
+
+    // Test case configuration for the State Refresher
+    const pollingInterval = 5
+
+    // Timeout for this test
+    this.timeout(testEventLimit * pollingInterval * 1000 + 2000)
+
+    deviceScannerObj = new DeviceScanner(logger, pollingInterval)
+    deviceScannerObj.on('Discover', function(dateOfDiscovery){
+      logger.info(`Discover event has been received at the time ${dateOfDiscovery}`,{"Module":"TestSuite"}) 
+      eventsEmitted++
+      if (eventsEmitted === testEventLimit) {
+        done()
+      }
+    })
+    deviceScannerObj.startDeviceScanner()
+  })
+
+})
