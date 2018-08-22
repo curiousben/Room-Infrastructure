@@ -15,40 +15,39 @@ const _validateScannerIntervalConfig = Symbol('validateScannerIntervalConfig')
 const _validateRefreshIntervalConfig = Symbol('validateRefreshIntervalWemoConfig')
 
 // Private variables for the Wemo Configuration class
+const _logger = Symbol('logger') // Logger Object
+const _jsonObj = Symbol('jsonObj') // Object
 const _deviceHandlers= Symbol('deviceHandlers') // Array
 const _scannerInterval = Symbol('scannerInterval') // Integer
 const _refreshInterval = Symbol('refreshInterval') // Integer
 
-// Private Methods for the Wemo Configuration class
-const _loadConfiguration = Symbol('loadConfiguration') //Method
-
 class WemoConfig {
 
-  constructor(jsonObj){
-    Promise.all([
-      this[_validateHandlerConfig](jsonObj),
-      this[_validateScannerIntervalConfig](jsonObj),
-      this[_validateRefreshIntervalConfig](jsonObj)
-    ])
-    .then(configs => [_loadConfiguration](configs))
-    .catch(err => {
-      throw err
-    })
+  constructor(logger, jsonObj){
+    this[_jsonObj] = jsonObj
+    this[_logger] = logger
+    this[_logger].info(`WemoConfig Object has received the following config ${JSON.stringify(jsonObj, null, 2)}`)
   }
 
-  [_loadConfiguration]([deviceHandlers, scannerInterval, refreshInterval]) {
-    this[_deviceHandlers] = deviceHandlers
-    this[_scannerInterval] = scannerInterval
-    this[_refreshInterval] = refreshInterval
+  loadConfigurations() {
+    return Promise.all([
+      this[_validateHandlerConfig](this[_jsonObj]),
+      this[_validateScannerIntervalConfig](this[_jsonObj]),
+      this[_validateRefreshIntervalConfig](this[_jsonObj])
+    ])
+    .then(configs => {
+      this[_deviceHandlers] = configs[0]
+      this[_scannerInterval] = configs[1]
+      this[_refreshInterval] = configs[2]
+    })
   }
   
-  async [_validateHandlerConfig](configObj) {
-    new Promise(
+  [_validateHandlerConfig](configObj) {
+   return new Promise(
       (resolve) => {
-        const validatedHandlersConfig = {}
         // Checking the surface level keys in the configuration
         if (!('deviceHandlers' in configObj)) {
-          let errorDesc = 'The \'deviceHandlers\' key has not been found in the configuration object'
+          const errorDesc = 'The \'deviceHandlers\' key has not been found in the configuration object'
           throw new Error(errorDesc)
         }
 
@@ -56,40 +55,36 @@ class WemoConfig {
         const handlers = configObj['deviceHandlers']
         handlers.forEach(handler => {
           if (!('friendlyName' in handler) || !('handlerType' in handler) || !('retryTimes' in handler)) {
-            let errorDesc = `The handler ${JSON.stringify(handler, null, 2)} does not have 'friendlyName', 'handlerType', or 'retryTimes'`
+            const errorDesc = `The handler ${JSON.stringify(handler, null, 2)} does not have 'friendlyName', 'handlerType', or 'retryTimes'`
             throw new Error(errorDesc)
           }
         })
-        resolve(validatedHandlersConfig)
+        resolve(handlers)
     })
   }
 
-  async [_validateScannerIntervalConfig](configObj) {
-    new Promise(
-      (resolve,reject) => {
-        const validatedScannerInterval = null
+  [_validateScannerIntervalConfig](configObj) {
+    return new Promise(
+      (resolve) => {
         // Checking the surface level keys in the configuration
         if (!('scannerIntervalSec' in configObj)){
-          let errorDesc = 'The \'scannerIntervalSec\' has not been found in the configuration object'
-          reject(new Error(errorDesc))
+          const errorDesc = 'The \'scannerIntervalSec\' has not been found in the configuration object'
+          throw new Error(errorDesc)
         }
-        resolve(validatedScannerInterval)
-    })
-    .catch(error => {
-      throw error
+        resolve(configObj['scannerIntervalSec'])
     })
   }
 
-  async [_validateRefreshIntervalConfig](configObj) {
-    new Promise(
-      (resolve) => {
+  [_validateRefreshIntervalConfig](configObj) {
+    return new Promise(
+      (resolve, reject) => {
         const validatedRefreshInterval = null
         // Checking the surface level keys in the configuration
         if (!('refreshIntervalSec' in configObj)){
-          let errorDesc = 'The \'refreshIntervalSec\' has not been found in the configuration object'
+          const errorDesc = 'The \'refreshIntervalSec\' has not been found in the configuration object'
           throw new Error(errorDesc)
         }
-        resolve(validatedRefreshInterval)
+        resolve(configObj['refreshIntervalSec'])
     })
   }
 
