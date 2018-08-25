@@ -7,13 +7,12 @@
 const WemoConfig = require("../../lib/configuration/WemoConfig.js")
 const winston = require('winston')
 var logger = new winston.Logger({
-  level: 'info',
+  level: 'error',
   transports: [
     new (winston.transports.Console)()
   ]
 })
 const should = require('chai').should()
-const expect = require('chai').expect
 
 describe('Wemo Configuration Module testing ...', function() {
   describe('Postive testing of loaded configurations ...', function() {
@@ -69,27 +68,18 @@ describe('Wemo Configuration Module testing ...', function() {
   })
 
   describe('Negative testing of loaded configurations ...', function () {
-    it('TESTING', async function() {
+    let wemoConfigObj = null
+    beforeEach(function() {
+      wemoConfigObj = null
+    })
 
-/*
-      let wemoConfig = {
-        "deviceHandlers":[
-          {
-            "friendlyName": "AFriendlyName",
-            "handlerType": "switch",
-            "retryTimes": 1
-          }
-        ],
+    it('Testing absense of device handlers configuration ...', async function() {
+
+      const wemoConfig = {
         "scannerIntervalSec": 42,
         "refreshIntervalSec": 24
       }
-*/
-
-      let wemoConfig = {
-        "scannerIntervalSec": 42,
-        "refreshIntervalSec": 24
-      }
-      let wemoConfigObj = new WemoConfig(logger, wemoConfig)
+      wemoConfigObj = new WemoConfig(logger, wemoConfig)
 
       // Leting this slide since this implimentation is very similiar to how this module will be implimented,
       // to resolve this issue look at the load configuration function and see if we can not return a Promise
@@ -100,5 +90,46 @@ describe('Wemo Configuration Module testing ...', function() {
         err.message.should.equal('The \'deviceHandlers\' key has not been found in the configuration object')
       }
     })
+
+    it('Testing absense of Scanner Interval Seconds configuration ...', async function() {
+      const wemoConfig = {
+        "deviceHandlers":[
+          {
+            "friendlyName": "AFriendlyName",
+            "handlerType": "switch",
+            "retryTimes": 1
+          }
+        ],
+        "refreshIntervalSec": 24
+      }
+      wemoConfigObj = new WemoConfig(logger, wemoConfig)
+      try {
+        await wemoConfigObj.loadConfigurations()
+      } catch (err) {
+        err.should.be.a('Error')
+        err.message.should.equal('The \'scannerIntervalSec\' has not been found in the configuration object')
+      }
+    })
+
+    it('Testing absense of Refresh Interval Seconds configuration ...', async function() {
+      const wemoConfig = {
+        "deviceHandlers":[
+          {
+            "friendlyName": "AFriendlyName",
+            "handlerType": "switch",
+            "retryTimes": 1
+          }
+        ],
+        "scannerIntervalSec": 42
+      }
+      wemoConfigObj = new WemoConfig(logger, wemoConfig)
+      try {
+        await wemoConfigObj.loadConfigurations()
+      } catch (err) {
+        err.should.be.a('Error')
+        err.message.should.equal('The \'refreshIntervalSec\' has not been found in the configuration object')
+      }
+    })
+
   })
 });
