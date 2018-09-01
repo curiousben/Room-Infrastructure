@@ -26,7 +26,7 @@ class HandlerLoader {
 
   /*
   * |======== PRIVATE ========|
-  * 
+  *
   * Desc:
   *   This method gathers the names of the JavaScript Class handlers
   * Params:
@@ -53,14 +53,12 @@ class HandlerLoader {
   *   Error - Any execption that might occur while trying to create the hashmap of handler instances
   *
   */
-  async createHandlerLoader() {
+  async createHandlerLoader () {
     const handlerHashmap = {}
     const javascriptClasses = await this[_getJavascriptClasses]()
-    console.log(javascriptClasses)
-    javascriptClasses.forEach(javascriptFile=> {
-      console.log(javascriptFile)
-      const className = javascriptFile.replace(".js", "")
-      const handlerModule = require("./handlers/".concat(javascriptFile))
+    javascriptClasses.forEach(javascriptFile => {
+      const className = javascriptFile.replace('.js', '')
+      const handlerModule = require('./handlers/'.concat(javascriptFile))
       handlerHashmap[className] = handlerModule
     })
     this[_handlerHashmap] = handlerHashmap
@@ -79,9 +77,9 @@ class HandlerLoader {
   *   Error - Any execption that might occur while trying to create the hashmap of handler instances
   *
   */
-  getHandler(handlerType, wemoConnection, handlerRetryTimes) {
+  getHandler (handlerType, logger, deviceInfo, wemoConnection, handlerRetryTimes) {
     if (handlerType in this[_handlerHashmap]) {
-      return new this[_handlerHashmap][handlerType](handlerType, wemoConnection, handlerRetryTimes)
+      return new this[_handlerHashmap][handlerType](logger, deviceInfo, wemoConnection, handlerRetryTimes)
     } else {
       throw new Error(`The device handler type ${handlerType} does not exist in the handler loader`)
     }

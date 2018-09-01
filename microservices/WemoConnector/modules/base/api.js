@@ -8,101 +8,76 @@
 
 // Import modules
 const util = require('util')
-const wemo = require('wemo')
+const wemo = require('wemo-client')
 const WemoClient = util.promisify(wemo)
-const DeviceScanner = require('./lib/processTimers/DeviceScanner.js')
-const StateRefresh = require('./lib/processTimers/StateRefresher.js')
-
-// Import errors
-const WemoConnectorError = require('./lib/errors/WemoConnectorError.js')
-
-// Import handlers
-const handlerObj = require('./lib/handler/')
+const HandleLoader = require('./lib/handlerLoader/handlerLoader.js')
+const DeviceScanner = require('./lib/utilityProcesses/DeviceScanner.js')
+const StateRefresh = require('./lib/utilityProcesses/StateRefresher.js')
 
 // Import utilities
-const WemoConfig = require('./lib/WemoConfig.js')
+const WemoConfig = require('./lib/configuration/WemoConfig.js')
 
 // Private variables
 const _logger = Symbol('logger')
-const _wemoClient = Symbol('wemoClient')
+const _wemoClientInst = Symbol('wemoClientInst')
+const _configInst = Symbol('wemoConfigInst')
 const _activeClients = Symbol('activeClients')
-const _stateRefresherObj = Symbol('stateRefresherObj')
-const _deviceScannerObj = Symbol('deviceScannerObj')
+const _handleLoaderInst = Symbol('handleLoaderInst')
+const _stateRefresherInst = Symbol('stateRefresherInst')
+const _deviceScannerInst = Symbol('deviceScannerInst')
 const _mode = Symbol('mode')
 
 // Private methods
-const _loadWemoConfig = Symbol('loadWemoConfig')
 const _loadHandlers = Symbol('loadHandlers')
+const _getHandler = Symbol('getHandler')
 const _loadStateRefresher = Symbol('loadStateRefresher')
 const _loadDeviceScanner = Symbol('loadDeviceScanner')
 const _changeDeviceState = Symbol('changeDeviceState')
 
 class WemoConnector {
-  constructor(jsonObj, logger) {
+  constructor (logger, jsonObj) {
     this[_logger] = logger
     this[_activeClients] = {}
-    this[_wemoClient] = new wemoPromise()
-    const wemoConfig = this[_loadWemoConfig](jsonObj)
-    this[_activeClients] = this[_loadHandlers](wemoConfig)
-    this[_loadDeviceScanner](wemoConfig)
-    this[_loadStateRefresher](wemoConfig)
+    this[_handleLoaderInst] = new HandleLoader()
+    this[_wemoClientInst] = WemoClient
+    this[_configInst] = new WemoConfig(this[_logger], jsonObj)
+  }
+
+  async loadWemoConfig () {
+    await this[_configInst].loadConfigurations()
+  }
+
+  /*
+  * |======== PUBLIC ========|
+  *
+  */
+  async initializeWemoConnector () {
+    this[_activeClients] = await this[_loadHandlers](this[_configInst])
+    await this[_loadDeviceScanner](this[_configInst].scannerInterval)
+    await this[_loadStateRefresher](this[_configInst].refreshInterval)
   }
 
   /*
   * |======== PRIVATE ========|
   *
   */
-  [_loadWemoConfig](jsonObj) {
-    return new WemoConfig(jsonObj)
-  }
-
-  /*
-  * |======== PRIVATE ========|
-  *
-  */
-  async [_loadHandlers](configObj) {
+  async [_loadHandlers] (configObj) {
     let notAllDevsDiscovered = true
 
     // Continue to keep trying to get all of the devices configured
-    while(notAllDevsDiscovered) {
-      await this[_wemoClient].discover
-        .then(deviceInfo => {
-          // Look through the configured devices and grab the specfic handler configurations
-          const handler = configObj.handlerConfig(deviceInfo.friendlyName)
-          const handlerFriendlyName = ['friendlyName']
-          const handlerType = handler['handlerType']
-          const handlerRetryTimes = handler['retryTimes']
-
-          // Found handler configuration now initializing the handler
-          if (handler !== undefined) {
-
-            // Intialize the handler  
-            const handlerObj = WemoHandler.getHandler(handlerType, this[_wemoClient], handlerRetryTimes)
-
-            // On an handler exception remove the handler so the WemoConnector can get a new handler
-            handlerObj.on('WemoHandlerException', function(err){
-              const errorDesc = `The ${handlerFriendlyName} encountered an exception, details ${err.message}. Removing the handler ...`
-              this[_logger].error(errorDesc)
-              delete this[_activeClients][handlerFriendlyName]
-            })
-
-            this[_activeClients][handlerFriendlyName] = handlerObj
-          }
-
-          // Checking to see if all handlers have been configured 
-          if (Object.keys(this[_activeClients]).length === configObj.handlerCount) {
-            notAllDevsDiscovered = false
-          }
-        })
+    while (notAllDevsDiscovered) {
+      await this[_wemoClientInst].discover
+        .then(deviceInfo => this[_getHandler](this[_wemoClientInst], deviceInfo, this[_configInst]))
         .catch(err => {
           // If a WemoConnectorError has been thrown rethrow else create a new WemoConnectorError
-          if (err instanceof WemoConnectorError){
-            throw err
-          } else {
-            const errorDesc = `Encountered an error while trying to load the configured handlers, details ${error.message}`
-            throw new WemoConnectorError(errorDesc)
-          }
+          const errorDesc = `Encountered an error while trying to load the configured handlers, details ${err.message}`
+          throw new Error(errorDesc)
         })
+
+      // Checking to see if all handlers have been configured
+      if (Object.keys(this[_activeClients]).length === this[_configInst].handlerCount) {
+        notAllDevsDiscovered = false
+      }
     }
   }
 
@@ -110,44 +85,79 @@ class WemoConnector {
   * |======== PRIVATE ========|
   *
   */
-  [_loadDeviceScanner](configObj) {
-    this[_deviceScannerObj] = new DeviceScanner(this[_logger], configObj.scannerInterval)
+  async [_getHandler] (connection, deviceInfo, configInst) {
+    // Look through the configured devices and grab the specfic handler configurations
+    const handlerConfig = configInst.handlerConfig(deviceInfo.friendlyName)
+
+    // Found handler configuration now initializing the handler
+    if (handlerConfig !== undefined) {
+      // Get Individual Configurations
+      const handlerFriendlyName = handlerConfig['friendlyName']
+      const handlerType = handlerConfig['handlerType']
+      const handlerRetryTimes = handlerConfig['retryTimes']
+
+      // Intialize the handler
+      const handlerInst = this[_handleLoaderInst].getHandler(this[_logger], handlerType, connection, handlerRetryTimes)
+
+      // On an handler exception remove the handler so the WemoConnector can get a new handler
+      handlerInst.on('WemoHandlerException', function (err) {
+        const errorDesc = `The ${handlerFriendlyName} encountered an exception, details ${err.message}. Removing the handler ...`
+        this[_logger].error(errorDesc)
+        delete this[_activeClients][handlerFriendlyName]
+      })
+
+      this[_activeClients][handlerFriendlyName] = handlerInst
+    }
+  }
+
+  /*
+  * |======== PRIVATE ========|
+  *
+  */
+  async [_loadDeviceScanner] (configObj) {
+    this[_deviceScannerInst] = new DeviceScanner(this[_logger], configObj.scannerInterval)
 
     // On the 'Discover' event checks to see if the active connections need to be updated
-    this[_deviceScannerObj].on('Discover', function(currentTime){
-
+    this[_deviceScannerInst].on('Discover', async function (currentTime) {
       // Check to see connection count is lower than the configure handler count
       if (Object.keys(this[_activeClients]).length !== configObj.handlerCount) {
         const infoDesc = `Now refreshing the handler list at the time, ${currentTime}`
         this[_logger].info(infoDesc)
 
         // Load handlers
-        await this[_loadHandlers](configObj)
+        try {
+          await this[_loadHandlers](configObj)
+        } catch (err) {
+          const errorDesc = `Failed to reload the handlers details ${err}`
+          this[_logger].error(errorDesc)
+        }
       }
     })
 
     // Start the device scanner
-    this[_deviceScannerObj].startDeviceScanner()
+    await this[_deviceScannerInst].startDeviceScanner()
   }
 
   /*
   * |======== PRIVATE ========|
   *
   */
-  [_loadStateRefresher](config) {
-    this[_stateRefresherObj] = new StateRefresh(this[_logger], config)
+  async [_loadStateRefresher] (config) {
+    this[_stateRefresherInst] = new StateRefresh(this[_logger], config)
 
     // On the 'SwitchOff' event switch off lights
-    this[_stateRefresherObj].on('SwitchOff', function(currentTime){
+    this[_stateRefresherInst].on('SwitchOff', function (currentTime) {
       this[_changeDeviceState]('Off')
     })
+
+    await this[_stateRefresherInst].startStateRefresher()
   }
 
   /*
   * |======== PRIVATE ========|
   *
   */
-  this[_changeDeviceState](desiredState) {
+  [_changeDeviceState] (desiredState) {
     Object.keys(this[_activeClients]).forEach(handler => {
       this[_activeClients][handler].changeDeviceState(desiredState)
     })
@@ -157,19 +167,21 @@ class WemoConnector {
   * |======== PUBLIC ========|
   *
   */
-  set mode(mode){
+  setMode (mode) {
     this[_mode] = mode
     this[_logger].info(`The mode for the WemoConnector is ${mode}`)
+    return mode
   }
 
   /*
   * |======== PUBLIC ========|
   *
   */
-  processEvent(eventString) {
-    if (mode === 'awake') {
-      this[_stateRefresherObj].delayRefresh(eventString)
+  processEvent (eventString) {
+    if (this[_mode] === 'Awake') {
+      this[_stateRefresherInst].delayRefresh(eventString)
       this[_changeDeviceState]('On')
     }
   }
 }
+module.exports = WemoConnector

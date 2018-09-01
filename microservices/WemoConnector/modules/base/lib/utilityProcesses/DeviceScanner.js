@@ -11,31 +11,30 @@
 const EventEmitter = require('events')
 
 // Private Fields
-const _logger = Symbol("logger")
-const _pollingIntervalSec = Symbol("pollingIntervalSec")
-const _timeIntervalObj = Symbol("timeIntervalObj")
+const _logger = Symbol('logger')
+const _pollingIntervalSec = Symbol('pollingIntervalSec')
+const _timeIntervalObj = Symbol('timeIntervalObj')
 
 // Private Methods
-const _startIntervalTimer = Symbol("startIntervalTimer")
+const _startIntervalTimer = Symbol('startIntervalTimer')
 
 class DeviceScanner extends EventEmitter {
-
-  constructor(logger, pollingInterval) {
+  constructor (logger, pollingInterval) {
     super()
     this[_logger] = logger
     this[_pollingIntervalSec] = pollingInterval * 1000
   }
 
-   /*
+  /*
   * |======== PRIVATE ========|
   *
-  */ 
-  async [_startIntervalTimer](pollingIntervalSec) {
-    new Promise(
+  */
+  [_startIntervalTimer] (pollingIntervalSec) {
+    return new Promise(
       (resolve) => {
         this[_timeIntervalObj] = setInterval(() => {
           const dateOfDiscovery = new Date()
-          this.emit("Discover", dateOfDiscovery)
+          this.emit('Discover', dateOfDiscovery)
           this[_logger].info(`The Device Scanner has fired a scheduled device discover event ${dateOfDiscovery}`)
         }, this[_pollingIntervalSec])
         resolve()
@@ -47,11 +46,8 @@ class DeviceScanner extends EventEmitter {
   * |======== PUBLIC ========|
   *
   */
-  startDeviceScanner() {
-    this[_startIntervalTimer]()
-      .catch(error => {
-        throw error
-      })
+  async startDeviceScanner () {
+    await this[_startIntervalTimer]()
     this[_logger].info(`The Device Scanner has started with the interval of ${this[_pollingIntervalSec]}`)
   }
 
@@ -59,11 +55,10 @@ class DeviceScanner extends EventEmitter {
   * |======== PUBLIC ========|
   *
   */
-  stopDeviceScanner() {
+  stopDeviceScanner () {
     clearTimeout(this[_timeIntervalObj])
     this[_logger].info('The Device Scanner timer has stopped ...')
   }
-
 }
 
 module.exports = DeviceScanner

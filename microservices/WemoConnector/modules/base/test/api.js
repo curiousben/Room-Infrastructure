@@ -1,11 +1,10 @@
 /*
 *
-* 
+*
 *
 */
 
-const StateRefresher = require("")
-const config = require("")
+const WemoConnector = require('../api.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',
@@ -13,25 +12,32 @@ var logger = new winston.Logger({
     new (winston.transports.Console)()
   ]
 })
-const should = require('chai').should()
+require('chai').should()
 
-describe('hooks', function() {
-
-  before(function() {
-    // runs before all tests in this block
-  });
-
-  after(function() {
-    // runs after all tests in this block
-  });
-
-  beforeEach(function() {
+describe('Wemo Module testing ...', function () {
+  beforeEach(function () {
     // runs before each test in this block
-  });
+  })
 
-  afterEach(function() {
-    // runs after each test in this block
-  });
+  it('Testing basic initialization of Module', async function () {
+    const jsonObj = {
+      'deviceHandlers': [
+        {
+          'friendlyName': 'AFriendlyName',
+          'handlerType': 'switch',
+          'retryTimes': 3
+        }
+      ],
+      'scannerIntervalSec': 5,
+      'refreshIntervalSec': 5
+    }
 
-  // test cases
-});
+    const WemoConnectorInst = new WemoConnector(logger, jsonObj)
+    try {
+      await WemoConnectorInst.loadWemoConfig()
+      WemoConnectorInst.setMode('Awake').should.equal('Awake')
+    } catch (err) {
+      throw err
+    }
+  })
+})

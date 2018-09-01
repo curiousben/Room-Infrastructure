@@ -2,11 +2,11 @@
 
 /*
 *
-* 
+*
 *
 */
 
-const handleLoader = require("../../lib/handlerLoader/handlerLoader.js")
+const HandleLoader = require('../../lib/handlerLoader/handlerLoader.js')
 const winston = require('winston')
 const logger = new winston.Logger({
   level: 'info',
@@ -14,44 +14,45 @@ const logger = new winston.Logger({
     new (winston.transports.Console)()
   ]
 })
-const should = require('chai').should()
+require('chai').should()
 
-describe('Handler Loader Module testing ...', function() {
-
+describe('Handler Loader Module testing ...', function () {
   let handleLoaderObj = null
 
-  beforeEach(function() {
-    handleLoaderObj = null    
+  beforeEach(function () {
+    handleLoaderObj = null
   })
 
-  it('Postive testing of Class loader', async function () {
-
-    handleLoaderObj = new handleLoader(logger)
+  it('Postive testing of Javascript Class loader', async function () {
+    handleLoaderObj = new HandleLoader(logger)
     try {
       await handleLoaderObj.createHandlerLoader()
     } catch (err) {
-      logger.error(`Encountered error ${err.message}`)
+      logger.error(err)
       throw err
     }
-    
-    const TestModuleOneConfig = {
-      "var1": 1,
-      "var2": 2
+
+    const TestModuleOneObj = handleLoaderObj.getHandler('TestModule', logger, {}, {}, 3)
+    TestModuleOneObj.retryTimes.should.equal(3)
+    TestModuleOneObj.addFiveTimestoRetry().should.equal(8)
+  })
+
+  it('Negative testing of Javascript Class loader', async function () {
+    handleLoaderObj = new HandleLoader(logger)
+    try {
+      await handleLoaderObj.createHandlerLoader()
+    } catch (err) {
+      throw err
     }
 
-    const TestModuleTwoConfig = {
-      "var3": 3,
-      "var4": 4
+    const TestModuleConfig = {
+      'retryTimes': 3
     }
-
-    const TestModuleOneObj = handleLoaderObj.getHandler('TestModuleOne')(logger, TestModuleOneConfig)
-    TestModuleOneObj.getVarOne.should.be.equal(1)
-    TestModuleOneObj.getVarTwo.should.be.equal(2)
-    TestModuleOneObj.add().should.be.equal(3)
-
-    const TestModuleTwoObj = handleLoaderObj.getHandler('TestModuleTwo')(logger, TestModuleTwoConfig)
-    TestModuleTwoObj.getVarThree.should.be.equal(3)
-    TestModuleTwoObj.getVarFour.should.be.equal(4)
-    TestModuleTwoObj.multi().should.be.equal(12)
+    try {
+      handleLoaderObj.getHandler('NonExistentModule', logger, {}, {}, TestModuleConfig)
+    } catch (err) {
+      err.should.be.a('Error')
+      err.message.should.equal('The device handler type NonExistentModule does not exist in the handler loader')
+    }
   })
 })

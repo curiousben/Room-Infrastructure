@@ -1,10 +1,10 @@
 /*
 *
-* 
+*
 *
 */
 
-const WemoConfig = require("../../lib/configuration/WemoConfig.js")
+const WemoConfig = require('../../lib/configuration/WemoConfig.js')
 const winston = require('winston')
 var logger = new winston.Logger({
   level: 'error',
@@ -12,54 +12,54 @@ var logger = new winston.Logger({
     new (winston.transports.Console)()
   ]
 })
-const should = require('chai').should()
+require('chai').should()
 
-describe('Wemo Configuration Module testing ...', function() {
-  describe('Postive testing of loaded configurations ...', function() {
-    it('Wemo Configuration testing configurations ...', async function() {
+describe('Wemo Configuration Module testing ...', function () {
+  describe('Postive testing of loaded configurations ...', function () {
+    it('Wemo Configuration testing configurations ...', async function () {
       const wemoConfig = {
-        "deviceHandlers":[
+        'deviceHandlers': [
           {
-            "friendlyName": "AFriendlyName",
-            "handlerType": "switch",
-            "retryTimes": 1
+            'friendlyName': 'AFriendlyName',
+            'handlerType': 'switch',
+            'retryTimes': 1
           },
           {
-            "friendlyName": "AnotherFriendlyName",
-            "handlerType": "switch",
-            "retryTimes": 3
+            'friendlyName': 'AnotherFriendlyName',
+            'handlerType': 'switch',
+            'retryTimes': 3
           },
           {
-            "friendlyName": "LastFriendlyName",
-            "handlerType": "switch",
-            "retryTimes": 5
+            'friendlyName': 'LastFriendlyName',
+            'handlerType': 'switch',
+            'retryTimes': 5
           }
         ],
-        "scannerIntervalSec": 42,
-        "refreshIntervalSec": 24
+        'scannerIntervalSec': 42,
+        'refreshIntervalSec': 24
       }
       const wemoConfigObj = new WemoConfig(logger, wemoConfig)
       await wemoConfigObj.loadConfigurations()
       wemoConfigObj.handlerCount.should.equal(3)
       wemoConfigObj.getFindHandlerConfig('AFriendlyName').should.deep.equal(
         {
-          "friendlyName": "AFriendlyName",
-          "handlerType": "switch",
-          "retryTimes": 1
+          'friendlyName': 'AFriendlyName',
+          'handlerType': 'switch',
+          'retryTimes': 1
         }
       )
       wemoConfigObj.getFindHandlerConfig('AnotherFriendlyName').should.deep.equal(
         {
-          "friendlyName": "AnotherFriendlyName",
-          "handlerType": "switch",
-          "retryTimes": 3
+          'friendlyName': 'AnotherFriendlyName',
+          'handlerType': 'switch',
+          'retryTimes': 3
         }
       )
       wemoConfigObj.getFindHandlerConfig('LastFriendlyName').should.deep.equal(
         {
-          "friendlyName": "LastFriendlyName",
-          "handlerType": "switch",
-          "retryTimes": 5
+          'friendlyName': 'LastFriendlyName',
+          'handlerType': 'switch',
+          'retryTimes': 5
         }
       )
       wemoConfigObj.refreshInterval.should.equal(24)
@@ -69,15 +69,14 @@ describe('Wemo Configuration Module testing ...', function() {
 
   describe('Negative testing of loaded configurations ...', function () {
     let wemoConfigObj = null
-    beforeEach(function() {
+    beforeEach(function () {
       wemoConfigObj = null
     })
 
-    it('Testing absense of device handlers configuration ...', async function() {
-
+    it('Testing absense of device handlers configuration ...', async function () {
       const wemoConfig = {
-        "scannerIntervalSec": 42,
-        "refreshIntervalSec": 24
+        'scannerIntervalSec': 42,
+        'refreshIntervalSec': 24
       }
       wemoConfigObj = new WemoConfig(logger, wemoConfig)
 
@@ -91,16 +90,16 @@ describe('Wemo Configuration Module testing ...', function() {
       }
     })
 
-    it('Testing absense of Scanner Interval Seconds configuration ...', async function() {
+    it('Testing absense of Scanner Interval Seconds configuration ...', async function () {
       const wemoConfig = {
-        "deviceHandlers":[
+        'deviceHandlers': [
           {
-            "friendlyName": "AFriendlyName",
-            "handlerType": "switch",
-            "retryTimes": 1
+            'friendlyName': 'AFriendlyName',
+            'handlerType': 'switch',
+            'retryTimes': 1
           }
         ],
-        "refreshIntervalSec": 24
+        'refreshIntervalSec': 24
       }
       wemoConfigObj = new WemoConfig(logger, wemoConfig)
       try {
@@ -111,16 +110,16 @@ describe('Wemo Configuration Module testing ...', function() {
       }
     })
 
-    it('Testing absense of Refresh Interval Seconds configuration ...', async function() {
+    it('Testing absense of Refresh Interval Seconds configuration ...', async function () {
       const wemoConfig = {
-        "deviceHandlers":[
+        'deviceHandlers': [
           {
-            "friendlyName": "AFriendlyName",
-            "handlerType": "switch",
-            "retryTimes": 1
+            'friendlyName': 'AFriendlyName',
+            'handlerType': 'switch',
+            'retryTimes': 1
           }
         ],
-        "scannerIntervalSec": 42
+        'scannerIntervalSec': 42
       }
       wemoConfigObj = new WemoConfig(logger, wemoConfig)
       try {
@@ -130,6 +129,5 @@ describe('Wemo Configuration Module testing ...', function() {
         err.message.should.equal('The \'refreshIntervalSec\' has not been found in the configuration object')
       }
     })
-
   })
-});
+})
