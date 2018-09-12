@@ -21,7 +21,7 @@ const _filterMessages = Symbol('filterMessages')
 const _isJSONObjFiltered = Symbol('isJSONObjFiltered')
 const _shouldThrowError = Symbol('shouldThrowError')
 
-class Filter {
+class JSON {
 
   constructor(logger, shouldThrowError) {
 
@@ -252,4 +252,4 @@ class Filter {
   }
 }
 
-module.exports = Filter
+module.exports = JSON
