@@ -1,9 +1,0 @@
-{
-  "data": {
-    "uuid": {
-      "acceptedValues": ["qwerty", "12345", "asdfg"],
-      "location": ["device"],
-      "typeOfMatch": "partial"
-    }
-  }
-}

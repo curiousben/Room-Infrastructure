@@ -13,6 +13,7 @@ const fs = require('fs')
 const readDir = util.promisify(fs.readdir)
 
 // Import private variabes
+const _typeOfModules = Symbol('typeOfModules')
 const _moduleHashMap = Symbol('handlerHashmap')
 const _logger = Symbol('logger')
 
@@ -36,7 +37,7 @@ class ModuleLoader {
   *   Error - Any execption that might occur while trying to open the handlers directory
   *
   */
-  async [_getJSModuleFiles](moduleDir) {
+  async [_getJSModuleFiles] (moduleDir) {
     return readDir(moduleDir)
   }
 
@@ -51,7 +52,7 @@ class ModuleLoader {
   *   Error - Any execption that might occur while trying to create the hashmap of handler instances
   *
   */
-  async createModuleLoader (typeOfModules) {
+  async initializeModuleLoader (typeOfModules) {
     // Sets the what kind of modules are being loaded and where
     this[_typeOfModules] = typeOfModules
 
@@ -74,21 +75,37 @@ class ModuleLoader {
   * |======== PUBLIC  ========|
   *
   * Desc:
-  *   This method gathers the names of the JavaScript Class handlers
+  *   This method initializes a particular module and creates a new instance of it.
+  *     Now the modules own unique methods can be exposed to outside of the
+  *     module loader.
   * Params:
-  *   module (String) - Type of Wemo Handler
-  *   wemoConnection (WemoConnection) - WemoConnection instance
-  *   handlerRetryTimes (Integer) - Number of retry attempts for the WemoConnection
+  *   logger (Logger) - Winston logger that is passed in
+  *   moduleInstName (String) - Name of the key where the new instance will be stored
+  *   moduleType (String) - The name of the type of module that will be loaded to the
+  *                         module loader.
+  *   configObj (String) - The config object that is past to the constructor of each
+  *                        module.
   * Throws:
-  *   Error - Any execption that might occur while trying to create the hashmap of handler instances
-  *
+  *   Error - If the type of module doesn't exist
+  *   Error - If the name of the module instance has already been established
   */
-  getModule (logger, module, configObj) {
-    if (module in this[_moduleHashMap]) {
-      return new this[_moduleHashMap][module](logger, configObj)
-    } else {
-      throw new Error(`The module type ${module} does not exist in the module loader`)
+  createModule (logger, moduleInstName, moduleType, configObj) {
+    // Checking to see if the requested moduleType exists
+    if (!(moduleType in this[_moduleHashMap])) {
+      const errorDesc = `The module type ${module} does not exist in the module loader`
+      this[_logger].error(errorDesc)
+      throw new Error(errorDesc)
     }
+
+    // Checking to see if the requested module intance name already exists
+    if (moduleInstName in this) {
+      const errorDesc = `The module instance ${moduleInstName} already exists in the module loader`
+      this[_logger].error(errorDesc)
+      throw new Error(errorDesc)
+    }
+
+    // Creates a new instance of a module
+    this[moduleInstName] = new this[_moduleHashMap][moduleType](logger, configObj)
   }
 }
 

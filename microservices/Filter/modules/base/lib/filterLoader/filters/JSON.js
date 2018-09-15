@@ -17,21 +17,21 @@ const _greaterThanMatch = Symbol('greaterThanMatch')
 const _lessThanMatch = Symbol('lessThanMatch')
 
 // 'Private' class variables
+const _logger = Symbol('logger')
 const _filterMessages = Symbol('filterMessages')
 const _isJSONObjFiltered = Symbol('isJSONObjFiltered')
 const _shouldThrowError = Symbol('shouldThrowError')
 
 class JSON {
-
-  constructor(logger, shouldThrowError) {
-
+  constructor (logger, shouldThrowError) {
+    // Define logger
+    this[_logger] = logger
     // List of filter rules that the message failed to pass
     this[_filterMessages] = []
     // Assume that the message should not be filtered out
     this[_isJSONObjFiltered] = false
     // Should an error be thrown if the message is filtered out
     this[_shouldThrowError] = shouldThrowError
-
   }
 
   /*
@@ -45,9 +45,9 @@ class JSON {
   */
   async [_exactStringMatch] (data, acceptedValues) {
     if (acceptedValues.indexOf(data) !== -1) {
-      resolve(true)
+      return true
     } else {
-      resolve(false)
+      return false
     }
   }
 
@@ -64,10 +64,10 @@ class JSON {
   async [_partialMatch] (data, acceptedValues) {
     for (const possibleValue in acceptedValues) {
       if (acceptedValues[possibleValue].indexOf(data) !== -1) {
-        resolve(true)
+        return true
       }
     }
-    resolve(false)
+    return false
   }
 
   /*
@@ -82,9 +82,9 @@ class JSON {
   */
   async [_exactNumberMatch] (data, acceptedValues) {
     if (Number(data) === Number(acceptedValues[0])) {
-      resolve(true)
+      return true
     } else {
-      resolve(false)
+      return false
     }
   }
 
@@ -99,9 +99,9 @@ class JSON {
   */
   async [_greaterThanMatch] (data, acceptedValues) {
     if (Number(data) > Number(acceptedValues[0])) {
-      resolve(true)
+      return true
     } else {
-      resolve(false)
+      return false
     }
   }
 
@@ -116,9 +116,9 @@ class JSON {
   */
   async [_lessThanMatch] (data, acceptedValues) {
     if (Number(data) < Number(acceptedValues[0])) {
-      resolve(true)
+      return true
     } else {
-      resolve(false)
+      return false
     }
   }
 
@@ -128,7 +128,7 @@ class JSON {
   *     if patload need to be filtered out based on that filter rule.
   * Args:
   *   data - Object - The whole JSON payload that is being analyzed
-  *   filterKey - String - The data that is being looked for this is more for human reading
+  *   key - String - The data that is being looked for this is more for human reading
   *   pathToKey - Array[String] - The path to the data point. Note: this CAN'T point to a JSONArray
   *   typeOfMatch - String - The type of match that will be compared to the accepted values
   *   acceptedValues - Array[String or Number] - The accepted values that will be used to determine
@@ -137,10 +137,9 @@ class JSON {
   *   Error - If the path to the key is broken
   *   Error - If the type of match does not have a case.
   */
-  async processPayload() {
-
-    const data = Object.assign({}, arguments[0])
-    const filterKey = arguments[1]
+  async processPayload () {
+    let data = Object.assign({}, arguments[0])
+    const key = arguments[1]
     const pathToKey = arguments[2]
     const typeOfMatch = arguments[3]
     const acceptedValues = arguments[4]
@@ -150,54 +149,54 @@ class JSON {
       if (data === undefined) {
         throw new Error(`The value '${pathToKey[key]}' does not exist at the path '${pathToKey.join(' -> ')}' in the payload`)
       }
-    } 
+    }
 
     let isFiltered = null
     switch (typeOfMatch) {
       case 'exactString':
-        isFiltered = await [_exactStringMatch](data, acceptedValues)
-        if(isFiltered) {
+        isFiltered = await this[_exactStringMatch](data, acceptedValues)
+        if (isFiltered) {
           this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${filterKey}' at the location in the 
+                                      the key '${key}' at the location in the 
                                       data '${pathToKey.join(' -> ')}' was not an 
                                       exact match to the accepted string value(s) 
                                       '${acceptedValues.join(', ')}'`)
         }
         break
       case 'partial':
-        isFiltered = await [_partialMatch](data, acceptedValues)
-        if(isFiltered) {
+        isFiltered = await this[_partialMatch](data, acceptedValues)
+        if (isFiltered) {
           this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${filterKey}' at the location 
+                                      the key '${key}' at the location 
                                       '${pathToKey.join(' -> ')}' was not an partial 
                                       match to the accepted value(s) 
                                       '${acceptedValues.join(', ')}'`)
         }
         break
       case 'exactNumber':
-        isFiltered = await [_exactNumberMatch](data, acceptedValues)
-        if(isFiltered) {
+        isFiltered = await this[_exactNumberMatch](data, acceptedValues)
+        if (isFiltered) {
           this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${filterKey}' at the location in the 
+                                      the key '${key}' at the location in the 
                                       data '${pathToKey.join(' -> ')}' was not equal 
                                       than the accepted number value 
                                       '${acceptedValues[0]}'`)
         }
         break
       case 'greaterThan':
-        isFiltered = await [_greaterThanMatch](data, acceptedValues)
-        if(isFiltered) {
+        isFiltered = await this[_greaterThanMatch](data, acceptedValues)
+        if (isFiltered) {
           this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${filterKey}' at the location in the 
+                                      the key '${key}' at the location in the 
                                       data '${pathToKey.join(' -> ')}' was not greater 
                                       than the accepted value '${acceptedValues[0]}'`)
         }
         break
       case 'lessThan':
-        isFiltered = await [_lessThanMatch](data, acceptedValues)
-        if (isFiltered){
+        isFiltered = await this[_lessThanMatch](data, acceptedValues)
+        if (isFiltered) {
           this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${filterKey}' at the location in the 
+                                      the key '${key}' at the location in the 
                                       data '${pathToKey.join(' -> ')}' was not less 
                                       than the accepted value '${acceptedValues[0]}'`)
         }
@@ -205,27 +204,26 @@ class JSON {
       default:
         throw new Error(`The 'typeOfMatch' - '${typeOfMatch}' in the 
                         configuration for the filtering of the key 
-                        '${filterKey}' is not a recognized 
+                        '${key}' is not a recognized 
                         configuration value`)
     }
-  
-    // If one rule fails then the payload should be filtered out 
-    if (isFiltered && !this[_isJSONObjFiltered]) {
-      this[_isJSONObjFiltered] = true 
-    }
 
+    // If one rule fails then the payload should be filtered out
+    if (isFiltered && !this[_isJSONObjFiltered]) {
+      this[_isJSONObjFiltered] = true
+    }
   }
 
   /*
   * Desc:
-  *   This getter method is used to get whether the payload should be filtered or not 
+  *   This getter method is used to get whether the payload should be filtered or not
   *     based on the filter rules it has ued to analyze the payload.
   * Args:
   *   N/A
   * Throws:
   *   Error - If the Message payload should be filtered out and an error should be thrown.
   */
-  get isJSONObjFiltered() {
+  get isJSONObjFiltered () {
     const isJSONObjFiltered = this[_isJSONObjFiltered]
 
     // Reset the _isJSONObjFiltered Boolean
@@ -234,7 +232,7 @@ class JSON {
     // If the Message payload should be filtered out and
     // an error should be thrown.
     if (isJSONObjFiltered && this[_shouldThrowError]) {
-      const errorDesc = `The data was filtered out due to the following failed filtering rules: ${this[_filterMessages].join('\n')}` 
+      const errorDesc = `The data was filtered out due to the following failed filtering rules: ${this[_filterMessages].join('\n')}`
 
       // Reset the filterMessages list
       this[_filterMessages] = []
@@ -242,11 +240,10 @@ class JSON {
       this[_logger].error(errorDesc)
       throw new Error(errorDesc)
     } else {
-      this[_logger].warning(`The data was filtered out due to the following failed filtering rules: ${this[_filterMessages].join('\n')}`)
+      this[_logger].warn(`The data was filtered out due to the following failed filtering rules: ${this[_filterMessages].join('\n')}`)
 
       // Reset the filterMessages list
       this[_filterMessages] = []
-
     }
     return isJSONObjFiltered
   }

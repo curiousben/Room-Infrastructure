@@ -3,7 +3,8 @@
   "parserOptions": {
     "ecmaVersion": 2017,
     "ecmaFeatures": {
-      "impliedStrict": true
+      "impliedStrict": true,
+      "templateStrings": true
     }
   },
   "env": {
