@@ -1,7 +1,7 @@
 'user strict'
 
 /*
-* This class loads the Filter configuration and validates the confiuration
+* @Desc: This class loads the Filter configuration and validates the confiuration
 * @Author: Ben Smith
 * @Date: Sept 9th, 2018
 */
@@ -86,23 +86,23 @@ class FilterConfig {
 
     const acceptedValues = filterRule['acceptedValues']
     if (typeof acceptedValues !== 'object' || acceptedValues.constructor !== Array) {
-      const errorDesc = (acceptedValues) => `A Filter rule for the key ${key} has encountered '[${acceptedValues.join(', ')}]' for the acceptedValues. AcceptedValues can only be an Array.`
-      this[_logger].error(errorDesc(acceptedValues))
-      throw new Error(errorDesc(acceptedValues))
+      const errorDesc = (key, acceptedValues) => `A Filter rule for the key '${key}' has encountered '${acceptedValues}' for the acceptedValues. AcceptedValues can only be an Array.`
+      this[_logger].error(errorDesc(key, acceptedValues))
+      throw new Error(errorDesc(key, acceptedValues))
     }
 
     const pathToKey = filterRule['pathToKey']
     if (typeof pathToKey !== 'object' || pathToKey.constructor !== Array) {
-      const errorDesc = (pathToKey) => `A Filter rule for the key ${key} has encountered '[${pathToKey.join(', ')}]' for the pathToKey. LocationOfData can only be an Array.`
-      this[_logger].error(errorDesc(pathToKey))
-      throw new Error(errorDesc(pathToKey))
+      const errorDesc = (key, pathToKey) => `A Filter rule for the key '${key}' has encountered '${pathToKey}' for the pathToKey. PathToKey can only be an Array.`
+      this[_logger].error(errorDesc(key, pathToKey))
+      throw new Error(errorDesc(key, pathToKey))
     }
 
     const typeOfMatch = filterRule['typeOfMatch']
     if (typeof typeOfMatch !== 'string' && !(typeOfMatch instanceof String)) {
-      const errorDesc = (typeOfMatch) => `A Filter rule for the key ${key} has encountered '[${typeOfMatch.join(', ')}]' for the typeOfMatch .TypeOfMatch can only be a String.`
-      this[_logger].error(errorDesc(typeOfMatch))
-      throw new Error(errorDesc(typeOfMatch))
+      const errorDesc = (key, typeOfMatch) => `A Filter rule for the key '${key}' has encountered '${typeOfMatch}' for the typeOfMatch .TypeOfMatch can only be a String.`
+      this[_logger].error(errorDesc(key, typeOfMatch))
+      throw new Error(errorDesc(key, typeOfMatch))
     }
 
     return filterRule

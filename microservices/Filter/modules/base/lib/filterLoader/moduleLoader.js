@@ -1,10 +1,10 @@
 'use strict'
 
 /*
- *
- * This module creates a factory where new handler instances can be created
+ * @Desc: his module creates a factory where new handler instances can be created
  *   with no need to pass in configuration from outside of the module.
- *
+ * @Author: Ben Smith
+ * @Date: Sept 15th, 2018
 */
 
 // Import modules
@@ -57,7 +57,7 @@ class ModuleLoader {
     this[_typeOfModules] = typeOfModules
 
     // Resolves to the directory where the modules are
-    const moduleDir = `${__dirname}/${this[_typeOfModules]}`
+    const moduleDir = `${__dirname}/${this[_typeOfModules]}/`
 
     // Gets the module Javascript file names
     const jsModulesFiles = await this[_getJSModuleFiles](moduleDir)

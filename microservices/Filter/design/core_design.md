@@ -3,16 +3,14 @@
 This markdown file documents the thoughts and assumptions about the design for the Filter microservice. This is subject to change based on limititations encountered when implimenting the design.
 
 ## Core Design:
-1. Read RedisMQ and Filter config file
-2. Initialize RedisMQ subscriber and publisher
+1. Read AMQP and Filter config file
+2. Initialize AMQP subscriber and publisher
 3. Listen to Subscriber queue
 4. Receive JSON message
 5. Compares message's content based on configurations.
-6. If message contains an accepted value:
-  - Perform logic for case 1
-7. If message does not contain an accepted value:
-  - Perform logic for case 2
-8. Repeat 3
+6. For each filter rule that is configured parse the message and check if the any filter rule is true
+  - If so, Filter out message
+  - else , Don't filter out mesasge
 
 ## Message Payload
 
@@ -35,25 +33,30 @@ _Example:_
   }
 }
 ```
-With this message payload the Filter will know from configuration how deep and where to go in the JSON message to get the value it needs to filter out.
+With this message payload the Filter will know from configuration how deep and where to go in the JSON message to get the value it needs use to see if the whole messages needs to be filtered out.
 
 ## Configuration
 - Type: JSONObject
-- Notes: 
-  - value: This array holds the possible values that the key in the JSObject that are not being filtered out.
-  - location: This array holds the position sensitive location of the key.
-  - typeOfMatch: This option determines to what degree the data must match with the accepted values to filter out the message. ("exact" or "partial")
-  - If there are mutliple keys only if all keys exist and have values that match values in the acceptedValues array will the message not be filtered out.
+- Configurations: 
+  - key: This is the data key that hols the data that needs to be compared
+  - pathToKey: This array holds the position sensitive location of the key.
+  - typeOfMatch: This option determines to what degree the data must match with the accepted values to filter out the message. ("exact" or "greaterThan")
+  - acceptedValues: This array holds the possible values that the key in the JSObject that are not being filtered out.
+- Note:
+  - If there are mutliple keys the data will need to fail all of the filterRules if it is not be filtered out. If any rule is true then the whole message is filtered out.
 
 ```js
 {
-  "data": {
-    "<key>": {
-      "acceptedValues": [],
-      "location": [],
-      "typeOfMatch": ""
+  "shouldThrowError": false,
+  "typeOfModule": "",
+  "filterRules": [
+    {
+      "key":"",
+      "pathToKey": [],
+      "typeOfMatch": "",
+      "acceptedValues": []
     }
-  }
+  ]
 }
 ```
 
@@ -72,6 +75,8 @@ When filtering a couple of questions comes to mind what should I be filtered? Wh
 Due to overhead looking through multi-deminsional objects only comparing strings and numbers makes filtering easier. There is a in-built javascript function includes() for sub-strings and "===" for exact comparison for strings and numbers.
 
 - Filtering results will only result in a binary outcome.
+  
+Since this microservice is not a transformer microservice we shouldn't modify any data so it naturally should be a true or false outcome when a processign a message.
 
 ## Future
 

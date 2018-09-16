@@ -1,7 +1,7 @@
 'user strict'
 
 /*
-* This Class is for filtering on the assumption that the payload is a JSON
+* @Desc: This Class is for filtering on the assumption that the payload is a JSON
 *   Object it will receive one filter rule and analyze the payload it
 *   recieves and store whether or not the payload needs to be filtered or
 *   not.
@@ -11,7 +11,7 @@
 
 // 'Private' class methods
 const _exactStringMatch = Symbol('exactStringMatch')
-const _partialMatch = Symbol('partialMatch')
+const _notExactStringMatch = Symbol('notExactStringMatch')
 const _exactNumberMatch = Symbol('exactNumberMatch')
 const _greaterThanMatch = Symbol('greaterThanMatch')
 const _lessThanMatch = Symbol('lessThanMatch')
@@ -53,21 +53,21 @@ class JSON {
 
   /*
   * Desc:
-  *   This method like the exact match but can match if a small portion of a possible
-  *     match matchs the data.
+  *   This method checks to the see if any data matchs the passed in needs to be
+  *     filtered out
   * Args:
   *   data - String - The string in question
   *   acceptedValues - Array[Strings] The potential strings the data can match with
   * Throws:
   *   Error - Any error that the indexOf can throw or other RunTimeExceptions
   */
-  async [_partialMatch] (data, acceptedValues) {
-    for (const possibleValue in acceptedValues) {
-      if (acceptedValues[possibleValue].indexOf(data) !== -1) {
-        return true
+  async [_notExactStringMatch] (data, acceptedValues) {
+    for (const index in acceptedValues) {
+      if (acceptedValues[index].indexOf(data) !== -1) {
+        return false
       }
     }
-    return false
+    return true
   }
 
   /*
@@ -76,16 +76,17 @@ class JSON {
   *     match with with the data.
   * Args:
   *   data - Number - The number in question
-  *   acceptedValues - Array[Number] The potential strings the data can match with
+  *   acceptedValues - Array[Number] The potential numbers the data can be equal to
   * Throws:
   *   Error - Any error that the Number class can throw or other RunTimeExceptions
   */
   async [_exactNumberMatch] (data, acceptedValues) {
-    if (Number(data) === Number(acceptedValues[0])) {
-      return true
-    } else {
-      return false
+    for (const index in acceptedValues) {
+      if (Number(data) === Number(acceptedValues[index])) {
+        return true
+      }
     }
+    return false
   }
 
   /*
@@ -93,16 +94,17 @@ class JSON {
   *   This method check to see if the passed in number is greater than the accepted value
   * Args:
   *   data - Number - The number in question
-  *   acceptedValues - Array[Number] The potential strings the data can match with
+  *   acceptedValues - Array[Number] The potential numbers the data can be greater than
   * Throws:
   *   Error - Any error that the Number class can throw or other RunTimeExceptions
   */
   async [_greaterThanMatch] (data, acceptedValues) {
-    if (Number(data) > Number(acceptedValues[0])) {
-      return true
-    } else {
-      return false
+    for (const index in acceptedValues) {
+      if (Number(data) > Number(acceptedValues[index])) {
+        return true
+      }
     }
+    return false
   }
 
   /*
@@ -110,16 +112,17 @@ class JSON {
   *   This method check to see if the passed in number is less than the accepted value
   * Args:
   *   data - Number - The number in question
-  *   acceptedValues - Array[Number] The potential strings the data can match with
+  *   acceptedValues - Array[Number] The potential numbers the data can be less than
   * Throws:
   *   Error - Any error that the Number class can throw or other RunTimeExceptions
   */
   async [_lessThanMatch] (data, acceptedValues) {
-    if (Number(data) < Number(acceptedValues[0])) {
-      return true
-    } else {
-      return false
+    for (const index in acceptedValues) {
+      if (Number(data) < Number(acceptedValues[index])) {
+        return true
+      }
     }
+    return false
   }
 
   /*
@@ -144,10 +147,16 @@ class JSON {
     const typeOfMatch = arguments[3]
     const acceptedValues = arguments[4]
 
+    /*
+    * Searchs for the data key using the pathToKey Array as a path
+    *   to search for data
+    */
     for (const key in pathToKey) {
       data = data[pathToKey[key]]
       if (data === undefined) {
-        throw new Error(`The value '${pathToKey[key]}' does not exist at the path '${pathToKey.join(' -> ')}' in the payload`)
+        const errorDesc = (pathToKey, key) => `The key '${pathToKey[key]}' does not exist at the path '${pathToKey.join(' -> ')}' in the payload`
+        this[_logger].error(errorDesc(pathToKey, key))
+        throw new Error(errorDesc(pathToKey, key))
       }
     }
 
@@ -156,59 +165,38 @@ class JSON {
       case 'exactString':
         isFiltered = await this[_exactStringMatch](data, acceptedValues)
         if (isFiltered) {
-          this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${key}' at the location in the 
-                                      data '${pathToKey.join(' -> ')}' was not an 
-                                      exact match to the accepted string value(s) 
-                                      '${acceptedValues.join(', ')}'`)
+          this[_filterMessages].push(`The value '${data}' that was encountered for the key '${key}' at the location in the data '${pathToKey.join(' -> ')}' was not an exact match to the accepted string value(s) '${acceptedValues.join(', ')}'`)
         }
         break
-      case 'partial':
-        isFiltered = await this[_partialMatch](data, acceptedValues)
+      case 'notExactString':
+        isFiltered = await this[_notExactStringMatch](data, acceptedValues)
         if (isFiltered) {
-          this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${key}' at the location 
-                                      '${pathToKey.join(' -> ')}' was not an partial 
-                                      match to the accepted value(s) 
-                                      '${acceptedValues.join(', ')}'`)
+          this[_filterMessages].push(`The value '${data}' that was encountered for the key '${key}' at the location '${pathToKey.join(' -> ')}' was a match when the only accepted value(s) is/are '${acceptedValues.join(', ')}'`)
         }
         break
       case 'exactNumber':
         isFiltered = await this[_exactNumberMatch](data, acceptedValues)
         if (isFiltered) {
-          this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${key}' at the location in the 
-                                      data '${pathToKey.join(' -> ')}' was not equal 
-                                      than the accepted number value 
-                                      '${acceptedValues[0]}'`)
+          this[_filterMessages].push(`The value '${data}' that was encountered for the key '${key}' at the location in the data '${pathToKey.join(' -> ')}' was not equal than the accepted number value '${acceptedValues[0]}'`)
         }
         break
       case 'greaterThan':
         isFiltered = await this[_greaterThanMatch](data, acceptedValues)
         if (isFiltered) {
-          this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${key}' at the location in the 
-                                      data '${pathToKey.join(' -> ')}' was not greater 
-                                      than the accepted value '${acceptedValues[0]}'`)
+          this[_filterMessages].push(`The value '${data}' that was encountered for the key '${key}' at the location in the data '${pathToKey.join(' -> ')}' was not greater than the accepted value '${acceptedValues[0]}'`)
         }
         break
       case 'lessThan':
         isFiltered = await this[_lessThanMatch](data, acceptedValues)
         if (isFiltered) {
-          this[_filterMessages].push(`The value '${data}' that was encountered for 
-                                      the key '${key}' at the location in the 
-                                      data '${pathToKey.join(' -> ')}' was not less 
-                                      than the accepted value '${acceptedValues[0]}'`)
+          this[_filterMessages].push(`The value '${data}' that was encountered for the key '${key}' at the location in the data '${pathToKey.join(' -> ')}' was not less than the accepted value '${acceptedValues[0]}'`)
         }
         break
       default:
-        throw new Error(`The 'typeOfMatch' - '${typeOfMatch}' in the 
-                        configuration for the filtering of the key 
-                        '${key}' is not a recognized 
-                        configuration value`)
+        throw new Error(`The 'typeOfMatch' - '${typeOfMatch}' in the configuration for the filtering of the key '${key}' is not a recognized configuration value`)
     }
 
-    // If one rule fails then the payload should be filtered out
+    // If one rule fails then the payload should not be filtered out
     if (isFiltered && !this[_isJSONObjFiltered]) {
       this[_isJSONObjFiltered] = true
     }
@@ -232,13 +220,14 @@ class JSON {
     // If the Message payload should be filtered out and
     // an error should be thrown.
     if (isJSONObjFiltered && this[_shouldThrowError]) {
-      const errorDesc = `The data was filtered out due to the following failed filtering rules: ${this[_filterMessages].join('\n')}`
+      const filterMessages = this[_filterMessages]
+      const errorDesc = (filterMessages) => `The data was filtered out due to the following failed filtering rules: ${filterMessages}`
 
       // Reset the filterMessages list
       this[_filterMessages] = []
 
-      this[_logger].error(errorDesc)
-      throw new Error(errorDesc)
+      this[_logger].error(errorDesc(filterMessages))
+      throw new Error(errorDesc(filterMessages))
     } else {
       this[_logger].warn(`The data was filtered out due to the following failed filtering rules: ${this[_filterMessages].join('\n')}`)
 

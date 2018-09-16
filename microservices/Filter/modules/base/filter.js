@@ -1,15 +1,14 @@
 'use strict'
 
 /*
-*
-*
-*
-*
-*
+* @Desc: This Module pulls together all of the Filter submodules and
+*     acts as an interface to using the Filter Library
+* @Author: Ben Smith
+* @Date: Sept 16th, 2018
 */
 
-const FilterLoader = require('./filterLoader/moduleLoader.js')
-const Configuration = require('./configuration/FilterConfig.js')
+const FilterLoader = require('./lib/filterLoader/moduleLoader.js')
+const Configuration = require('./lib/configuration/FilterConfig.js')
 
 // 'Private' variables
 const _logger = Symbol('logger')
