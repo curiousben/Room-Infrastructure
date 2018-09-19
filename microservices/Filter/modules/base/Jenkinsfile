@@ -1,5 +1,6 @@
 pipeline {
     agent none
+
     stages {
         stage('Install and Test Filter') {
             agent {
@@ -21,6 +22,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Filter Microservice') {
             agent {
                 dockerfile {
