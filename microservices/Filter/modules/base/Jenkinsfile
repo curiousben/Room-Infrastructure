@@ -23,6 +23,8 @@ pipeline {
                 }
             }
         }
+    }
+    stages {
         stage('Build Filter Microservice') {
             agent {
                 dockerfile {
