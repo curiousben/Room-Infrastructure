@@ -12,12 +12,12 @@ pipeline {
             stages{
                 stage('Install') {
                     steps {
-                        bash 'npm install --only=dev'
+                        sh 'npm install --only=dev'
                     }
                 }
                 stage('Test') {
                     steps {
-                        bash 'npm test'
+                        sh 'npm test'
                     }
                 }
             }
@@ -32,7 +32,7 @@ pipeline {
                 }
             }
             steps {
-                bash "echo Done"
+                sh "echo Done"
             }
         }
     }
