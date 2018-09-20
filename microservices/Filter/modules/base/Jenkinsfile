@@ -31,6 +31,9 @@ pipeline {
                   additionalBuildArgs '-t curiousben/filter:v2.0'
                 }
             }
+            steps {
+                bash "echo Done"
+            }
         }
     }
 }
