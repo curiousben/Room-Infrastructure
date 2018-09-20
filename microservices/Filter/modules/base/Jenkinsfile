@@ -9,15 +9,17 @@ pipeline {
             environment {
                 CI = 'true'
             }
-            stages{
-                stage('Install') {
-                    steps {
-                        sh 'npm install --only=dev'
+            dir('./microservices/Filter/modules/base/'){
+                stages{
+                    stage('Install') {
+                        steps {
+                            sh 'npm install --only=dev'
+                        }
                     }
-                }
-                stage('Test') {
-                    steps {
-                        sh 'npm test'
+                    stage('Test') {
+                        steps {
+                            sh 'npm test'
+                        }
                     }
                 }
             }
