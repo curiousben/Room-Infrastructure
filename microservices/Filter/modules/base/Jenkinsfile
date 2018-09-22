@@ -19,10 +19,6 @@ pipeline {
                     steps {
                         dir(microservicePath) {
                             sh 'npm install --only=dev'
-                        }
-                    }
-                    steps {
-                        dir(microservicePath) {
                             sh 'npm test'
                         }
                     }
