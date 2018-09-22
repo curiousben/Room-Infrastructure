@@ -34,7 +34,8 @@ pipeline {
         stage('Build Filter Microservice') {
             agent {
                 node {
-                    customWorkspace microservicePath                        
+                    label 'Build path for the Microservice'
+                    customWorkspace microservicePath
                 }
             }
             steps {
