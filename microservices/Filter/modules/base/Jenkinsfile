@@ -11,7 +11,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:8.12.0-jessie'
-                    customWorkspace './microservices/Filter/modules/base/'
+                    customWorkspace 'microservices/Filter/modules/base/'
                 }
             }
             environment {
