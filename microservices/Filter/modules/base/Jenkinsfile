@@ -11,7 +11,7 @@ pipeline {
             agent {
                 docker {
                     image 'node:8.12.0-jessie'
-                    customWorkspace microservicePath
+                    customWorkspace './microservices/Filter/modules/base/'
                 }
             }
             environment {
@@ -35,7 +35,7 @@ pipeline {
             agent {
                 node {
                     label 'Build path for the Microservice'
-                    customWorkspace microservicePath
+                    customWorkspace './microservices/Filter/modules/base/'
                 }
             }
             steps {
