@@ -1,0 +1,3 @@
+FROM alpine:latest
+ARG HELLOWORLD=HELLOWORLD
+RUN echo "${HELLOWORLD}"

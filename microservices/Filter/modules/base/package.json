@@ -7,7 +7,7 @@
   "license": "MIT",
   "main": "./filter.js",
   "scripts": {
-    "test": "./scripts/testCoreJS.sh"
+    "test": "./npmScripts/testCoreJS.sh"
   },
   "devDependencies": {
     "chai": "^4.1.2",

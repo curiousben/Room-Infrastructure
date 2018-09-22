@@ -1,6 +1,11 @@
 pipeline {
     agent none
 
+    environment {
+      microservicePath = './microservices/Filter/modules/base/'
+      version = '1.0'
+    }
+
     stages {
         stage('Install and Test Filter') {
             agent {
@@ -12,14 +17,14 @@ pipeline {
             stages{
                 stage('Install') {
                     steps {
-                        dir('./microservices/Filter/modules/base/') {
+                        dir(microservicePath) {
                             sh 'npm install --only=dev'
                         }
                     }
                 }
                 stage('Test') {
                     steps {
-                        dir('./microservices/Filter/modules/base/') {
+                        dir(microservicePath) {
                             sh 'npm test'
                         }
                     }
@@ -29,6 +34,16 @@ pipeline {
 
         stage('Build Filter Microservice') {
             agent {
+              none
+            }
+            steps {
+                dir(microservicePath) {
+                    bash './buildCoreJS.sh ${version}'
+                }
+            }
+        }
+        stage('Build Filter Microservice') {
+            agent {
                 dockerfile {
                   filename 'Dockerfile'
                   dir './microservices/Filter/modules/base/docker/1.0'
@@ -36,7 +51,7 @@ pipeline {
                 }
             }
             steps {
-                sh "echo Done"
+                bash "echo Done"
             }
         }
     }
