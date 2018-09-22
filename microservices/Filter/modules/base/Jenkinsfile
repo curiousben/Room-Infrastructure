@@ -33,16 +33,14 @@ pipeline {
         }
 
         stage('Build Filter Microservice') {
-            agent {
-              none
-            }
+            agent none
             steps {
                 dir(microservicePath) {
                     bash './buildCoreJS.sh ${version}'
                 }
             }
         }
-        stage('Build Filter Microservice') {
+        stage('Build Docker Image') {
             agent {
                 dockerfile {
                   filename 'Dockerfile'
