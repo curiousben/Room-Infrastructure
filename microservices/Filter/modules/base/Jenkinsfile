@@ -18,6 +18,8 @@ pipeline {
                 stage('Install') {
                     steps {
                         dir(microservicePath) {
+                            sh 'ls -alrt'
+                            sh 'which npm'
                             sh 'npm install --only=dev'
                         }
                     }
