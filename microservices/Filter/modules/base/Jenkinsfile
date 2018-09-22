@@ -18,14 +18,14 @@ pipeline {
                 stage('Install') {
                     steps {
                         dir(microservicePath) {
-                            bash 'npm install --only=dev'
+                            sh 'npm install --only=dev'
                         }
                     }
                 }
                 stage('Test') {
                     steps {
                         dir(microservicePath) {
-                            bash 'npm test'
+                            sh 'npm test'
                         }
                     }
                 }
@@ -36,7 +36,7 @@ pipeline {
             agent none
             steps {
                 dir(microservicePath) {
-                    bash './buildCoreJS.sh ${version}'
+                    sh './buildCoreJS.sh ${version}'
                 }
             }
         }
@@ -49,7 +49,7 @@ pipeline {
                 }
             }
             steps {
-                bash "echo Done"
+                sh "echo Done"
             }
         }
     }
