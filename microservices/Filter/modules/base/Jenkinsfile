@@ -15,16 +15,12 @@ pipeline {
                 CI = 'true'
             }
             stages{
-                stage('Install') {
+                stage('Install and Test') {
                     steps {
                         dir(microservicePath) {
-                            sh 'ls -alrt'
-                            sh 'which npm'
                             sh 'npm install --only=dev'
                         }
                     }
-                }
-                stage('Test') {
                     steps {
                         dir(microservicePath) {
                             sh 'npm test'
