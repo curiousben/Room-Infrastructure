@@ -9,8 +9,10 @@ pipeline {
     stages {
         stage('Install and Test Filter') {
             agent {
-                docker 'node:8.12.0-jessie'
-                customWorkspace microservicePath
+                docker {
+                    image 'node:8.12.0-jessie'
+                    customWorkspace microservicePath
+                }
             }
             environment {
                 CI = 'true'
@@ -32,11 +34,13 @@ pipeline {
         stage('Build Filter Microservice') {
             agent {
                 node {
-                    customWorkspace microservicePath
+                    customWorkspace microservicePath                        
                 }
             }
             steps {
-                sh './buildCoreJS.sh ${version}'
+                dir(microservicePath) {
+                    sh './buildCoreJS.sh ${version}'
+                }
             }
         }
         stage('Build Docker Image') {
