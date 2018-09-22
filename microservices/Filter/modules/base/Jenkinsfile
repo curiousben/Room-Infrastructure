@@ -18,14 +18,14 @@ pipeline {
                 stage('Install') {
                     steps {
                         dir(microservicePath) {
-                            sh 'npm install --only=dev'
+                            bash 'npm install --only=dev'
                         }
                     }
                 }
                 stage('Test') {
                     steps {
                         dir(microservicePath) {
-                            sh 'npm test'
+                            bash 'npm test'
                         }
                     }
                 }
