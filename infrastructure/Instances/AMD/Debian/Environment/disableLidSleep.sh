@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -eo pipefail
 
 echo "---- Checking to see if ran as root"
 if [ $USER != "root" ]

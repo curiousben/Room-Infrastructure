@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eo
 
+## Sets the variables of the configuration file
 configBase="${RABBITMQ_CONFIG_FILE:-/etc/rabbitmq/rabbitmq}"
 oldConfigFile="$configBase.config"
 newConfigFile="$configBase.conf"
@@ -21,6 +22,7 @@ sed_escape_rhs() {
   echo "$@" | sed -e 's/[\/&]/\\&/g'
 }
 
+## Makes modifications to the RabbitMQ configuration file
 rabbit_set_config() {
   local key="$1"; shift
   local val="$1"; shift
@@ -37,6 +39,7 @@ rabbit_set_config() {
   fi
 }
 
+## Sets the comment or name of configuration
 rabbit_comment_config() {
   local key="$1"; shift
 
@@ -49,9 +52,9 @@ rabbit_comment_config() {
 }
 
 
-
+## Command so the node joins an already existing cluster
 if [ "${RABBITMQ_HEAD_NODE:-}" ]; then
-  rabbitmqctl join_cluster ${RABBITMQ_HEAD_NODE}
+  rabbitmqctl join_cluster "${RABBITMQ_HEAD_NODE}"
 fi
 
 # https://www.rabbitmq.com/memory.html#memsup-usage
@@ -113,7 +116,7 @@ if [ "${RABBITMQ_ERLANG_COOKIE:-}" ]; then
   chmod 600 "$cookieFile"
 fi
 
-
+## Loads the environment variables based configurations
 rabbit_env_config() {
   local prefix="$1"; shift
 
@@ -149,6 +152,8 @@ rabbit_env_config() {
   done
 }
 
+## Loads the Env configuration keys
 rabbit_env_config '' "${rabbitConfigKeys[@]}"
 
+## Starts the RabbitMQ Server
 exec rabbitmq-server

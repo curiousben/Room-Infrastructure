@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
 
 echo "----INFO: Checking to see if the SSH service is running"
 if [ $(systemctl is-active ssh) != "active" ]
